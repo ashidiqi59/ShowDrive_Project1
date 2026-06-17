@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShowDrive - Sistem Manajemen Showroom Otomotif Premium</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter (Sederhana & Modern) & Playfair Display (Luxury & Klasik) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;950&family=Playfair+Display:ital,wght@0,500;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- FontAwesome untuk Ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        luxury: {
+                            gold: '#D4AF37',
+                            goldHover: '#AA8417',
+                            goldLight: '#F3E5AB',
+                            darkBg: '#09090b',
+                            cardBg: '#121214',
+                            border: '#222225'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #09090b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #222225;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #D4AF37;
+        }
+        .text-glow {
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+            }
+            .print-card {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+                border: 1px solid #000000 !important;
+                box-shadow: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-luxury-darkBg text-zinc-100 min-h-screen flex flex-col justify-between selection:bg-luxury-gold selection:text-black">
+
+    <!-- PLATFORM DEMO SWITCHER BAR (No-Print) -->
+    <div class="no-print bg-zinc-900 border-b border-luxury-gold/20 py-2.5 px-6 text-xs flex flex-col sm:flex-row justify-between items-center z-[100] sticky top-0 gap-3">
+        <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-luxury-gold animate-ping"></span>
+            <span class="text-[10px] tracking-[0.2em] text-zinc-400 font-extrabold uppercase">Sandbox Proyek 1 (Aris & Fathoni)</span>
+        </div>
+        <div class="flex flex-wrap gap-2">
+            <button onclick="navigateTo('home')" class="text-zinc-300 hover:text-white px-3 py-1.5 bg-black/60 hover:bg-black border border-zinc-800 rounded text-[10px] font-bold tracking-wider transition-all">
+                <i class="fa-solid fa-car text-luxury-gold mr-1.5"></i> KATALOG PUBLIK
+            </button>
+            <button onclick="directToDashboard()" class="text-zinc-300 hover:text-white px-3 py-1.5 bg-luxury-gold/10 hover:bg-luxury-gold hover:text-black border border-luxury-gold/30 rounded text-[10px] font-bold tracking-wider transition-all">
+                <i class="fa-solid fa-user-gear text-luxury-gold mr-1.5"></i> PORTAL ADMIN & KEUANGAN
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN HEADER & NAVIGATION (No-Print) -->
+    <header class="no-print bg-black/95 backdrop-blur-md border-b border-zinc-900 py-4.5 z-40 relative">
+        <div class="max-w-7xl mx-auto px-6 flex justify-between items-center">
+            <!-- Logo Brand -->
+            <a href="#" onclick="navigateTo('home')" class="flex items-center gap-2.5 group">
+                <div class="w-9 h-9 bg-gradient-to-tr from-luxury-gold to-yellow-500 rounded-none flex items-center justify-center font-black text-black text-sm tracking-tighter">SD</div>
+                <span class="text-xl font-black tracking-[0.3em] text-white group-hover:text-luxury-gold transition-colors duration-300">
+                    SHOW<span class="text-luxury-gold">DRIVE</span>
+                </span>
+            </a>
+
+            <!-- Navigasi Utama -->
+            <nav class="hidden md:flex items-center space-x-10 text-xs font-bold tracking-[0.25em] text-zinc-400">
+                <a href="#" onclick="navigateTo('home')" id="nav-home" class="text-luxury-gold hover:text-white transition-all">INVENTORY</a>
+                <a href="#" onclick="navigateTo('booking-status')" id="nav-status" class="hover:text-white transition-all">CEK STATUS & KWITANSI</a>
+                <a href="#" onclick="navigateTo('admin-login')" id="nav-admin" class="border border-luxury-gold/50 text-luxury-gold hover:bg-luxury-gold hover:text-black transition-all px-5 py-2">ADMIN PANEL</a>
+            </nav>
+
+            <!-- Toggle Menu Seluler -->
+            <button onclick="toggleMobileMenu()" class="md:hidden text-zinc-400 hover:text-white focus:outline-none">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Menu Seluler -->
+        <div id="mobile-menu" class="hidden md:hidden bg-zinc-950 border-t border-zinc-900 mt-4 px-6 py-4 space-y-4 text-xs font-semibold tracking-[0.15em]">
+            <a href="#" onclick="navigateTo('home'); toggleMobileMenu()" class="block text-luxury-gold py-2">INVENTORY</a>
+            <a href="#" onclick="navigateTo('booking-status'); toggleMobileMenu()" class="block text-zinc-400 py-2">CEK STATUS & KWITANSI</a>
+            <a href="#" onclick="navigateTo('admin-login'); toggleMobileMenu()" class="block text-luxury-gold border border-luxury-gold/30 text-center py-2">ADMIN PANEL</a>
+        </div>
+    </header>
+
+    <!-- CONTENT WRAPPER -->
+    <main class="flex-grow">
+        
+        <!-- ================= Halaman 1: Katalog Publik ================= -->
+        <div id="view-home" class="view-section no-print">
+            <!-- Hero Banner Premium -->
+            <section class="relative h-[65vh] bg-cover bg-center flex items-center" style="background-image: linear-gradient(rgba(9,9,11,0.1), rgba(9,9,11,1)), url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1920&q=80');">
+                <div class="max-w-7xl mx-auto px-6 w-full relative z-10">
+                    <div class="inline-flex items-center gap-2 bg-black/50 border border-zinc-800 px-3.5 py-1.5 mb-5 rounded-none">
+                        <span class="w-2 h-2 rounded-full bg-luxury-gold animate-pulse"></span>
+                        <span class="text-[9px] font-bold tracking-[0.3em] text-zinc-300 uppercase">Proyek 1 TI-ULBI - Kelompok 18</span>
+                    </div>
+                    <h6 class="text-luxury-gold font-bold tracking-[0.4em] mb-4 text-xs md:text-sm uppercase">THE ART OF DRIVING</h6>
+                    <h1 class="text-4xl md:text-6xl lg:text-7xl font-black mb-6 leading-none tracking-tight font-sans">FIND YOUR<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-white via-zinc-400 to-luxury-gold">MASTERPIECE</span></h1>
+                    <p class="text-zinc-400 max-w-xl text-xs md:text-sm leading-relaxed mb-8 font-light">Platform kurasi supercar mewah dengan penegasan transparansi nomor rangka (VIN) dan pelaporan finansial yang akurat serta kredibel.</p>
+                    <a href="#catalog-section" class="inline-block border border-luxury-gold text-luxury-gold font-bold hover:bg-luxury-gold hover:text-black px-8 py-3.5 tracking-[0.2em] text-[10px] transition-all duration-300">JELAJAHI UNIT</a>
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-t from-luxury-darkBg via-transparent to-black/30"></div>
+            </section>
+
+            <!-- Grid Katalog -->
+            <section id="catalog-section" class="max-w-7xl mx-auto px-6 py-20">
+                <div class="flex flex-col md:flex-row md:justify-between md:items-end mb-12 border-b border-zinc-900 pb-6 gap-4">
+                    <div>
+                        <span class="text-luxury-gold font-bold tracking-[0.2em] text-xs block mb-1">PROYEK 1 FONDASI</span>
+                        <h2 class="text-2xl md:text-3xl font-light tracking-[0.3em]">UNIT KENDARAAN</h2>
+                    </div>
+                    <!-- Filter Reaktif -->
+                    <div class="relative w-full md:w-80">
+                        <span class="absolute inset-y-0 left-3 flex items-center text-zinc-500">
+                            <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                        </span>
+                        <input type="text" id="searchInput" onkeyup="filterCars()" placeholder="Cari Model, Brand, atau VIN..." class="w-full bg-zinc-950 border border-zinc-800 text-xs p-3.5 pl-10 focus:border-luxury-gold focus:outline-none tracking-wider text-zinc-300">
+                    </div>
+                </div>
+
+                <div id="cars-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Unit data dinonaktifkan / disisipkan via javascript -->
+                </div>
+            </section>
+        </div>
+
+        <!-- ================= Halaman 2: Rincian Unit / Detail ================= -->
+        <div id="view-detail" class="view-section hidden max-w-7xl mx-auto px-6 py-12 no-print">
+            <button onclick="navigateTo('home')" class="mb-10 inline-flex items-center gap-3 text-zinc-500 hover:text-luxury-gold font-bold tracking-[0.2em] text-[10px] transition-all">
+                <i class="fa-solid fa-arrow-left-long text-xs"></i> KEMBALI KE INVENTARIS
+            </button>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+                <!-- Gallery bodi -->
+                <div class="space-y-4">
+                    <div class="h-[450px] overflow-hidden border border-zinc-900 bg-zinc-950 relative">
+                        <img id="dt-main-img" src="" alt="Main Preview" class="w-full h-full object-cover">
+                        <span id="dt-status-badge" class="absolute top-4 left-4 bg-emerald-600 text-white font-bold text-[9px] px-3.5 py-1.5 uppercase tracking-[0.15em]">AVAILABLE</span>
+                    </div>
+                    <div class="grid grid-cols-4 gap-4">
+                        <button onclick="changeDetailImage(this.children[0].src)" class="border border-zinc-800 focus:border-luxury-gold overflow-hidden h-20 bg-zinc-950">
+                            <img id="dt-thumb-1" src="" class="w-full h-full object-cover opacity-65 hover:opacity-100 transition-all" alt="Thumb">
+                        </button>
+                        <button onclick="changeDetailImage(this.children[0].src)" class="border border-zinc-800 focus:border-luxury-gold overflow-hidden h-20 bg-zinc-950">
+                            <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover opacity-65 hover:opacity-100 transition-all" alt="Thumb">
+                        </button>
+                        <button onclick="changeDetailImage(this.children[0].src)" class="border border-zinc-800 focus:border-luxury-gold overflow-hidden h-20 bg-zinc-950">
+                            <img src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover opacity-65 hover:opacity-100 transition-all" alt="Thumb">
+                        </button>
+                        <button onclick="changeDetailImage(this.children[0].src)" class="border border-zinc-800 focus:border-luxury-gold overflow-hidden h-20 bg-zinc-950">
+                            <img src="https://images.unsplash.com/photo-1583121274602-3e2820c69888?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover opacity-65 hover:opacity-100 transition-all" alt="Thumb">
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Specs Sheet -->
+                <div class="flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-3 mb-3">
+                            <span id="dt-year" class="text-zinc-500 font-bold tracking-[0.2em] text-xs">YEAR</span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-luxury-gold"></span>
+                            <span id="dt-brand" class="text-luxury-gold font-bold tracking-[0.2em] text-xs">BRAND</span>
+                        </div>
+                        <h2 id="dt-model" class="text-3xl md:text-5xl font-extrabold mb-4 uppercase tracking-wide">MODEL NAME</h2>
+                        <h3 id="dt-price" class="text-xl md:text-2xl font-light text-zinc-300 tracking-wider mb-8">PRICE</h3>
+
+                        <div class="border-t border-zinc-900 pt-6 mt-6 space-y-4">
+                            <h4 class="font-bold text-xs tracking-[0.25em] text-zinc-300 uppercase mb-4">SPESIFIKASI DATA UNIT</h4>
+                            
+                            <div class="grid grid-cols-2 gap-y-6 border-b border-zinc-900 pb-6 text-xs tracking-wider">
+                                <div>
+                                    <span class="text-zinc-500 block mb-1">NOMOR RANGKA (VIN)</span>
+                                    <span id="dt-vin" class="font-bold text-white font-mono text-sm tracking-widest text-glow">VIN-NUMBER</span>
+                                </div>
+                                <div>
+                                    <span class="text-zinc-500 block mb-1">KAPASITAS MESIN</span>
+                                    <span id="dt-engine" class="font-semibold text-zinc-200">ENGINE</span>
+                                </div>
+                                <div>
+                                    <span class="text-zinc-500 block mb-1">TRANSMISI</span>
+                                    <span id="dt-trans" class="font-semibold text-zinc-200">TRANSMISSION</span>
+                                </div>
+                                <div>
+                                    <span class="text-zinc-500 block mb-1">WARNA BODY</span>
+                                    <span id="dt-color" class="font-semibold text-zinc-200">COLOR</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CTA Buttons -->
+                    <div class="mt-8 space-y-4">
+                        <button id="dt-btn-booking" onclick="triggerBookingModal()" class="w-full bg-luxury-gold hover:bg-luxury-goldHover text-black font-extrabold py-4.5 text-xs tracking-[0.2em] transition-all">
+                            JADWALKAN PERTEMUAN (INQUIRE)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= Halaman 3: Cek Status & Pembayaran Pelanggan ================= -->
+        <div id="view-booking-status" class="view-section hidden max-w-4xl mx-auto px-6 py-12 no-print">
+            <div class="text-center mb-10">
+                <span class="text-luxury-gold font-bold tracking-[0.3em] text-[10px] uppercase block mb-1">PELAYANAN MANDIRI</span>
+                <h2 class="text-3xl font-black tracking-wider">CEK RESERVASI & PEMBAYARAN</h2>
+                <div class="w-12 h-[2px] bg-luxury-gold mx-auto mt-3"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Form Pencarian Booking -->
+                <div class="bg-zinc-950 border border-zinc-900 p-6 h-fit">
+                    <h3 class="font-bold text-xs tracking-wider uppercase text-zinc-300 mb-4"><i class="fa-solid fa-search text-luxury-gold mr-1.5"></i> Lacak Nomor HP</h3>
+                    <div class="space-y-4">
+                        <p class="text-[11px] text-zinc-500">Masukkan No. WhatsApp yang didaftarkan untuk mengunggah bukti pembayaran atau mencetak Kwitansi.</p>
+                        <input type="tel" id="track-phone" placeholder="Contoh: 08123456789" class="w-full bg-zinc-900 border border-zinc-800 focus:border-luxury-gold text-white p-3 text-xs focus:outline-none">
+                        <button onclick="handleTrackBooking()" class="w-full bg-luxury-gold hover:bg-luxury-goldHover text-black font-bold py-3 text-xs tracking-wider transition-all">
+                            CARI RESERVASI
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Hasil Pencarian & Unggah Bukti Bayar -->
+                <div class="md:col-span-2 space-y-6">
+                    <div id="tracking-result-placeholder" class="bg-zinc-950 border border-zinc-900 p-8 text-center text-zinc-500 italic text-xs">
+                        Silakan cari berdasarkan nomor kontak di panel kiri untuk memuat data.
+                    </div>
+
+                    <div id="tracking-result-content" class="hidden space-y-6">
+                        <!-- Konten diisi dinamis oleh JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= Halaman 4: Admin Login Portal ================= -->
+        <div id="view-admin-login" class="view-section hidden max-w-md mx-auto px-6 py-24 no-print">
+            <div class="bg-zinc-950 border border-zinc-900 p-8 shadow-xl">
+                <div class="text-center mb-8">
+                    <span class="text-luxury-gold font-bold tracking-[0.3em] text-[10px] uppercase block mb-1">OPERASIONAL INTERNAL</span>
+                    <h3 class="text-2xl font-black tracking-[0.2em]">ADMIN PORTAL</h3>
+                    <div class="w-12 h-[2px] bg-luxury-gold mx-auto mt-3"></div>
+                </div>
+                
+                <form onsubmit="handleAdminLogin(event)" class="space-y-6">
+                    <div>
+                        <label class="block text-zinc-500 text-[10px] font-bold tracking-wider uppercase mb-2">Username Admin</label>
+                        <input type="text" id="admin-user" value="admin" class="w-full bg-zinc-900/50 border border-zinc-800 focus:border-luxury-gold focus:ring-1 focus:ring-luxury-gold text-white p-3 text-xs focus:outline-none" required>
+                    </div>
+                    <div>
+                        <label class="block text-zinc-500 text-[10px] font-bold tracking-wider uppercase mb-2">Kata Sandi</label>
+                        <input type="password" id="admin-pass" value="admin" class="w-full bg-zinc-900/50 border border-zinc-800 focus:border-luxury-gold focus:ring-1 focus:ring-luxury-gold text-white p-3 text-xs focus:outline-none" required>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-luxury-gold hover:bg-luxury-goldHover text-black font-extrabold py-3.5 text-xs tracking-[0.2em] uppercase transition-all">
+                        LOG IN SYSTEM
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ================= Halaman 5: Admin Control Panel Dashboard ================= -->
+        <div id="view-admin-dashboard" class="view-section hidden max-w-7xl mx-auto px-6 py-12 no-print">
+            <!-- Header Panel -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center pb-8 border-b border-zinc-900 gap-4 mb-10">
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                        <span class="text-zinc-500 text-[10px] tracking-[0.25em] font-bold uppercase">DATABASE LIVE</span>
+                    </div>
+                    <h2 class="text-3xl font-black tracking-wider">SHOWDRIVE CONTROL PANEL</h2>
+                    <p class="text-zinc-500 text-xs mt-1">Sistem Terpusat Manajemen Stok, Transaksi Keuangan & Antrean Inspeksi</p>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="navigateTo('home')" class="bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white text-[10px] tracking-[0.15em] font-bold px-5 py-2.5 transition-all">
+                        KELUAR PANEL
+                    </button>
+                </div>
+            </div>
+
+            <!-- Analitika Box -->
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-12">
+                <div class="bg-zinc-950 border border-zinc-900 p-6">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-zinc-500 text-[10px] uppercase font-bold tracking-wider">Total Unit</span>
+                        <i class="fa-solid fa-car text-luxury-gold text-sm"></i>
+                    </div>
+                    <span id="stat-total-cars" class="text-2xl font-bold font-mono">0 Unit</span>
+                </div>
+                <div class="bg-zinc-950 border border-zinc-900 p-6">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-zinc-500 text-[10px] uppercase font-bold tracking-wider">Available</span>
+                        <i class="fa-solid fa-circle-check text-emerald-500 text-sm"></i>
+                    </div>
+                    <span id="stat-avail-cars" class="text-2xl font-bold font-mono text-emerald-400">0 Unit</span>
+                </div>
+                <div class="bg-zinc-950 border border-zinc-900 p-6">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-zinc-500 text-[10px] uppercase font-bold tracking-wider">Booked</span>
+                        <i class="fa-solid fa-calendar-days text-amber-500 text-sm"></i>
+                    </div>
+                    <span id="stat-booked-cars" class="text-2xl font-bold font-mono text-amber-400">0 Unit</span>
+                </div>
+                <div class="bg-zinc-950 border border-zinc-900 p-6">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-zinc-500 text-[10px] uppercase font-bold tracking-wider">Sold</span>
+                        <i class="fa-solid fa-tags text-red-500 text-sm"></i>
+                    </div>
+                    <span id="stat-sold-cars" class="text-2xl font-bold font-mono text-red-400">0 Unit</span>
+                </div>
+                <div class="bg-zinc-950 border border-zinc-900 p-6 col-span-1 md:col-span-1">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-zinc-500 text-[10px] uppercase font-bold tracking-wider">Dana Masuk</span>
+                        <i class="fa-solid fa-wallet text-emerald-400 text-sm"></i>
+                    </div>
+                    <span id="stat-incoming-cash" class="text-2xl font-bold font-mono text-emerald-400">IDR 0</span>
+                </div>
+            </div>
+
+            <!-- Panel CRUD & Financial Log -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                
+                <!-- Left: CRUD Table (Takes 2 Cols) -->
+                <div class="lg:col-span-2 space-y-10">
+                    <!-- Tabel Inventaris -->
+                    <div class="bg-zinc-950 border border-zinc-900 p-6">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
+                            <div>
+                                <h3 class="font-bold text-sm tracking-[0.2em] text-zinc-300 uppercase">DAFTAR INVENTARIS</h3>
+                                <p class="text-zinc-500 text-[10px]">Lakukan manajemen data kendaraan utama showroom.</p>
+                            </div>
+                            <span class="bg-zinc-900 text-zinc-400 text-[9px] font-bold px-3 py-1 rounded">Relational master_cars</span>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead class="bg-zinc-900/50 text-zinc-400 uppercase tracking-widest text-[10px] border-b border-zinc-900">
+                                    <tr>
+                                        <th class="p-4">KENDARAAN & SPEK</th>
+                                        <th class="p-4">VIN (UNIQUE)</th>
+                                        <th class="p-4">HARGA (IDR)</th>
+                                        <th class="p-4">STATUS</th>
+                                        <th class="p-4 text-right">AKSI</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-inventory-table" class="divide-y divide-zinc-900">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Laporan Keuangan (Financial Log) -->
+                    <div class="bg-zinc-950 border border-zinc-900 p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <div>
+                                <h3 class="font-bold text-sm tracking-[0.2em] text-zinc-300 uppercase">LAPORAN KEUANGAN & PEMBAYARAN</h3>
+                                <p class="text-zinc-500 text-[10px]">Log pencatatan verifikasi masuk, DP, pelunasan beserta bukti pembayaran.</p>
+                            </div>
+                            <span class="bg-emerald-950/40 text-emerald-400 border border-emerald-900/30 text-[9px] font-bold px-3 py-1 rounded">Financial Log</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead class="bg-zinc-900/50 text-zinc-400 uppercase tracking-widest text-[10px] border-b border-zinc-900">
+                                    <tr>
+                                        <th class="p-4">PELANGGAN</th>
+                                        <th class="p-4">UNIT KENDARAAN</th>
+                                        <th class="p-4">TIPE</th>
+                                        <th class="p-4">NOMINAL (IDR)</th>
+                                        <th class="p-4">VERIFIKASI BUKTI</th>
+                                        <th class="p-4 text-right">AKSI</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-financial-table" class="divide-y divide-zinc-900">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Form Input & Antrean Inspeksi -->
+                <div class="space-y-6">
+                    <!-- Form Tambah/Edit Mobil -->
+                    <div class="bg-zinc-950 border border-zinc-900 p-6">
+                        <h3 id="form-action-title" class="font-bold text-sm tracking-[0.2em] text-zinc-300 uppercase mb-4 border-b border-zinc-900 pb-3">
+                            <i class="fa-solid fa-plus text-luxury-gold mr-1.5"></i> INPUT UNIT BARU
+                        </h3>
+                        <form id="carForm" onsubmit="handleFormSubmit(event)" class="space-y-4 text-xs">
+                            <input type="hidden" id="form-edit-id" value="">
+                            
+                            <div>
+                                <label class="block text-zinc-500 font-bold uppercase tracking-wider mb-1">Merek (Brand)</label>
+                                <select id="form-brand" class="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 p-2.5 focus:border-luxury-gold focus:outline-none" required>
+                                    <option value="Porsche">Porsche</option>
+                                    <option value="Ferrari">Ferrari</option>
+                                    <option value="Chevrolet">Chevrolet</option>
+                                    <option value="BMW">BMW</option>
+                                    <option value="Toyota">Toyota</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-zinc-500 font-bold uppercase tracking-wider mb-1">Nama Model Kendaraan</label>
+                                <input type="text" id="form-model" placeholder="Contoh: 911 GT3 RS" class="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 p-2.5 focus:border-luxury-gold focus:outline-none" required>
+                            </div>
+                            <div>
+                                <label class="block text-zinc-500 font-bold uppercase tracking-wider mb-1">Nomor Rangka (VIN - Unique)</label>
+                                <input type="text" id="form-vin" placeholder="17-Digit Alfanumerik" class="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 p-2.5 focus:border-luxury-gold focus:outline-none font-mono tracking-widest" required>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-zinc-500 font-bold uppercase tracking-wider mb-1">Tahun Unit</label>
+                                    <input type="number" id="form-year" value="2024" class="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 p-2.5 focus:border-luxury-gold focus:outline-none" required>
+                                </div>
+                                <div>
+                                    <label class="block text-zinc-500 font-bold uppercase tracking-wider mb-1">Warna Body</label>
+                                    <input type="text" id="form-color" placeholder="Shark Blue" class="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 p-2.5 focus:border-luxury-gold focus:outline-none" required>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-zinc-500 font-bold uppercase tracking-wider mb-1">Kapasitas Mesin</label>
+                                    <input type="text" id="form-engine" placeholder="4.0L Flat-6" class="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 p-2.5 focus:border-luxury-gold focus:outline-none" required>
+                                </div>
+                                <div>
+                                    <label class="block text-zinc-500 font-bold uppercase tracking-wider mb-1">Transmisi</label>
+                                    <input type="text" id="form-transmission" placeholder="7-Speed PDK" class="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 p-2.5 focus:border-luxury-gold focus:outline-none" required>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-zinc-500 font-bold uppercase tracking-wider mb-1">Harga Unit (IDR)</label>
+                                <input type="number" id="form-price" placeholder="Nilai Nominal Tanpa Titik" class="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 p-2.5 focus:border-luxury-gold focus:outline-none" required>
+                            </div>
+                            <div>
+                                <label class="block text-zinc-500 font-bold uppercase tracking-wider mb-1">Foto Sampul (Link URL)</label>
+                                <input type="text" id="form-image" value="https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?auto=format&fit=crop&w=600&q=80" class="w-full bg-zinc-900 border border-zinc-800 text-zinc-500 p-2.5 focus:border-luxury-gold focus:outline-none text-[10px]" required>
+                            </div>
+                            <div>
+                                <label class="block text-zinc-500 font-bold uppercase tracking-wider mb-1">Status Ketersediaan</label>
+                                <select id="form-status" class="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 p-2.5 focus:border-luxury-gold focus:outline-none">
+                                    <option value="Available">Available</option>
+                                    <option value="Booked">Booked</option>
+                                    <option value="Sold">Sold</option>
+                                </select>
+                            </div>
+
+                            <div class="flex gap-2">
+                                <button type="button" id="btn-cancel-edit" onclick="resetFormState()" class="hidden w-1/3 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 font-bold py-3 tracking-widest uppercase transition-colors">
+                                    Batal
+                                </button>
+                                <button type="submit" id="btn-submit-form" class="w-full bg-luxury-gold hover:bg-luxury-goldHover text-black font-extrabold py-3 tracking-widest uppercase transition-all">
+                                    SIMPAN DATA
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Antrean Inspeksi -->
+                    <div class="bg-zinc-950 border border-zinc-900 p-6">
+                        <div class="flex justify-between items-center mb-4 border-b border-zinc-900 pb-3">
+                            <h3 class="font-bold text-sm tracking-[0.2em] text-zinc-300 uppercase">
+                                <i class="fa-solid fa-calendar-check text-amber-500 mr-1.5"></i> ANTREAN INSPEKSI
+                            </h3>
+                            <span id="badge-total-bookings" class="bg-amber-950/60 border border-amber-900/50 text-amber-400 text-[9px] font-bold px-2 py-0.5 rounded-full">0</span>
+                        </div>
+                        <div id="booking-logs-container" class="space-y-3 max-h-96 overflow-y-auto pr-1">
+                            <!-- Dynamic rows -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= Halaman 6: Invoice Digital / Kwitansi (Siap Cetak) ================= -->
+        <div id="view-invoice-page" class="view-section hidden max-w-3xl mx-auto my-12 p-8 bg-white text-black shadow-2xl relative border-t-8 border-luxury-gold">
+            <!-- No-Print Back Button -->
+            <button onclick="navigateTo('booking-status')" class="no-print absolute -top-12 left-0 flex items-center gap-2 text-zinc-400 hover:text-white font-bold tracking-widest text-xs transition-colors">
+                <i class="fa-solid fa-arrow-left"></i> KEMBALI KE RIWAYAT STATUS
+            </button>
+            <button onclick="window.print()" class="no-print absolute -top-12 right-0 bg-luxury-gold text-black hover:bg-luxury-goldHover font-bold px-4 py-2 text-xs tracking-wider transition-all">
+                <i class="fa-solid fa-print mr-1"></i> CETAK DOKUMEN (PDF)
+            </button>
+
+            <!-- Brand Header Invoice -->
+            <div class="flex justify-between items-start border-b-2 border-zinc-100 pb-6 mb-6">
+                <div>
+                    <h1 class="text-3xl font-black tracking-widest text-zinc-900">SHOW<span class="text-luxury-gold">DRIVE</span></h1>
+                    <p class="text-xs text-zinc-500 font-semibold tracking-wider uppercase mt-1">Exclusive Luxury Showroom</p>
+                    <p class="text-[10px] text-zinc-400 mt-2">D4 Teknik Informatika - Universitas Logistik & Bisnis Internasional (ULBI)</p>
+                </div>
+                <div class="text-right">
+                    <h2 class="text-lg font-bold text-zinc-800 tracking-wider">KWITANSI RESMI</h2>
+                    <p class="text-[11px] font-mono text-zinc-500 mt-1" id="inv-code">SD-INV-000</p>
+                    <p class="text-[10px] text-zinc-400 mt-1" id="inv-date">Tanggal: -</p>
+                </div>
+            </div>
+
+            <!-- Customer & Vehicle Info -->
+            <div class="grid grid-cols-2 gap-8 mb-8 text-xs leading-relaxed">
+                <div>
+                    <h3 class="font-bold text-zinc-500 uppercase tracking-wider mb-2">DETAIL PELANGGAN:</h3>
+                    <p class="font-extrabold text-sm text-zinc-800" id="inv-cust-name">-</p>
+                    <p class="text-zinc-600 font-medium" id="inv-cust-phone">-</p>
+                </div>
+                <div>
+                    <h3 class="font-bold text-zinc-500 uppercase tracking-wider mb-2">DETAIL UNIT KENDARAAN:</h3>
+                    <p class="font-extrabold text-sm text-zinc-800" id="inv-car-model">-</p>
+                    <p class="text-zinc-600 font-mono tracking-wider" id="inv-car-vin">VIN: -</p>
+                    <p class="text-zinc-600 font-medium" id="inv-car-specs">-</p>
+                </div>
+            </div>
+
+            <!-- Invoice Item Table -->
+            <table class="w-full text-left text-xs mb-8">
+                <thead>
+                    <tr class="bg-zinc-50 border-b border-zinc-200 text-zinc-500 uppercase font-bold tracking-wider">
+                        <th class="p-3">Uraian Transaksi</th>
+                        <th class="p-3 text-right">Harga Unit</th>
+                        <th class="p-3 text-right">Total Bayar</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-zinc-100 text-zinc-700">
+                    <tr>
+                        <td class="p-3">
+                            <span class="font-bold text-zinc-900 block" id="inv-desc-type">-</span>
+                            <span class="text-[10px] text-zinc-400 block mt-1">Uang Jaminan Booking / Pelunasan Terhadap Unit Mobil</span>
+                        </td>
+                        <td class="p-3 text-right font-mono" id="inv-unit-price">-</td>
+                        <td class="p-3 text-right font-bold text-zinc-900 font-mono" id="inv-payment-amount">-</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Total Box & Payment Status Badge -->
+            <div class="flex justify-between items-end border-t border-zinc-200 pt-6">
+                <div>
+                    <span class="text-xs text-zinc-500 font-bold block mb-1">STATUS PEMBAYARAN:</span>
+                    <span id="inv-status-badge" class="px-4 py-1.5 font-black text-[10px] tracking-widest uppercase text-white bg-amber-600">PENDING</span>
+                </div>
+                <div class="text-right">
+                    <span class="text-zinc-400 text-xs font-bold uppercase tracking-wider">Jumlah Total Bayar:</span>
+                    <h3 class="text-2xl font-black text-zinc-900 font-mono mt-1" id="inv-total-final">IDR 0</h3>
+                </div>
+            </div>
+
+            <!-- Footer Invoice & Signatures -->
+            <div class="grid grid-cols-2 gap-12 mt-16 text-xs text-zinc-500 pt-8 border-t border-zinc-100">
+                <div>
+                    <h4 class="font-bold text-zinc-700 uppercase mb-2">SYARAT & KETENTUAN:</h4>
+                    <p class="leading-relaxed text-[10px]">1. Kuitansi ini sah jika pembayaran telah divalidasi dan dikonfirmasi lunas oleh sistem admin ShowDrive.<br>2. Jadwal serah terima diatur dalam kontrak perjanjian terpisah.</p>
+                </div>
+                <div class="text-center flex flex-col items-center">
+                    <p class="mb-12">Disahkan oleh,<br><strong>Manajemen Operasional ShowDrive</strong></p>
+                    <div class="w-24 h-[1px] bg-zinc-300"></div>
+                    <p class="text-[10px] mt-1 text-zinc-400">Aris & Fathoni - Authorized Partner</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER (No-Print) -->
+    <footer class="no-print bg-black border-t border-zinc-900 py-12 px-6">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 text-zinc-500 text-xs tracking-wider">
+            <div class="space-y-4">
+                <h4 class="text-white font-extrabold tracking-[0.25em] text-sm">SHOWDRIVE</h4>
+                <p class="font-light leading-relaxed text-zinc-500">Platform sistem informasi terintegrasi manajemen aset otomotif premium yang efisien, aman, dan mutakhir.</p>
+            </div>
+            <div class="space-y-3">
+                <h4 class="text-white font-extrabold tracking-[0.15em] text-xs">TI ULBI KELOMPOK 18</h4>
+                <p class="font-light">
+                    Muhammad Aris Ashidiqi (714250042)<br>
+                    Fathoni Abdul Jabbar (714250039)
+                </p>
+                <p class="text-zinc-600 text-[10px]">D4 Teknik Informatika - Universitas Logistik & Bisnis Internasional</p>
+            </div>
+            <div class="space-y-3 md:text-right">
+                <h4 class="text-white font-extrabold tracking-[0.15em] text-xs">DOSEN KOORDINATOR</h4>
+                <p class="font-light text-zinc-400">M. Yusril Helmi Setyawan, S.Kom., M.Kom.</p>
+                <p class="text-zinc-600 text-[10px]">&copy; 2026 ShowDrive System. Hak Cipta Dilindungi.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- INTERACTIVE MODAL: BOOKING FORM -->
+    <div id="booking-modal" class="no-print fixed inset-0 bg-black/95 backdrop-blur-sm flex items-center justify-center p-4 z-[100] hidden">
+        <div class="bg-zinc-950 border border-zinc-800 w-full max-w-md p-8 relative">
+            <button onclick="closeBookingModal()" class="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <h4 class="text-xl font-bold mb-1 tracking-wider uppercase">RESERVASI JADWAL TEMU</h4>
+            <p id="booking-modal-subtitle" class="text-zinc-500 text-[10px] uppercase tracking-wider mb-6">Merekondisi ketersediaan unit ke tabel booking</p>
+            
+            <form onsubmit="handleSubmitBooking(event)" class="space-y-4 text-xs">
+                <div>
+                    <label class="block text-zinc-500 font-bold uppercase tracking-wider mb-1">Nama Lengkap Pemohon</label>
+                    <input type="text" id="bk-name" placeholder="Contoh: Aris Ashidiqi" class="w-full bg-zinc-900 border border-zinc-800 focus:border-luxury-gold focus:outline-none text-white p-3" required>
+                </div>
+                <div>
+                    <label class="block text-zinc-500 font-bold uppercase tracking-wider mb-1">Nomor Kontak WhatsApp</label>
+                    <input type="tel" id="bk-phone" placeholder="Contoh: 08123456789" class="w-full bg-zinc-900 border border-zinc-800 focus:border-luxury-gold focus:outline-none text-white p-3" required>
+                </div>
+                <div>
+                    <label class="block text-zinc-500 font-bold uppercase tracking-wider mb-1">Pilih Tanggal Rencana Inspeksi</label>
+                    <input type="date" id="bk-date" class="w-full bg-zinc-900 border border-zinc-800 focus:border-luxury-gold focus:outline-none text-zinc-300 p-3" required>
+                </div>
+                
+                <div class="bg-zinc-900/40 p-3 border border-zinc-800 text-[10px] text-zinc-500 leading-normal">
+                    <i class="fa-solid fa-lock text-luxury-gold mr-1"></i> Data disimpan aman dalam tabel transaksi <strong>'bookings'</strong> dengan relasi Foreign Key ke tabel master mobil.
+                </div>
+
+                <button type="submit" class="w-full bg-luxury-gold hover:bg-luxury-goldHover text-black font-extrabold py-4 text-xs tracking-widest uppercase transition-colors mt-6">
+                    KIRIM PERMINTAAN TEMU
+                </button>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ================= JAVASCRIPT STATE MANAGEMENT & DATABASE SIMULATION ================= -->
+    <script>
+        // DATABASE IN-MEMORY STATE (Simulasi SQLite/MySQL tabel cars, bookings, dan payments)
+        let carsDatabase = [
+            {
+                id: 1,
+                brand: "Porsche",
+                model: "911 GT3 RS",
+                vin: "WP0ZZZ99ZLS123456",
+                year: 2024,
+                price: 4500000000,
+                status: "Available",
+                engine: "4.0L Flat-6 Naturally Aspirated",
+                transmission: "7-Speed PDK Automatic",
+                color: "Shark Blue",
+                image: "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: 2,
+                brand: "Chevrolet",
+                model: "Corvette C8",
+                vin: "1G1Y22D41P5109876",
+                year: 2023,
+                price: 2800000000,
+                status: "Available",
+                engine: "6.2L V8 DI Premium Engine",
+                transmission: "8-Speed Dual-Clutch Transmission",
+                color: "Torch Red",
+                image: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: 3,
+                brand: "Ferrari",
+                model: "488 Pista Coupe",
+                vin: "ZFF72AHA8K0234567",
+                year: 2021,
+                price: 8900000000,
+                status: "Booked",
+                engine: "3.9L Twin-Turbocharged V8",
+                transmission: "7-Speed Dual-Clutch F1 Style",
+                color: "Rosso Corsa Red",
+                image: "https://images.unsplash.com/photo-1583121274602-3e2820c69888?auto=format&fit=crop&w=800&q=80"
+            }
+        ];
+
+        let bookingsDatabase = [
+            {
+                id: 1,
+                customerName: "Mohammad Naufal",
+                phone: "08112233445",
+                carId: 3,
+                carModel: "Ferrari 488 Pista Coupe",
+                date: "2026-05-25",
+                status: "Pending", // Pending, Approved, Rejected
+                paymentStatus: "Unpaid", // Unpaid, Down Payment, Paid
+                paymentType: "None",
+                paidAmount: 0,
+                paymentProof: null
+            }
+        ];
+
+        let currentSelectedCar = null;
+
+        // INISIALISASI SAAT HALAMAN DIKILK
+        window.onload = function() {
+            renderCatalogue();
+            renderAdminDashboard();
+        }
+
+        // PENGATUR NAVIGASI TAB (SPA)
+        function navigateTo(viewId) {
+            document.querySelectorAll('.view-section').forEach(section => {
+                section.classList.add('hidden');
+            });
+
+            document.getElementById('view-' + viewId).classList.remove('hidden');
+
+            const navHome = document.getElementById('nav-home');
+            const navStatus = document.getElementById('nav-status');
+
+            if (navHome && navStatus) {
+                navHome.classList.remove('text-luxury-gold');
+                navStatus.classList.remove('text-luxury-gold');
+                
+                if (viewId === 'home' || viewId === 'detail') {
+                    navHome.classList.add('text-luxury-gold');
+                } else if (viewId === 'booking-status') {
+                    navStatus.classList.add('text-luxury-gold');
+                }
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function directToDashboard() {
+            navigateTo('admin-dashboard');
+            renderAdminDashboard();
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // PROSES MERENDER KATALOG
+        function renderCatalogue() {
+            const container = document.getElementById('cars-grid');
+            if (!container) return;
+            container.innerHTML = '';
+
+            carsDatabase.forEach(car => {
+                let badgeColor = 'bg-emerald-600';
+                if (car.status === 'Booked') {
+                    badgeColor = 'bg-amber-600';
+                } else if (car.status === 'Sold') {
+                    badgeColor = 'bg-red-700';
+                }
+                const formattedPrice = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(car.price);
+                
+                const cardHTML = `
+                    <div class="bg-zinc-950 border border-zinc-900 hover:border-zinc-700 transition-all duration-500 group overflow-hidden flex flex-col justify-between">
+                        <div class="h-64 overflow-hidden relative bg-zinc-900">
+                            <img src="${car.image}" alt="${car.model}" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700">
+                            <span class="absolute top-4 left-4 ${badgeColor} text-white font-bold text-[9px] px-3 py-1.5 uppercase tracking-wider rounded-none">${car.status}</span>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center gap-2 mb-1.5 text-[10px] font-bold tracking-wider text-zinc-500">
+                                <span>${car.year}</span>
+                                <span class="w-1 h-1 rounded-full bg-zinc-700"></span>
+                                <span>${car.brand.toUpperCase()}</span>
+                            </div>
+                            <h3 class="text-lg font-black mb-1 group-hover:text-luxury-gold transition-colors duration-300 uppercase tracking-wide">${car.brand} ${car.model}</h3>
+                            <p class="text-[11px] text-zinc-500 mb-6 font-mono tracking-widest">VIN: ${car.vin.substring(0, 12)}...</p>
+                            <div class="flex justify-between items-center pt-4 border-t border-zinc-900">
+                                <span class="text-luxury-gold font-bold text-base font-mono">${formattedPrice}</span>
+                                <button onclick="viewUnitDetail(${car.id})" class="border border-luxury-gold/40 hover:border-luxury-gold text-luxury-gold text-[10px] tracking-[0.15em] font-extrabold px-4 py-2 transition-all duration-300">
+                                    INQUIRE NOW
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += cardHTML;
+            });
+        }
+
+        // FILTER PENCARIAN REAKTIF
+        function filterCars() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = carsDatabase.filter(car => {
+                return car.model.toLowerCase().includes(query) || 
+                       car.brand.toLowerCase().includes(query) || 
+                       car.vin.toLowerCase().includes(query);
+            });
+            
+            const container = document.getElementById('cars-grid');
+            container.innerHTML = '';
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="col-span-full py-12 text-center text-zinc-500 italic text-xs">Tidak ada unit kendaraan yang sesuai dengan filter pencarian.</div>`;
+                return;
+            }
+
+            filtered.forEach(car => {
+                let badgeColor = 'bg-emerald-600';
+                if (car.status === 'Booked') {
+                    badgeColor = 'bg-amber-600';
+                } else if (car.status === 'Sold') {
+                    badgeColor = 'bg-red-700';
+                }
+                const formattedPrice = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(car.price);
+                
+                const cardHTML = `
+                    <div class="bg-zinc-950 border border-zinc-900 hover:border-zinc-700 transition-all duration-500 group overflow-hidden flex flex-col justify-between">
+                        <div class="h-64 overflow-hidden relative bg-zinc-900">
+                            <img src="${car.image}" alt="${car.model}" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700">
+                            <span class="absolute top-4 left-4 ${badgeColor} text-white font-bold text-[9px] px-3 py-1.5 uppercase tracking-wider rounded-none">${car.status}</span>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center gap-2 mb-1.5 text-[10px] font-bold tracking-wider text-zinc-500">
+                                <span>${car.year}</span>
+                                <span class="w-1 h-1 rounded-full bg-zinc-700"></span>
+                                <span>${car.brand.toUpperCase()}</span>
+                            </div>
+                            <h3 class="text-lg font-black mb-1 group-hover:text-luxury-gold transition-colors duration-300 uppercase tracking-wide">${car.brand} ${car.model}</h3>
+                            <p class="text-[11px] text-zinc-500 mb-6 font-mono tracking-widest">VIN: ${car.vin.substring(0, 12)}...</p>
+                            <div class="flex justify-between items-center pt-4 border-t border-zinc-900">
+                                <span class="text-luxury-gold font-bold text-base font-mono">${formattedPrice}</span>
+                                <button onclick="viewUnitDetail(${car.id})" class="border border-luxury-gold/40 hover:border-luxury-gold text-luxury-gold text-[10px] tracking-[0.15em] font-extrabold px-4 py-2 transition-all">
+                                    INQUIRE NOW
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += cardHTML;
+            });
+        }
+
+        // DETAIL UNIT KENDARAAN
+        function viewUnitDetail(carId) {
+            const car = carsDatabase.find(c => c.id === carId);
+            if (!car) return;
+
+            currentSelectedCar = car;
+
+            document.getElementById('dt-main-img').src = car.image;
+            document.getElementById('dt-thumb-1').src = car.image;
+            document.getElementById('dt-brand').innerText = car.brand.toUpperCase();
+            document.getElementById('dt-year').innerText = car.year;
+            document.getElementById('dt-model').innerText = `${car.brand} ${car.model}`;
+            document.getElementById('dt-vin').innerText = car.vin;
+            document.getElementById('dt-engine').innerText = car.engine;
+            document.getElementById('dt-trans').innerText = car.transmission;
+            document.getElementById('dt-color').innerText = car.color;
+            
+            const formattedPrice = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(car.price);
+            document.getElementById('dt-price').innerText = formattedPrice;
+
+            const statusBadge = document.getElementById('dt-status-badge');
+            statusBadge.innerText = car.status;
+            
+            const btnBooking = document.getElementById('dt-btn-booking');
+
+            if (car.status === 'Available') {
+                statusBadge.className = "absolute top-4 left-4 bg-emerald-600 text-white font-bold text-[9px] px-3.5 py-1.5 uppercase tracking-[0.15em]";
+                btnBooking.className = "w-full bg-luxury-gold hover:bg-luxury-goldHover text-black font-extrabold py-4.5 text-xs tracking-[0.2em] transition-all";
+                btnBooking.innerText = "JADWALKAN PERTEMUAN (INQUIRE)";
+                btnBooking.disabled = false;
+            } else if (car.status === 'Booked') {
+                statusBadge.className = "absolute top-4 left-4 bg-amber-600 text-white font-bold text-[9px] px-3.5 py-1.5 uppercase tracking-[0.15em]";
+                btnBooking.className = "w-full bg-zinc-800 text-zinc-500 font-extrabold py-4.5 text-xs tracking-[0.2em] cursor-not-allowed";
+                btnBooking.innerText = "TERPESAN (BOOKED)";
+                btnBooking.disabled = true;
+            } else {
+                statusBadge.className = "absolute top-4 left-4 bg-red-700 text-white font-bold text-[9px] px-3.5 py-1.5 uppercase tracking-[0.15em]";
+                btnBooking.className = "w-full bg-zinc-800 text-zinc-500 font-extrabold py-4.5 text-xs tracking-[0.2em] cursor-not-allowed";
+                btnBooking.innerText = "TERJUAL (SOLD)";
+                btnBooking.disabled = true;
+            }
+
+            navigateTo('detail');
+        }
+
+        function changeDetailImage(src) {
+            document.getElementById('dt-main-img').src = src;
+        }
+
+        // TRIGGER FORM BOOKING (INSPEKSI)
+        function triggerBookingModal() {
+            if (!currentSelectedCar) return;
+            document.getElementById('booking-modal-subtitle').innerText = `Menyimpan data pengajuan untuk unit: ${currentSelectedCar.brand} ${currentSelectedCar.model}`;
+            document.getElementById('booking-modal').classList.remove('hidden');
+        }
+
+        function closeBookingModal() {
+            document.getElementById('booking-modal').classList.add('hidden');
+        }
+
+        function handleSubmitBooking(event) {
+            event.preventDefault();
+
+            const customerName = document.getElementById('bk-name').value;
+            const phone = document.getElementById('bk-phone').value;
+            const bookingDate = document.getElementById('bk-date').value;
+
+            // Transaksi Masukan Data Baru
+            const newBooking = {
+                id: bookingsDatabase.length + 1,
+                customerName: customerName,
+                phone: phone,
+                carId: currentSelectedCar.id,
+                carModel: `${currentSelectedCar.brand} ${currentSelectedCar.model}`,
+                date: bookingDate,
+                status: "Pending",
+                paymentStatus: "Unpaid",
+                paymentType: "None",
+                paidAmount: 0,
+                paymentProof: null
+            };
+
+            bookingsDatabase.push(newBooking);
+
+            // Perubahan Status Mobil Sesuai Logika IPO
+            currentSelectedCar.status = 'Booked';
+            const dbCar = carsDatabase.find(c => c.id === currentSelectedCar.id);
+            if (dbCar) dbCar.status = 'Booked';
+
+            // Bersihkan form
+            document.getElementById('bk-name').value = '';
+            document.getElementById('bk-phone').value = '';
+            document.getElementById('bk-date').value = '';
+            closeBookingModal();
+
+            // Refresh komponen UI
+            renderCatalogue();
+            renderAdminDashboard();
+            viewUnitDetail(currentSelectedCar.id);
+
+            alert(`SUKSES! Jadwal inspeksi berhasil disimpan di sistem. \nStatus unit berubah menjadi 'Booked'. Hubungi admin dan kirimkan bukti bayar DP di halaman 'Cek Status & Kwitansi' dengan mencocokkan No. HP Anda: ${phone}.`);
+            
+            // Pindah langsung ke menu cek status agar memudahkan penguji memasukkan bukti bayar
+            document.getElementById('track-phone').value = phone;
+            navigateTo('booking-status');
+            handleTrackBooking();
+        }
+
+        // SEARCH BOOKING UTK LAYANAN MANDIRI CUSTOMER (VERIFIKASI & TRANSFER)
+        function handleTrackBooking() {
+            const phone = document.getElementById('track-phone').value.trim();
+            const placeholder = document.getElementById('tracking-result-placeholder');
+            const content = document.getElementById('tracking-result-content');
+
+            if (!phone) {
+                alert('Silakan masukkan nomor telepon!');
+                return;
+            }
+
+            // Mencocokkan data
+            const matchedBookings = bookingsDatabase.filter(b => b.phone === phone);
+
+            if (matchedBookings.length === 0) {
+                placeholder.innerText = "Data tidak ditemukan. Pastikan nomor WhatsApp yang Anda masukkan sesuai.";
+                placeholder.classList.remove('hidden');
+                content.classList.add('hidden');
+                return;
+            }
+
+            placeholder.classList.add('hidden');
+            content.classList.remove('hidden');
+            content.innerHTML = '';
+
+            matchedBookings.forEach(bk => {
+                const car = carsDatabase.find(c => c.id === bk.carId);
+                const formattedPrice = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(car.price);
+                const formattedPaid = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(bk.paidAmount);
+
+                let badgeColor = "bg-amber-950/60 text-amber-400 border-amber-900/50";
+                if (bk.status === 'Approved') badgeColor = "bg-emerald-950/60 text-emerald-400 border-emerald-900/50";
+                if (bk.status === 'Rejected') badgeColor = "bg-red-950/60 text-red-400 border-red-900/50";
+
+                let payStatusColor = "bg-red-950/60 text-red-400 border-red-900/50";
+                if (bk.paymentStatus === 'Down Payment') payStatusColor = "bg-amber-950/60 text-amber-400 border-amber-900/50";
+                if (bk.paymentStatus === 'Paid') payStatusColor = "bg-emerald-950/60 text-emerald-400 border-emerald-900/50";
+
+                // Menampilkan form upload jika status pembayaran belum lunas sepenuhnya (Paid)
+                const paymentActionHTML = bk.paymentStatus !== 'Paid' ? `
+                    <div class="border-t border-zinc-900 pt-4 mt-4 bg-zinc-900/10 p-4 border border-zinc-900">
+                        <h4 class="font-extrabold text-[10px] tracking-wider text-luxury-gold uppercase mb-3">KIRIM DOKUMEN BUKTI PEMBAYARAN MANUAL</h4>
+                        <form onsubmit="handleUploadProof(event, ${bk.id})" class="space-y-3">
+                            <div class="grid grid-cols-2 gap-3 text-[11px]">
+                                <div>
+                                    <label class="block text-zinc-500 font-bold mb-1 uppercase">Tipe Pembayaran</label>
+                                    <select id="pay-type-${bk.id}" class="w-full bg-zinc-950 border border-zinc-800 text-zinc-300 p-2 focus:outline-none focus:border-luxury-gold">
+                                        <option value="Down Payment">Uang Muka / DP (IDR 50.000.000)</option>
+                                        <option value="Paid">Pelunasan Penuh (IDR ${car.price})</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-zinc-500 font-bold mb-1 uppercase">Nominal Ditransfer (IDR)</label>
+                                    <input type="number" id="pay-amount-${bk.id}" placeholder="Contoh: 50000000" class="w-full bg-zinc-950 border border-zinc-800 text-zinc-300 p-2 focus:outline-none focus:border-luxury-gold" required>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-zinc-500 font-bold mb-1 uppercase text-[11px]">Pilih File Bukti Transfer (Simulasi)</label>
+                                <input type="file" id="pay-proof-${bk.id}" class="w-full text-xs text-zinc-400 file:mr-3 file:py-1 file:px-3 file:border file:border-zinc-800 file:bg-zinc-900 file:text-zinc-300 file:text-xs focus:outline-none" required>
+                            </div>
+                            <button type="submit" class="w-full bg-luxury-gold text-black font-bold py-2 text-xs uppercase tracking-wider transition-colors mt-2">
+                                UNGGAH BUKTI & KIRIM
+                            </button>
+                        </form>
+                    </div>
+                ` : `
+                    <div class="bg-emerald-950/20 border border-emerald-900/30 p-4 text-[11px] text-emerald-400 flex justify-between items-center">
+                        <span><i class="fa-solid fa-circle-check mr-2"></i> Pembayaran Lunas & Diverifikasi</span>
+                        <button onclick="generateKwitansiInvoice(${bk.id})" class="bg-luxury-gold hover:bg-luxury-goldHover text-black font-extrabold py-1 px-3 text-[10px] uppercase tracking-wider rounded-sm">
+                            <i class="fa-solid fa-file-invoice mr-1"></i> Cetak Kwitansi
+                        </button>
+                    </div>
+                `;
+
+                // Jika sudah ada DP tetapi belum lunas, berikan opsi cetak invoice DP
+                const hasDPAction = bk.paymentStatus === 'Down Payment' ? `
+                    <div class="mt-2 text-right">
+                        <button onclick="generateKwitansiInvoice(${bk.id})" class="border border-luxury-gold text-luxury-gold hover:bg-luxury-gold/10 font-bold py-1 px-3 text-[10px] uppercase tracking-wider rounded-sm">
+                            <i class="fa-solid fa-file-invoice mr-1"></i> Cetak Invoice DP
+                        </button>
+                    </div>
+                ` : '';
+
+                const blockHTML = `
+                    <div class="bg-zinc-950 border border-zinc-900 p-6 space-y-4">
+                        <div class="flex justify-between items-start border-b border-zinc-900 pb-3">
+                            <div>
+                                <h4 class="text-sm font-black text-white uppercase">${bk.customerName}</h4>
+                                <p class="text-[10px] text-zinc-500 mt-0.5">Kode Booking: SD-BK-00${bk.id}</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <span class="px-2 py-0.5 border text-[9px] font-bold uppercase ${badgeColor}">Status Inspeksi: ${bk.status}</span>
+                                <span class="px-2 py-0.5 border text-[9px] font-bold uppercase ${payStatusColor}">Status Bayar: ${bk.paymentStatus}</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 text-xs leading-relaxed">
+                            <div>
+                                <span class="text-zinc-500 block mb-0.5 uppercase text-[9px]">Model Mobil:</span>
+                                <span class="font-extrabold text-zinc-200 block">${bk.carModel}</span>
+                                <span class="text-zinc-500 block font-mono text-[10px] mt-1">Harga: ${formattedPrice}</span>
+                            </div>
+                            <div>
+                                <span class="text-zinc-500 block mb-0.5 uppercase text-[9px]">Rencana Jadwal Temu:</span>
+                                <span class="font-bold text-zinc-200 block"><i class="fa-regular fa-calendar mr-1 text-luxury-gold"></i>${bk.date}</span>
+                                <span class="text-zinc-500 block text-[10px] mt-1">Telah Ditransfer: <strong class="text-emerald-400 font-mono">${formattedPaid}</strong></span>
+                            </div>
+                        </div>
+                        ${paymentActionHTML}
+                        ${hasDPAction}
+                    </div>
+                `;
+                content.innerHTML += blockHTML;
+            });
+        }
+
+        // UNGGAH BUKTI TRANSFER (MANUAL SIMULATION)
+        function handleUploadProof(event, bookingId) {
+            event.preventDefault();
+
+            const payType = document.getElementById(`pay-type-${bookingId}`).value;
+            const payAmount = parseInt(document.getElementById(`pay-amount-${bookingId}`).value);
+            
+            const bk = bookingsDatabase.find(b => b.id === bookingId);
+            if (!bk) return;
+
+            bk.paymentType = payType;
+            bk.paidAmount = payAmount;
+            bk.paymentProof = "uploaded-receipt-mock.png"; // Mock image url
+            bk.paymentStatus = payType; // Set to DP or Paid pending admin review
+
+            renderCatalogue();
+            renderAdminDashboard();
+            handleTrackBooking();
+
+            alert(`BUKTI BERHASIL DIUNGGAH! Pembayaran nominal IDR ${new Intl.NumberFormat('id-ID').format(payAmount)} sedang diverifikasi oleh admin. Harap tunggu persetujuan.`);
+        }
+
+        // MAKER KWITANSI / INVOICE DIGITAL (SIAP CETAK)
+        function generateKwitansiInvoice(bookingId) {
+            const bk = bookingsDatabase.find(b => b.id === bookingId);
+            if (!bk) return;
+
+            const car = carsDatabase.find(c => c.id === bk.carId);
+            const formattedPrice = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(car.price);
+            const formattedPayment = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(bk.paidAmount);
+
+            document.getElementById('inv-code').innerText = `SD-INV-00${bk.id}`;
+            document.getElementById('inv-date').innerText = `Tanggal: ${bk.date}`;
+            document.getElementById('inv-cust-name').innerText = bk.customerName.toUpperCase();
+            document.getElementById('inv-cust-phone').innerText = `Nomor WA: ${bk.phone}`;
+            document.getElementById('inv-car-model').innerText = `${car.brand} ${car.model}`;
+            document.getElementById('inv-car-vin').innerText = `VIN: ${car.vin}`;
+            document.getElementById('inv-car-specs').innerText = `Engine: ${car.engine} | Transmission: ${car.transmission}`;
+            
+            document.getElementById('inv-desc-type').innerText = bk.paymentStatus === 'Paid' ? 'PELUNASAN PENUH KENDARAAN (LUNAS)' : 'UANG MUKA PEMESANAN UNIT (DP)';
+            document.getElementById('inv-unit-price').innerText = formattedPrice;
+            document.getElementById('inv-payment-amount').innerText = formattedPayment;
+            document.getElementById('inv-total-final').innerText = formattedPayment;
+
+            const badge = document.getElementById('inv-status-badge');
+            badge.innerText = bk.paymentStatus;
+            if (bk.paymentStatus === 'Paid') {
+                badge.className = "px-4 py-1.5 font-black text-[10px] tracking-widest uppercase text-white bg-emerald-600";
+            } else {
+                badge.className = "px-4 py-1.5 font-black text-[10px] tracking-widest uppercase text-white bg-amber-600";
+            }
+
+            navigateTo('invoice-page');
+        }
+
+        // LOGIN ADMIN (OTENTIKASI MOCK)
+        function handleAdminLogin(event) {
+            event.preventDefault();
+            const user = document.getElementById('admin-user').value;
+            const pass = document.getElementById('admin-pass').value;
+
+            if (user === 'admin' && pass === 'admin') {
+                navigateTo('admin-dashboard');
+            } else {
+                alert('Akses Ditolak! Gunakan sandi default "admin".');
+            }
+        }
+
+        // RE-RENDER DASHBOARD ADMIN (CRUD, INSPEKSI & KEUANGAN)
+        function renderAdminDashboard() {
+            if (!document.getElementById('view-admin-dashboard')) return;
+
+            // Updates metrics
+            document.getElementById('stat-total-cars').innerText = `${carsDatabase.length} Unit`;
+            
+            const availCount = carsDatabase.filter(c => c.status === 'Available').length;
+            document.getElementById('stat-avail-cars').innerText = `${availCount} Unit`;
+
+            const bookedCount = carsDatabase.filter(c => c.status === 'Booked').length;
+            document.getElementById('stat-booked-cars').innerText = `${bookedCount} Unit`;
+
+            const soldCount = carsDatabase.filter(c => c.status === 'Sold').length;
+            document.getElementById('stat-sold-cars').innerText = `${soldCount} Unit`;
+
+            const totalIncome = bookingsDatabase
+                .filter(b => b.paymentStatus === 'Paid' || b.paymentStatus === 'Down Payment')
+                .reduce((acc, b) => acc + b.paidAmount, 0);
+            
+            document.getElementById('stat-incoming-cash').innerText = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(totalIncome);
+
+            // Render Tabel Inventaris CRUD
+            const invTable = document.getElementById('admin-inventory-table');
+            invTable.innerHTML = '';
+
+            carsDatabase.forEach(car => {
+                const formattedPrice = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(car.price);
+                
+                let statusClass = 'bg-emerald-950/60 text-emerald-400 border-emerald-900/50';
+                if (car.status === 'Booked') statusClass = 'bg-amber-950/60 text-amber-400 border-amber-900/50';
+                if (car.status === 'Sold') statusClass = 'bg-red-950/60 text-red-400 border-red-900/50';
+
+                const rowHTML = `
+                    <tr class="hover:bg-zinc-900/30 transition-colors">
+                        <td class="p-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 overflow-hidden bg-zinc-900 border border-zinc-800">
+                                    <img src="${car.image}" class="w-full h-full object-cover">
+                                </div>
+                                <div>
+                                    <span class="font-bold text-white block uppercase tracking-wide">${car.brand} ${car.model}</span>
+                                    <span class="text-[10px] text-zinc-500">${car.year} | ${car.engine}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-4 font-mono font-semibold tracking-wider text-zinc-300 text-[11px]">${car.vin}</td>
+                        <td class="p-4 text-luxury-gold font-bold font-mono">${formattedPrice}</td>
+                        <td class="p-4"><span class="px-2.5 py-1 border rounded text-[9px] font-extrabold ${statusClass}">${car.status}</span></td>
+                        <td class="p-4 text-right space-x-1 whitespace-nowrap">
+                            <button onclick="editCarForm(${car.id})" class="text-luxury-gold hover:text-white transition-colors py-1 px-2 border border-luxury-gold/20 hover:border-luxury-gold rounded text-[10px] bg-zinc-900/50">
+                                <i class="fa-solid fa-pen-to-square"></i> Edit
+                            </button>
+                            <button onclick="handleDeleteCar(${car.id})" class="text-red-500 hover:text-red-400 transition-colors py-1 px-2 border border-red-900/30 hover:border-red-500 rounded text-[10px] bg-red-950/20">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                invTable.innerHTML += rowHTML;
+            });
+
+            // Render Laporan Keuangan (Financial Log) & Verifikasi Pembayaran
+            const finTable = document.getElementById('admin-financial-table');
+            finTable.innerHTML = '';
+
+            bookingsDatabase.forEach(bk => {
+                const formattedPaid = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(bk.paidAmount);
+                
+                let paymentBadgeClass = "bg-red-950/60 text-red-400 border-red-900/50";
+                if (bk.paymentStatus === 'Down Payment') paymentBadgeClass = "bg-amber-950/60 text-amber-400 border-amber-900/50";
+                if (bk.paymentStatus === 'Paid') paymentBadgeClass = "bg-emerald-950/60 text-emerald-400 border-emerald-900/50";
+
+                let verifyProofHTML = `<span class="text-zinc-500 italic">Belum Mengirim Bukti</span>`;
+                if (bk.paymentProof) {
+                    verifyProofHTML = `
+                        <div class="flex items-center gap-2">
+                            <span class="text-emerald-400 text-[10px]"><i class="fa-regular fa-image"></i> Ada Berkas</span>
+                            <button onclick="alert('Membuka gambar bukti transfer mock: uploaded-receipt-mock.png')" class="underline text-luxury-gold hover:text-white text-[9px]">Lihat</button>
+                        </div>
+                    `;
+                }
+
+                // Skenario Aksi Admin Verifikasi (Paid)
+                const verifyActionHTML = bk.paymentStatus !== 'Paid' && bk.paymentProof ? `
+                    <button onclick="handleVerifyPayment(${bk.id})" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-1 px-2.5 rounded text-[9px] uppercase tracking-wider">
+                        <i class="fa-solid fa-check mr-1"></i> Sahkan Lunas
+                    </button>
+                ` : `<span class="text-zinc-500 font-bold tracking-wider text-[9px] uppercase"><i class="fa-solid fa-lock text-zinc-600"></i> Locked</span>`;
+
+                const rowFinHTML = `
+                    <tr class="hover:bg-zinc-900/30 transition-colors">
+                        <td class="p-4 font-bold text-zinc-100">${bk.customerName}</td>
+                        <td class="p-4 font-semibold text-zinc-400">${bk.carModel}</td>
+                        <td class="p-4"><span class="px-2 py-0.5 border text-[9px] rounded font-bold ${paymentBadgeClass}">${bk.paymentStatus}</span></td>
+                        <td class="p-4 font-bold font-mono text-emerald-400">${formattedPaid}</td>
+                        <td class="p-4">${verifyProofHTML}</td>
+                        <td class="p-4 text-right">${verifyActionHTML}</td>
+                    </tr>
+                `;
+                finTable.innerHTML += rowFinHTML;
+            });
+
+            // Render Antrean Inspeksi
+            const bookingContainer = document.getElementById('booking-logs-container');
+            bookingContainer.innerHTML = '';
+            document.getElementById('badge-total-bookings').innerText = bookingsDatabase.length;
+
+            if (bookingsDatabase.length === 0) {
+                bookingContainer.innerHTML = `<p class="text-zinc-500 text-[10px] text-center py-6 italic">Belum ada antrean jadwal booking.</p>`;
+                return;
+            }
+
+            bookingsDatabase.forEach(bk => {
+                let statusBadgeColor = "bg-amber-950/60 text-amber-400 border-amber-900/50";
+                if (bk.status === 'Approved') statusBadgeColor = "bg-emerald-950/60 text-emerald-400 border-emerald-900/50";
+                if (bk.status === 'Rejected') statusBadgeColor = "bg-red-950/60 text-red-400 border-red-900/50";
+
+                const actionsHTML = bk.status === 'Pending' ? `
+                    <div class="flex gap-2 mt-3 pt-3 border-t border-zinc-900">
+                        <button onclick="processInspection(${bk.id}, 'Approved')" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-1 text-[9px] uppercase tracking-wider rounded-none">
+                            Setujui
+                        </button>
+                        <button onclick="processInspection(${bk.id}, 'Rejected')" class="flex-1 bg-zinc-800 hover:bg-red-900 text-zinc-400 hover:text-white font-bold py-1 text-[9px] uppercase tracking-wider rounded-none">
+                            Tolak
+                        </button>
+                    </div>
+                ` : '';
+
+                const logHTML = `
+                    <div class="bg-zinc-900/40 border border-zinc-900 p-4 flex flex-col justify-between gap-2">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="text-[10px] font-bold text-white block tracking-wide">${bk.customerName.toUpperCase()}</span>
+                                <span class="text-[9px] text-zinc-500"><i class="fa-brands fa-whatsapp text-emerald-500 mr-1"></i>${bk.phone}</span>
+                            </div>
+                            <span class="px-2 py-0.5 tracking-wider border rounded text-[8px] uppercase font-bold ${statusBadgeColor}">${bk.status}</span>
+                        </div>
+                        <div class="pt-2 border-t border-zinc-900 flex justify-between items-center text-[9px] text-zinc-400">
+                            <span>Unit: ${bk.carModel}</span>
+                            <span class="font-mono text-luxury-gold font-semibold"><i class="fa-regular fa-calendar text-[8px] mr-1"></i> ${bk.date}</span>
+                        </div>
+                        ${actionsHTML}
+                    </div>
+                `;
+                bookingContainer.innerHTML += logHTML;
+            });
+        }
+
+        // AKSI VERIFIKASI PEMBAYARAN OLEH ADMIN (MUTASI KE 'SOLD')
+        function handleVerifyPayment(bookingId) {
+            const bk = bookingsDatabase.find(b => b.id === bookingId);
+            if (!bk) return;
+
+            // Logika Bisnis: Sahkan lunas, maka mobil otomatis berubah menjadi 'Sold'
+            bk.paymentStatus = 'Paid';
+            bk.status = 'Approved'; // Otomatis mengesahkan jadwal temu
+
+            const car = carsDatabase.find(c => c.id === bk.carId);
+            if (car) {
+                car.status = 'Sold'; // Mutasi status utama ke Sold
+            }
+
+            renderCatalogue();
+            renderAdminDashboard();
+
+            alert(`SUKSES VERIFIKASI! Pembayaran lunas unit ${bk.carModel} atas nama ${bk.customerName} sah terverifikasi. Status mobil berubah secara otomatis menjadi 'Sold'.`);
+        }
+
+        // PROSES PERSETUJUAN INSPEKSI TEMU MANUAL
+        function processInspection(bookingId, status) {
+            const bk = bookingsDatabase.find(b => b.id === bookingId);
+            if (!bk) return;
+
+            bk.status = status;
+
+            // Jika ditolak, status mobil kembali tersedia
+            const car = carsDatabase.find(c => c.id === bk.carId);
+            if (car && status === 'Rejected') {
+                car.status = 'Available';
+            }
+
+            renderCatalogue();
+            renderAdminDashboard();
+            alert(`Jadwal inspeksi ID #${bookingId} telah diproses menjadi: [${status}].`);
+        }
+
+        // AKSI CREATE ATAU UPDATE KENDARAAN (CRUD)
+        function handleFormSubmit(event) {
+            event.preventDefault();
+
+            const editId = document.getElementById('form-edit-id').value;
+            const brand = document.getElementById('form-brand').value;
+            const model = document.getElementById('form-model').value;
+            const vin = document.getElementById('form-vin').value;
+            const year = parseInt(document.getElementById('form-year').value);
+            const color = document.getElementById('form-color').value;
+            const engine = document.getElementById('form-engine').value;
+            const transmission = document.getElementById('form-transmission').value;
+            const price = parseInt(document.getElementById('form-price').value);
+            const image = document.getElementById('form-image').value;
+            const status = document.getElementById('form-status').value;
+
+            if (editId) {
+                const carIndex = carsDatabase.findIndex(c => c.id === parseInt(editId));
+                if (carIndex !== -1) {
+                    // Validasi Keunikan VIN saat Update
+                    const vinExists = carsDatabase.some((car, idx) => car.vin.toLowerCase() === vin.toLowerCase() && idx !== carIndex);
+                    if (vinExists) {
+                        alert(`GAGAL UPDATE! Nomor Rangka (VIN) "${vin}" sudah terdaftar pada unit lain.`);
+                        return;
+                    }
+
+                    carsDatabase[carIndex] = {
+                        ...carsDatabase[carIndex],
+                        brand,
+                        model,
+                        vin,
+                        year,
+                        price,
+                        status,
+                        engine,
+                        transmission,
+                        color,
+                        image
+                    };
+
+                    alert(`UPDATE SUKSES! Data unit ${brand} ${model} berhasil diperbarui.`);
+                }
+            } else {
+                // Validasi Keunikan VIN saat Create (Integritas Data)
+                const vinExists = carsDatabase.some(car => car.vin.toLowerCase() === vin.toLowerCase());
+                if (vinExists) {
+                    alert(`GAGAL TAMBAH! Nomor Rangka (VIN) "${vin}" sudah terdaftar dalam sistem database.`);
+                    return;
+                }
+
+                const newCar = {
+                    id: carsDatabase.length > 0 ? Math.max(...carsDatabase.map(c => c.id)) + 1 : 1,
+                    brand,
+                    model,
+                    vin,
+                    year,
+                    price,
+                    status,
+                    engine,
+                    transmission,
+                    color,
+                    image
+                };
+
+                carsDatabase.push(newCar);
+                alert(`SUKSES INPUT! Unit baru ${brand} ${model} berhasil disisipkan.`);
+            }
+
+            resetFormState();
+            renderCatalogue();
+            renderAdminDashboard();
+        }
+
+        // ISI FORM EDIT KENDARAAN
+        function editCarForm(carId) {
+            const car = carsDatabase.find(c => c.id === carId);
+            if (!car) return;
+
+            document.getElementById('form-edit-id').value = car.id;
+            document.getElementById('form-brand').value = car.brand;
+            document.getElementById('form-model').value = car.model;
+            document.getElementById('form-vin').value = car.vin;
+            document.getElementById('form-year').value = car.year;
+            document.getElementById('form-color').value = car.color;
+            document.getElementById('form-engine').value = car.engine;
+            document.getElementById('form-transmission').value = car.transmission;
+            document.getElementById('form-price').value = car.price;
+            document.getElementById('form-image').value = car.image;
+            document.getElementById('form-status').value = car.status;
+
+            document.getElementById('form-action-title').innerHTML = `<i class="fa-solid fa-pen-to-square text-luxury-gold mr-1.5"></i> EDIT DATA MOBIL`;
+            document.getElementById('btn-submit-form').innerText = "UPDATE DATA UNIT";
+            document.getElementById('btn-cancel-edit').classList.remove('hidden');
+
+            document.getElementById('carForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetFormState() {
+            document.getElementById('form-edit-id').value = '';
+            document.getElementById('form-brand').value = 'Porsche';
+            document.getElementById('form-model').value = '';
+            document.getElementById('form-vin').value = '';
+            document.getElementById('form-year').value = '2024';
+            document.getElementById('form-color').value = '';
+            document.getElementById('form-engine').value = '';
+            document.getElementById('form-transmission').value = '';
+            document.getElementById('form-price').value = '';
+            document.getElementById('form-image').value = 'https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?auto=format&fit=crop&w=600&q=80';
+            document.getElementById('form-status').value = 'Available';
+
+            document.getElementById('form-action-title').innerHTML = `<i class="fa-solid fa-plus text-luxury-gold mr-1.5"></i> INPUT UNIT BARU`;
+            document.getElementById('btn-submit-form').innerText = "SIMPAN DATA";
+            document.getElementById('btn-cancel-edit').classList.add('hidden');
+        }
+
+        // HAPUS KENDARAAN (MENDUKUNG REFERENTIAL INTEGRITY)
+        function handleDeleteCar(carId) {
+            if (!confirm('Apakah Anda yakin ingin menghapus unit kendaraan ini secara permanen dari database?')) return;
+
+            // Logika Referential Integrity Constraint: RESTRICT jika ada transaksi booking aktif
+            const isLinked = bookingsDatabase.some(bk => bk.carId === carId && bk.status === 'Pending');
+            if (isLinked) {
+                alert('GAGAL MENGHAPUS! Unit kendaraan memiliki relasi aktif di tabel transaksi "bookings" (Referential Integrity Constraint: ON DELETE RESTRICT). Silakan selesaikan atau hapus transaksi booking yang terikat terlebih dahulu.');
+                return;
+            }
+
+            carsDatabase = carsDatabase.filter(car => car.id !== carId);
+            renderCatalogue();
+            renderAdminDashboard();
+        }
+
+    </script>
+</body>
+</html>
