@@ -7,36 +7,49 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
+    /**
+     * Menampilkan halaman form login admin.
+     */
     public function showLogin()
     {
-        if (Auth::check()) {
-            return redirect()->route('admin.dashboard');
-        }
         return view('login');
     }
 
-    public function login(Request $request)
+    /**
+     * Memproses autentikasi (Login).
+     */
+    public function authenticate(Request $request)
     {
+        // Validasi input
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'username' => ['required'],
             'password' => ['required'],
         ]);
 
+        // Attempt login (menggunakan model Cashier yang sudah extend Authenticatable)
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->intended(route('admin.dashboard'));
+            
+            // Arahkan ke dashboard admin setelah login sukses
+            return redirect()->intended('/admin/dashboard');
         }
 
+        // Jika login gagal
         return back()->withErrors([
-            'email' => 'Kredensial yang diberikan tidak cocok dengan data kami.',
-        ])->onlyInput('email');
+            'username' => 'Username atau password salah.',
+        ])->onlyInput('username');
     }
 
+    /**
+     * Mengelola logout admin.
+     */
     public function logout(Request $request)
     {
         Auth::logout();
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('home');
+
+        return redirect('/login');
     }
 }

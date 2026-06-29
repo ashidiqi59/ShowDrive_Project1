@@ -14,8 +14,8 @@
         <form action="{{ route('login') }}" method="POST" class="space-y-6">
             @csrf
             <div>
-                <label class="block text-zinc-500 text-[10px] font-bold tracking-wider uppercase mb-2">Email Admin</label>
-                <input type="email" name="email" value="admin@showdrive.com" class="w-full bg-zinc-900/50 border border-zinc-800 focus:border-luxury-gold focus:ring-1 focus:ring-luxury-gold text-white p-3 text-xs focus:outline-none" required>
+                <label class="block text-zinc-500 text-[10px] font-bold tracking-wider uppercase mb-2">Username Admin</label>
+                <input type="text" name="username" value="admin" class="w-full bg-zinc-900/50 border border-zinc-800 focus:border-luxury-gold focus:ring-1 focus:ring-luxury-gold text-white p-3 text-xs focus:outline-none" required>
             </div>
             <div>
                 <label class="block text-zinc-500 text-[10px] font-bold tracking-wider uppercase mb-2">Kata Sandi</label>
@@ -23,7 +23,7 @@
             </div>
             
             <div class="bg-zinc-900/40 p-3 border border-zinc-800 text-[10px] text-zinc-500 leading-normal">
-                <i class="fa-solid fa-circle-info text-luxury-gold mr-1"></i> Gunakan email default <strong>admin@showdrive.com</strong> dan sandi <strong>admin</strong> untuk masuk.
+                <i class="fa-solid fa-circle-info text-luxury-gold mr-1"></i> Gunakan username default <strong>admin</strong> dan sandi <strong>admin</strong> untuk masuk.
             </div>
 
             <button type="submit" class="w-full bg-luxury-gold hover:bg-luxury-goldHover text-black font-extrabold py-3.5 text-xs tracking-[0.2em] uppercase transition-all">

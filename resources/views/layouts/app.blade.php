@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'ShowDrive - Sistem Manajemen Showroom Otomotif Premium')</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js v3 -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <!-- Google Fonts: Inter & Playfair Display -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;950&family=Playfair+Display:ital,wght@0,500;0,700;1,400&display=swap" rel="stylesheet">
     <!-- FontAwesome for Icons -->
@@ -53,6 +56,25 @@
         .text-glow {
             text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
         }
+
+        /* ── Sticky Header Wrapper ── */
+        #site-header-wrapper {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            transition: box-shadow 0.3s ease, background-color 0.3s ease;
+        }
+        #site-header-wrapper.scrolled {
+            box-shadow: 0 4px 32px rgba(0, 0, 0, 0.7), 0 1px 0 rgba(212, 175, 55, 0.12);
+        }
+        #site-header-wrapper header {
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        #site-header-wrapper.scrolled header {
+            background-color: rgba(0, 0, 0, 0.98);
+            border-color: rgba(212, 175, 55, 0.15);
+        }
+
         @media print {
             .no-print {
                 display: none !important;
@@ -73,77 +95,86 @@
 </head>
 <body class="bg-luxury-darkBg text-zinc-100 min-h-screen flex flex-col justify-between selection:bg-luxury-gold selection:text-black">
 
-    <!-- PLATFORM DEMO SWITCHER BAR (No-Print) -->
-    <div class="no-print bg-zinc-900 border-b border-luxury-gold/20 py-2.5 px-6 text-xs flex flex-col sm:flex-row justify-between items-center z-[100] sticky top-0 gap-3">
-        <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-luxury-gold animate-ping"></span>
-            <span class="text-[10px] tracking-[0.2em] text-zinc-400 font-extrabold uppercase">ShowDrive Laravel (Aris & Fathoni)</span>
-        </div>
-        <div class="flex flex-wrap gap-2">
-            <a href="{{ route('home') }}" class="text-zinc-300 hover:text-white px-3 py-1.5 bg-black/60 hover:bg-black border border-zinc-800 rounded text-[10px] font-bold tracking-wider transition-all">
-                <i class="fa-solid fa-car text-luxury-gold mr-1.5"></i> KATALOG PUBLIK
-            </a>
-            @auth
-                <a href="{{ route('admin.dashboard') }}" class="text-zinc-300 hover:text-white px-3 py-1.5 bg-luxury-gold/10 hover:bg-luxury-gold hover:text-black border border-luxury-gold/30 rounded text-[10px] font-bold tracking-wider transition-all">
-                    <i class="fa-solid fa-user-gear text-luxury-gold mr-1.5"></i> PORTAL ADMIN
-                </a>
-                <form action="{{ route('logout') }}" method="POST" class="inline">
-                    @csrf
-                    <button type="submit" class="text-red-400 hover:text-white px-3 py-1.5 bg-red-950/20 hover:bg-red-900 border border-red-900/30 rounded text-[10px] font-bold tracking-wider transition-all">
-                        <i class="fa-solid fa-right-from-bracket mr-1.5"></i> LOGOUT
-                    </button>
-                </form>
-            @else
-                <a href="{{ route('login') }}" class="text-zinc-300 hover:text-white px-3 py-1.5 bg-luxury-gold/10 hover:bg-luxury-gold hover:text-black border border-luxury-gold/30 rounded text-[10px] font-bold tracking-wider transition-all">
-                    <i class="fa-solid fa-user-gear text-luxury-gold mr-1.5"></i> PORTAL ADMIN & KEUANGAN
-                </a>
-            @endauth
-        </div>
-    </div>
+    <!-- ═══════════════════════════════════════════════════════
+         STICKY HEADER WRAPPER — Demo Bar + Main Navigation
+         Dibungkus dalam satu unit sticky agar tidak ada
+         elemen dekoratif yang tumpang tindih.
+         ═══════════════════════════════════════════════════════ -->
+    <div id="site-header-wrapper" class="no-print">
 
-    <!-- MAIN HEADER & NAVIGATION (No-Print) -->
-    <header class="no-print bg-black/95 backdrop-blur-md border-b border-zinc-900 py-4.5 z-40 relative">
-        <div class="max-w-7xl mx-auto px-6 flex justify-between items-center">
-            <!-- Logo Brand -->
-            <a href="{{ route('home') }}" class="flex items-center gap-2.5 group">
-                <div class="w-9 h-9 bg-gradient-to-tr from-luxury-gold to-yellow-500 rounded-none flex items-center justify-center font-black text-black text-sm tracking-tighter">SD</div>
-                <span class="text-xl font-black tracking-[0.3em] text-white group-hover:text-luxury-gold transition-colors duration-300">
-                    SHOW<span class="text-luxury-gold">DRIVE</span>
-                </span>
-            </a>
-
-            <!-- Main Navigation -->
-            <nav class="hidden md:flex items-center space-x-10 text-xs font-bold tracking-[0.25em] text-zinc-400">
-                <a href="{{ route('home') }}" class="{{ request()->routeIs('home') || request()->routeIs('car.detail') ? 'text-luxury-gold' : '' }} hover:text-white transition-all">INVENTORY</a>
-                <a href="{{ route('booking.track') }}" class="{{ request()->routeIs('booking.track') ? 'text-luxury-gold' : '' }} hover:text-white transition-all">CEK STATUS & KWITANSI</a>
+        <!-- PLATFORM DEMO SWITCHER BAR -->
+        <div class="bg-zinc-950 border-b border-zinc-800/60 py-2 px-6 text-xs flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center gap-2.5">
+                <span class="w-2 h-2 rounded-full bg-luxury-gold animate-pulse"></span>
+                <span class="text-[10px] tracking-[0.2em] text-zinc-500 font-bold uppercase">ShowDrive Laravel (Aris &amp; Fathoni)</span>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                <a href="{{ route('home') }}" class="text-zinc-400 hover:text-white px-3 py-1 bg-transparent hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-600 rounded-sm text-[10px] font-bold tracking-wider transition-all duration-200">
+                    <i class="fa-solid fa-car text-luxury-gold mr-1.5"></i> KATALOG PUBLIK
+                </a>
                 @auth
-                    <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'border-luxury-gold bg-luxury-gold text-black' : 'border-luxury-gold/50 text-luxury-gold' }} border hover:bg-luxury-gold hover:text-black transition-all px-5 py-2">CONTROL PANEL</a>
-                @else
-                    <a href="{{ route('login') }}" class="{{ request()->routeIs('login') ? 'border-luxury-gold bg-luxury-gold text-black' : 'border-luxury-gold/50 text-luxury-gold' }} border hover:bg-luxury-gold hover:text-black transition-all px-5 py-2">ADMIN PANEL</a>
+                    <a href="{{ route('admin.dashboard') }}" class="text-zinc-300 hover:text-black px-3 py-1 bg-luxury-gold/10 hover:bg-luxury-gold border border-luxury-gold/30 hover:border-luxury-gold rounded-sm text-[10px] font-bold tracking-wider transition-all duration-200">
+                        <i class="fa-solid fa-user-gear mr-1.5"></i> PORTAL ADMIN
+                    </a>
+                    <form action="{{ route('logout') }}" method="POST" class="inline">
+                        @csrf
+                        <button type="submit" class="text-red-400 hover:text-white px-3 py-1 bg-transparent hover:bg-red-900 border border-red-900/30 hover:border-red-600 rounded-sm text-[10px] font-bold tracking-wider transition-all duration-200">
+                            <i class="fa-solid fa-right-from-bracket mr-1.5"></i> LOGOUT
+                        </button>
+                    </form>
                 @endauth
-            </nav>
-
-            <!-- Toggle Menu Mobile -->
-            <button onclick="toggleMobileMenu()" class="md:hidden text-zinc-400 hover:text-white focus:outline-none">
-                <i class="fa-solid fa-bars text-xl"></i>
-            </button>
+            </div>
         </div>
 
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden bg-zinc-950 border-t border-zinc-900 mt-4 px-6 py-4 space-y-4 text-xs font-semibold tracking-[0.15em]">
-            <a href="{{ route('home') }}" class="block {{ request()->routeIs('home') ? 'text-luxury-gold' : 'text-zinc-400' }} py-2">INVENTORY</a>
-            <a href="{{ route('booking.track') }}" class="block {{ request()->routeIs('booking.track') ? 'text-luxury-gold' : 'text-zinc-400' }} py-2">CEK STATUS & KWITANSI</a>
-            @auth
-                <a href="{{ route('admin.dashboard') }}" class="block text-luxury-gold border border-luxury-gold/30 text-center py-2">CONTROL PANEL</a>
-                <form action="{{ route('logout') }}" method="POST" class="block">
-                    @csrf
-                    <button type="submit" class="w-full text-center text-red-400 border border-red-900/30 py-2">LOGOUT</button>
-                </form>
-            @else
-                <a href="{{ route('login') }}" class="block text-luxury-gold border border-luxury-gold/30 text-center py-2">ADMIN PANEL</a>
-            @endauth
-        </div>
-    </header>
+        <!-- MAIN HEADER & NAVIGATION -->
+        <header class="bg-black/96 backdrop-blur-xl border-b border-zinc-900/80 py-4">
+            <div class="max-w-7xl mx-auto px-6 flex justify-between items-center">
+                <!-- Logo Brand -->
+                <a href="{{ route('home') }}" class="flex items-center gap-2.5 group">
+                    <div class="w-9 h-9 bg-gradient-to-tr from-luxury-gold to-yellow-500 flex items-center justify-center font-black text-black text-sm tracking-tighter shrink-0">SD</div>
+                    <span class="text-xl font-black tracking-[0.3em] text-white group-hover:text-luxury-gold transition-colors duration-300">
+                        SHOW<span class="text-luxury-gold">DRIVE</span>
+                    </span>
+                </a>
+
+                <!-- Main Navigation -->
+                <nav class="hidden md:flex items-center space-x-10 text-xs font-bold tracking-[0.25em] text-zinc-400">
+                    <a href="{{ route('home') }}" class="{{ request()->routeIs('home') || request()->routeIs('car.detail') ? 'text-luxury-gold' : '' }} hover:text-white transition-colors duration-200 relative group">
+                        INVENTORY
+                        <span class="absolute -bottom-1 left-0 h-px bg-luxury-gold transition-all duration-300 {{ request()->routeIs('home') || request()->routeIs('car.detail') ? 'w-full' : 'w-0 group-hover:w-full' }}"></span>
+                    </a>
+                    <a href="{{ route('booking.track') }}" class="{{ request()->routeIs('booking.track') ? 'text-luxury-gold' : '' }} hover:text-white transition-colors duration-200 relative group">
+                        CEK STATUS &amp; KWITANSI
+                        <span class="absolute -bottom-1 left-0 h-px bg-luxury-gold transition-all duration-300 {{ request()->routeIs('booking.track') ? 'w-full' : 'w-0 group-hover:w-full' }}"></span>
+                    </a>
+                    @auth
+                        <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'bg-luxury-gold text-black border-luxury-gold' : 'border-luxury-gold/50 text-luxury-gold hover:bg-luxury-gold hover:text-black' }} border transition-all duration-200 px-5 py-2">
+                            CONTROL PANEL
+                        </a>
+                    @endauth
+                </nav>
+
+                <!-- Toggle Menu Mobile -->
+                <button onclick="toggleMobileMenu()" class="md:hidden text-zinc-400 hover:text-white focus:outline-none transition-colors" aria-label="Toggle menu">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="hidden md:hidden bg-zinc-950 border-t border-zinc-900 mt-4 px-6 py-4 space-y-3 text-xs font-semibold tracking-[0.15em]">
+                <a href="{{ route('home') }}" class="block {{ request()->routeIs('home') ? 'text-luxury-gold' : 'text-zinc-400 hover:text-white' }} py-2 transition-colors">INVENTORY</a>
+                <a href="{{ route('booking.track') }}" class="block {{ request()->routeIs('booking.track') ? 'text-luxury-gold' : 'text-zinc-400 hover:text-white' }} py-2 transition-colors">CEK STATUS &amp; KWITANSI</a>
+                @auth
+                    <a href="{{ route('admin.dashboard') }}" class="block text-luxury-gold border border-luxury-gold/30 text-center py-2">CONTROL PANEL</a>
+                    <form action="{{ route('logout') }}" method="POST" class="block">
+                        @csrf
+                        <button type="submit" class="w-full text-center text-red-400 border border-red-900/30 py-2 hover:bg-red-950 transition-colors">LOGOUT</button>
+                    </form>
+                @endauth
+            </div>
+        </header>
+
+    </div><!-- end #site-header-wrapper -->
 
     <!-- NOTIFICATIONS -->
     <div class="max-w-7xl mx-auto px-6 mt-6 no-print">
@@ -198,12 +229,39 @@
         </div>
     </footer>
 
-    <!-- Script for mobile menu -->
+    <!-- Script for mobile menu + sticky header scroll effect + secret shortcut -->
     <script>
         function toggleMobileMenu() {
             const menu = document.getElementById('mobile-menu');
             menu.classList.toggle('hidden');
         }
+
+        // Sticky header: tambah class 'scrolled' saat user scroll ke bawah
+        (function () {
+            const wrapper = document.getElementById('site-header-wrapper');
+            if (!wrapper) return;
+
+            function onScroll() {
+                if (window.scrollY > 10) {
+                    wrapper.classList.add('scrolled');
+                } else {
+                    wrapper.classList.remove('scrolled');
+                }
+            }
+
+            window.addEventListener('scroll', onScroll, { passive: true });
+            onScroll(); // run on load
+        })();
+
+        // Shortcut Rahasia: Ctrl + Shift + A untuk redirect ke login admin rahasia
+        (function () {
+            window.addEventListener('keydown', function (e) {
+                if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') {
+                    e.preventDefault();
+                    window.location.href = "{{ route('login') }}";
+                }
+            });
+        })();
     </script>
     @yield('scripts')
 </body>
