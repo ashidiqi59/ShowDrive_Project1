@@ -51,7 +51,7 @@
             </div>
             <div class="text-right">
                 <h2 class="text-lg font-bold text-zinc-800 tracking-wider">KWITANSI RESMI</h2>
-                <p class="text-[11px] font-mono text-zinc-500 mt-1">SD-INV-00{{ $booking->id }}</p>
+                <p class="text-[11px] font-mono text-zinc-500 mt-1">{{ $booking->invoice_code }}</p>
                 <p class="text-[10px] text-zinc-400 mt-1">Tanggal: {{ $booking->date }}</p>
             </div>
         </div>

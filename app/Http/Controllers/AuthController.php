@@ -50,6 +50,8 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/login');
+        // Langsung redirect ke homepage — menghindari double redirect
+        // (sebelumnya redirect('/login') yang langsung di-redirect ke '/' oleh Route::redirect)
+        return redirect()->route('home')->with('info', 'Anda telah berhasil logout dari sistem ShowDrive.');
     }
 }

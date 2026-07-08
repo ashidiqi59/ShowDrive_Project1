@@ -23,6 +23,16 @@ class Invoice extends Model
         'authentic_receipt'
     ];
 
+    /**
+     * Cast atribut ke tipe data yang tepat.
+     * Memastikan type safety dan konsistensi saat data diakses dari model.
+     */
+    protected $casts = [
+        'date'         => 'date',          // Otomatis menjadi Carbon instance
+        'total_amount' => 'decimal:2',     // Selalu 2 angka desimal
+        'paid_amount'  => 'decimal:2',     // Selalu 2 angka desimal
+    ];
+
     // Relasi Belongs-To ke 3 Entitas Sekaligus
     public function customer()
     {

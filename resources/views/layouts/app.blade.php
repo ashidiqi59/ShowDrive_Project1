@@ -100,6 +100,7 @@
          Dibungkus dalam satu unit sticky agar tidak ada
          elemen dekoratif yang tumpang tindih.
          ═══════════════════════════════════════════════════════ -->
+    @if(!request()->routeIs('admin.*'))
     <div id="site-header-wrapper" class="no-print">
 
         <!-- PLATFORM DEMO SWITCHER BAR -->
@@ -175,6 +176,7 @@
         </header>
 
     </div><!-- end #site-header-wrapper -->
+    @endif
 
     <!-- NOTIFICATIONS -->
     <div class="max-w-7xl mx-auto px-6 mt-6 no-print">
@@ -202,11 +204,12 @@
     </div>
 
     <!-- CONTENT WRAPPER -->
-    <main class="flex-grow">
+    <main class="flex-grow {{ request()->routeIs('admin.*') ? '' : 'pb-24 md:pb-0' }}">
         @yield('content')
     </main>
 
     <!-- FOOTER (No-Print) -->
+    @if(!request()->routeIs('admin.*'))
     <footer class="no-print bg-black border-t border-zinc-900 py-12 px-6 mt-12">
         <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 text-zinc-500 text-xs tracking-wider">
             <div class="space-y-4">
@@ -228,9 +231,36 @@
             </div>
         </div>
     </footer>
+    @endif
+
+    <!-- BOTTOM NAVIGATION (Mobile-only: md:hidden) -->
+    @if(!request()->routeIs('admin.*'))
+    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-black/95 border-t border-zinc-900 py-3.5 z-50 flex justify-around items-center text-center backdrop-blur-md no-print">
+        <a href="#" onclick="navigateTo('home')" class="{{ request()->routeIs('home') || request()->routeIs('car.detail') ? 'text-luxury-gold' : 'text-zinc-400' }} hover:text-luxury-gold flex-1 flex flex-col items-center transition-all">
+            <i class="fa-solid fa-car text-lg"></i>
+            <span class="text-[10px] font-bold tracking-widest mt-1">KATALOG</span>
+        </a>
+        <div class="w-px h-6 bg-zinc-800"></div> <!-- Elegant separator -->
+        <a href="#" onclick="navigateTo('booking-status')" class="{{ request()->routeIs('booking.track') ? 'text-luxury-gold' : 'text-zinc-400' }} hover:text-luxury-gold flex-1 flex flex-col items-center transition-all">
+            <i class="fa-solid fa-receipt text-lg"></i>
+            <span class="text-[10px] font-bold tracking-widest mt-1">CEK INVOICE</span>
+        </a>
+    </div>
+    @endif
 
     <!-- Script for mobile menu + sticky header scroll effect + secret shortcut -->
     <script>
+        // Navigation helper for mobile bottom navbar
+        function navigateTo(viewId) {
+            if (viewId === 'home') {
+                window.location.href = "{{ route('home') }}";
+            } else if (viewId === 'booking-status') {
+                window.location.href = "{{ route('booking.track') }}";
+            } else if (viewId === 'admin-login') {
+                window.location.href = "{{ Auth::check() ? route('admin.dashboard') : route('login') }}";
+            }
+        }
+
         function toggleMobileMenu() {
             const menu = document.getElementById('mobile-menu');
             menu.classList.toggle('hidden');

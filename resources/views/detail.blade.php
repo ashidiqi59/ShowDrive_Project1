@@ -136,15 +136,20 @@
         name: '{{ addslashes($oldName) }}',
         phone: '{{ addslashes($oldPhone) }}',
         date: '{{ addslashes($oldDate) }}',
+        payment_type: '{{ old('payment_type', 'Down Payment') }}',
         nameError: '',
         phoneError: '',
         dateError: '',
+
+        // Pembatasan tanggal secara dinamis untuk H+1 s/d H+7
+        tomorrowStr: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+        maxDateStr: new Date(Date.now() + 86400000 * 7).toISOString().split('T')[0],
 
         get nameValid() { return this.name.length >= 3 && /^[\u00C0-\u024Fa-zA-Z\s\.\'\-]+$/.test(this.name); },
         get phoneValid() { return /^(08|628|\+628)[0-9]{7,11}$/.test(this.phone); },
         get dateValid() {
             if (!this.date) return false;
-            return new Date(this.date) >= new Date(new Date().toDateString());
+            return this.date >= this.tomorrowStr && this.date <= this.maxDateStr;
         },
         get formValid() { return this.nameValid && this.phoneValid && this.dateValid; },
 
@@ -161,7 +166,8 @@
         },
         validateDate() {
             if (!this.date) { this.dateError = 'Tanggal inspeksi wajib diisi.'; return; }
-            if (new Date(this.date) < new Date(new Date().toDateString())) { this.dateError = 'Tanggal tidak boleh sebelum hari ini.'; return; }
+            if (this.date < this.tomorrowStr) { this.dateError = 'Paling cepat adalah besok.'; return; }
+            if (this.date > this.maxDateStr) { this.dateError = 'Paling lambat adalah 7 hari ke depan.'; return; }
             this.dateError = '';
         },
     }"
@@ -195,7 +201,7 @@
         class="fixed inset-0 flex items-center justify-center p-4 z-[100] pointer-events-none"
         style="display: none;">
 
-        <div class="bg-zinc-950 border border-zinc-800 w-full max-w-md p-8 relative shadow-2xl pointer-events-auto" x-on:click.stop>
+        <div class="bg-zinc-950 border border-zinc-800 w-full max-w-md p-6 relative max-h-[90vh] overflow-y-auto rounded-lg shadow-2xl pointer-events-auto" x-on:click.stop>
 
             {{-- Close button --}}
             <button x-on:click="open = false" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-zinc-500 hover:text-white hover:bg-zinc-800 transition-all rounded">
@@ -281,7 +287,7 @@
                 {{-- Tanggal --}}
                 <div>
                     <label class="block text-zinc-500 font-bold uppercase tracking-wider mb-1.5">
-                        Pilih Tanggal Rencana Inspeksi <span class="text-red-400">*</span>
+                        Pilih Tanggal Rencana Inspeksi (Maksimal H+7) <span class="text-red-400">*</span>
                     </label>
                     <input
                         type="date"
@@ -289,7 +295,8 @@
                         x-model="date"
                         x-on:blur="validateDate()"
                         x-on:change="if(dateError) validateDate()"
-                        :min="new Date().toISOString().split('T')[0]"
+                        :min="tomorrowStr"
+                        :max="maxDateStr"
                         :class="dateError ? 'border-red-500 bg-red-950/20' : (dateValid && date ? 'border-emerald-600 bg-emerald-950/10' : 'border-zinc-800')"
                         class="w-full bg-zinc-900 border text-zinc-300 p-3 focus:outline-none transition-colors focus:border-luxury-gold"
                         required>
@@ -297,6 +304,20 @@
                         <i class="fa-solid fa-circle-exclamation"></i>
                         <span x-text="dateError"></span>
                     </p>
+                </div>
+
+                {{-- Tipe Pembayaran --}}
+                <div>
+                    <label class="block text-zinc-500 font-bold uppercase tracking-wider mb-1.5">
+                        Pilihan Metode Pembayaran Komitmen <span class="text-red-400">*</span>
+                    </label>
+                    <select
+                        name="payment_type"
+                        x-model="payment_type"
+                        class="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 p-3 focus:outline-none focus:border-luxury-gold">
+                        <option value="Down Payment">Uang Muka / DP (IDR 50.000.000)</option>
+                        <option value="Paid">Pelunasan Penuh (IDR {{ number_format($car->price, 0, ',', '.') }})</option>
+                    </select>
                 </div>
 
                 {{-- Info badge --}}

@@ -22,9 +22,9 @@
                 <input type="password" name="password" value="admin" class="w-full bg-zinc-900/50 border border-zinc-800 focus:border-luxury-gold focus:ring-1 focus:ring-luxury-gold text-white p-3 text-xs focus:outline-none" required>
             </div>
             
-            <div class="bg-zinc-900/40 p-3 border border-zinc-800 text-[10px] text-zinc-500 leading-normal">
+            <!-- <div class="bg-zinc-900/40 p-3 border border-zinc-800 text-[10px] text-zinc-500 leading-normal">
                 <i class="fa-solid fa-circle-info text-luxury-gold mr-1"></i> Gunakan username default <strong>admin</strong> dan sandi <strong>admin</strong> untuk masuk.
-            </div>
+            </div> -->
 
             <button type="submit" class="w-full bg-luxury-gold hover:bg-luxury-goldHover text-black font-extrabold py-3.5 text-xs tracking-[0.2em] uppercase transition-all">
                 LOG IN SYSTEM

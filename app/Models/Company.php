@@ -9,7 +9,7 @@ class Company extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'tax_id'];
+    protected $fillable = ['name', 'tax_id', 'address', 'phone'];
 
     // Relasi One-to-Many: Satu perusahaan punya banyak gudang
     public function warehouses()
