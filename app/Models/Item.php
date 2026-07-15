@@ -4,59 +4,84 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Item extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'warehouse_id', 
-        'brand', 
-        'model', 
-        'vin', 
-        'year', 
-        'price', 
-        'status', 
-        'engine', 
-        'transmission', 
-        'color', 
-        'image_url'
+        'warehouse_id',
+        'brand',
+        'model',
+        'vin',
+        'year',
+        'price',
+        'dp_percentage',
+        'status',
+        'engine',
+        'transmission',
+        'color',
+        'image_url',
     ];
 
-    // Accessor untuk properti 'image' agar merujuk ke 'image_url' di database
-    public function getImageAttribute()
+    protected $casts = [
+        'price'         => 'decimal:2',
+        'year'          => 'integer',
+        'dp_percentage' => 'integer',
+    ];
+
+    // ---- Accessors ----
+
+    /**
+     * Resolve the primary display image, falling back to a default placeholder.
+     * Does NOT rewrite the 'status' value — use getRawOriginal('status') for DB comparisons.
+     */
+    public function getImageAttribute(): string
     {
-        if (!$this->image_url) {
+        if (! $this->image_url) {
             return 'https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?auto=format&fit=crop&w=600&q=80';
         }
+
         if (filter_var($this->image_url, FILTER_VALIDATE_URL)) {
             return $this->image_url;
         }
+
         return asset('storage/' . $this->image_url);
     }
 
-    // Accessor untuk memetakan status 'Invoiced' di database ke 'Booked' di UI
-    public function getStatusAttribute($value)
+    /**
+     * Map internal 'Invoiced' DB enum to 'Booked' for UI display.
+     * IMPORTANT: always use getRawOriginal('status') when making DB-level status checks.
+     */
+    public function getStatusAttribute(string $value): string
     {
-        if ($value === 'Invoiced') {
-            return 'Booked';
-        }
-        return $value;
+        return $value === 'Invoiced' ? 'Booked' : $value;
     }
 
-    public function warehouse()
+    // ---- Query Scopes ----
+
+    /** Scope to filter only units currently available for booking. */
+    public function scopeAvailable(Builder $query): Builder
+    {
+        return $query->where('status', 'Available');
+    }
+
+    // ---- Relationships ----
+
+    public function warehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class);
     }
 
-    // Relasi One-to-Many ke ItemImage (Galeri Foto Pendukung)
-    public function images()
+    public function images(): HasMany
     {
         return $this->hasMany(ItemImage::class);
     }
 
-    // Relasi One-to-Many: Satu mobil bisa memiliki riwayat invoice (walau biasanya 1 mobil = 1 invoice lunas)
-    public function invoices()
+    public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
     }

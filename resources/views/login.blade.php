@@ -10,18 +10,18 @@
             <h3 class="text-2xl font-black tracking-[0.2em]">ADMIN PORTAL</h3>
             <div class="w-12 h-[2px] bg-luxury-gold mx-auto mt-3"></div>
         </div>
-        
+
         <form action="{{ route('login') }}" method="POST" class="space-y-6">
             @csrf
             <div>
                 <label class="block text-zinc-500 text-[10px] font-bold tracking-wider uppercase mb-2">Username Admin</label>
-                <input type="text" name="username" value="admin" class="w-full bg-zinc-900/50 border border-zinc-800 focus:border-luxury-gold focus:ring-1 focus:ring-luxury-gold text-white p-3 text-xs focus:outline-none" required>
+                <input type="text" name="username" value="" autocomplete="username" class="w-full bg-zinc-900/50 border border-zinc-800 focus:border-luxury-gold focus:ring-1 focus:ring-luxury-gold text-white p-3 text-xs focus:outline-none" required>
             </div>
             <div>
                 <label class="block text-zinc-500 text-[10px] font-bold tracking-wider uppercase mb-2">Kata Sandi</label>
-                <input type="password" name="password" value="admin" class="w-full bg-zinc-900/50 border border-zinc-800 focus:border-luxury-gold focus:ring-1 focus:ring-luxury-gold text-white p-3 text-xs focus:outline-none" required>
+                <input type="password" name="password" autocomplete="current-password" class="w-full bg-zinc-900/50 border border-zinc-800 focus:border-luxury-gold focus:ring-1 focus:ring-luxury-gold text-white p-3 text-xs focus:outline-none" required>
             </div>
-            
+
             <!-- <div class="bg-zinc-900/40 p-3 border border-zinc-800 text-[10px] text-zinc-500 leading-normal">
                 <i class="fa-solid fa-circle-info text-luxury-gold mr-1"></i> Gunakan username default <strong>admin</strong> dan sandi <strong>admin</strong> untuk masuk.
             </div> -->

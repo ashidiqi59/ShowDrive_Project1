@@ -28,9 +28,9 @@
 <body class="bg-luxury-darkBg text-zinc-100 min-h-screen font-sans selection:bg-luxury-gold selection:text-black">
     <div x-data="{ sidebarOpen: false }" class="flex min-h-screen relative">
         <!-- BACKDROP OVERLAY (Mobile) -->
-        <div 
-            x-show="sidebarOpen" 
-            @click="sidebarOpen = false" 
+        <div
+            x-show="sidebarOpen"
+            @click="sidebarOpen = false"
             x-transition:enter="transition ease-out duration-300"
             x-transition:enter-start="opacity-0"
             x-transition:enter-end="opacity-100"
@@ -42,8 +42,8 @@
         </div>
 
         <!-- SIDEBAR LEFT (Persistent) -->
-        <aside 
-            :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" 
+        <aside
+            :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
             class="w-64 bg-zinc-950 border-r border-zinc-900 p-6 flex flex-col justify-between fixed h-full z-50 transition-transform duration-300 md:translate-x-0 md:sticky md:top-0">
             <div class="space-y-8">
                 <!-- Brand Logo Header -->
@@ -66,35 +66,45 @@
                 <!-- Navigation Links -->
                 <nav class="space-y-1.5 overflow-y-auto">
                     <span class="text-[9px] font-bold tracking-widest text-zinc-600 block px-3 mb-2">MENU UTAMA</span>
-                    
-                    <a href="{{ url('/admin/dashboard') }}" class="flex items-center gap-3 px-3 py-2.5 rounded text-xs font-bold tracking-wider transition-all {{ Request::is('admin/dashboard') ? 'bg-zinc-900 text-luxury-gold border-l-2 border-luxury-gold' : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40' }}">
+
+                    <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-3 py-2.5 rounded text-xs font-bold tracking-wider transition-all {{ request()->routeIs('admin.dashboard') ? 'bg-zinc-900 text-luxury-gold border-l-2 border-luxury-gold' : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40' }}">
                         <i class="fa-solid fa-chart-line text-sm w-5"></i>
                         <span>DASHBOARD METRIK</span>
                     </a>
-                    
-                    <a href="{{ url('/admin/items') }}" class="flex items-center gap-3 px-3 py-2.5 rounded text-xs font-bold tracking-wider transition-all {{ Request::is('admin/items') ? 'bg-zinc-900 text-luxury-gold border-l-2 border-luxury-gold' : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40' }}">
+
+                    <a href="{{ route('admin.items') }}" class="flex items-center gap-3 px-3 py-2.5 rounded text-xs font-bold tracking-wider transition-all {{ request()->routeIs('admin.items') ? 'bg-zinc-900 text-luxury-gold border-l-2 border-luxury-gold' : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40' }}">
                         <i class="fa-solid fa-car-side text-sm w-5"></i>
                         <span>DAFTAR INVENTARIS</span>
                     </a>
-                    
-                    <a href="{{ url('/admin/invoices') }}" class="flex items-center gap-3 px-3 py-2.5 rounded text-xs font-bold tracking-wider transition-all {{ Request::is('admin/invoices') ? 'bg-zinc-900 text-luxury-gold border-l-2 border-luxury-gold' : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40' }}">
+
+                    <a href="{{ route('admin.invoices') }}" class="flex items-center gap-3 px-3 py-2.5 rounded text-xs font-bold tracking-wider transition-all {{ request()->routeIs('admin.invoices') ? 'bg-zinc-900 text-luxury-gold border-l-2 border-luxury-gold' : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40' }}">
                         <i class="fa-solid fa-check-double text-sm w-5"></i>
                         <span>VALIDASI TRANSAKSI</span>
                     </a>
-                    
-                    <a href="{{ url('/admin/warehouses') }}" class="flex items-center gap-3 px-3 py-2.5 rounded text-xs font-bold tracking-wider transition-all {{ Request::is('admin/warehouses') ? 'bg-zinc-900 text-luxury-gold border-l-2 border-luxury-gold' : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40' }}">
+
+                    <a href="{{ route('admin.laporan') }}" class="flex items-center gap-3 px-3 py-2.5 rounded text-xs font-bold tracking-wider transition-all {{ request()->routeIs('admin.laporan') ? 'bg-zinc-900 text-luxury-gold border-l-2 border-luxury-gold' : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40' }}">
+                        <i class="fa-solid fa-file-invoice-dollar text-sm w-5"></i>
+                        <span>LAPORAN KEUANGAN</span>
+                    </a>
+
+                    <a href="{{ route('admin.warehouses') }}" class="flex items-center gap-3 px-3 py-2.5 rounded text-xs font-bold tracking-wider transition-all {{ request()->routeIs('admin.warehouses') ? 'bg-zinc-900 text-luxury-gold border-l-2 border-luxury-gold' : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40' }}">
                         <i class="fa-solid fa-warehouse text-sm w-5"></i>
                         <span>MANAJEMEN GUDANG</span>
                     </a>
 
-                    <a href="{{ url('/admin/cashiers') }}" class="flex items-center gap-3 px-3 py-2.5 rounded text-xs font-bold tracking-wider transition-all {{ Request::is('admin/cashiers') ? 'bg-zinc-900 text-luxury-gold border-l-2 border-luxury-gold' : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40' }}">
+                    <a href="{{ route('admin.cashiers') }}" class="flex items-center gap-3 px-3 py-2.5 rounded text-xs font-bold tracking-wider transition-all {{ request()->routeIs('admin.cashiers') ? 'bg-zinc-900 text-luxury-gold border-l-2 border-luxury-gold' : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40' }}">
                         <i class="fa-solid fa-users text-sm w-5"></i>
                         <span>MANAJEMEN KASIR</span>
                     </a>
 
-                    <a href="{{ url('/admin/profile') }}" class="flex items-center gap-3 px-3 py-2.5 rounded text-xs font-bold tracking-wider transition-all {{ Request::is('admin/profile') ? 'bg-zinc-900 text-luxury-gold border-l-2 border-luxury-gold' : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40' }}">
+                    <a href="{{ route('admin.profile') }}" class="flex items-center gap-3 px-3 py-2.5 rounded text-xs font-bold tracking-wider transition-all {{ request()->routeIs('admin.profile') ? 'bg-zinc-900 text-luxury-gold border-l-2 border-luxury-gold' : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40' }}">
                         <i class="fa-solid fa-building text-sm w-5"></i>
                         <span>PROFIL SHOWROOM</span>
+                    </a>
+
+                    <a href="{{ route('admin.payment_settings') }}" class="flex items-center gap-3 px-3 py-2.5 rounded text-xs font-bold tracking-wider transition-all {{ request()->routeIs('admin.payment_settings') ? 'bg-zinc-900 text-luxury-gold border-l-2 border-luxury-gold' : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40' }}">
+                        <i class="fa-solid fa-credit-card text-sm w-5"></i>
+                        <span>REKENING & QRIS</span>
                     </a>
                 </nav>
             </div>

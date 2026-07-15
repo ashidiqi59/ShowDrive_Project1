@@ -2,33 +2,41 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable; // Penting untuk fitur Login
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Cashier extends Authenticatable
 {
     use HasFactory, Notifiable;
 
     protected $fillable = [
-        'company_id', 
-        'name', 
-        'username', 
-        'password', 
-        'role'
+        'company_id',
+        'name',
+        'username',
+        'password',
+        'role',
     ];
 
     protected $hidden = [
-        'password', // Sembunyikan password saat data dipanggil
+        'password',
+        'remember_token',
     ];
 
-    public function company()
+    protected $casts = [
+        'password' => 'hashed',
+    ];
+
+    // ---- Relationships ----
+
+    public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
-    // Relasi One-to-Many: Satu kasir bisa mengesahkan banyak invoice
-    public function invoices()
+    public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
     }

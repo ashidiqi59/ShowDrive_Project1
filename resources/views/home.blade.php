@@ -76,5 +76,55 @@
             </div>
         @endforelse
     </div>
+
+    {{-- Pagination --}}
+    @if($cars->hasPages())
+        <div class="mt-12 flex justify-center">
+            <nav class="flex items-center gap-1">
+                {{-- Prev --}}
+                @if($cars->onFirstPage())
+                    <span class="px-3 py-2 text-[10px] font-bold text-zinc-700 border border-zinc-900 cursor-not-allowed">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </span>
+                @else
+                    <a href="{{ $cars->previousPageUrl() }}"
+                       class="px-3 py-2 text-[10px] font-bold text-zinc-400 border border-zinc-800 hover:border-luxury-gold hover:text-luxury-gold transition-all">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </a>
+                @endif
+
+                {{-- Page numbers --}}
+                @foreach($cars->getUrlRange(1, $cars->lastPage()) as $page => $url)
+                    @if($page == $cars->currentPage())
+                        <span class="px-3 py-2 text-[10px] font-bold bg-luxury-gold text-black border border-luxury-gold">
+                            {{ $page }}
+                        </span>
+                    @elseif(abs($page - $cars->currentPage()) <= 2)
+                        <a href="{{ $url }}"
+                           class="px-3 py-2 text-[10px] font-bold text-zinc-400 border border-zinc-800 hover:border-luxury-gold hover:text-luxury-gold transition-all">
+                            {{ $page }}
+                        </a>
+                    @elseif(abs($page - $cars->currentPage()) == 3)
+                        <span class="px-2 py-2 text-[10px] text-zinc-700">...</span>
+                    @endif
+                @endforeach
+
+                {{-- Next --}}
+                @if($cars->hasMorePages())
+                    <a href="{{ $cars->nextPageUrl() }}"
+                       class="px-3 py-2 text-[10px] font-bold text-zinc-400 border border-zinc-800 hover:border-luxury-gold hover:text-luxury-gold transition-all">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </a>
+                @else
+                    <span class="px-3 py-2 text-[10px] font-bold text-zinc-700 border border-zinc-900 cursor-not-allowed">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </span>
+                @endif
+            </nav>
+        </div>
+        <p class="text-center text-zinc-600 text-[10px] mt-3 font-mono">
+            Menampilkan {{ $cars->firstItem() }}–{{ $cars->lastItem() }} dari {{ $cars->total() }} unit
+        </p>
+    @endif
 </section>
 @endsection

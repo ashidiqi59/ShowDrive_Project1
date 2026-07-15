@@ -2,56 +2,51 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class AuthController extends Controller
 {
-    /**
-     * Menampilkan halaman form login admin.
-     */
-    public function showLogin()
+    public function showLogin(Request $request): View
     {
+        if ($request->query('gateway_token') !== config('app.gateway_token')) {
+            abort(404);
+        }
         return view('login');
     }
 
-    /**
-     * Memproses autentikasi (Login).
-     */
-    public function authenticate(Request $request)
+    public function authenticate(Request $request): RedirectResponse
     {
-        // Validasi input
         $credentials = $request->validate([
             'username' => ['required'],
             'password' => ['required'],
         ]);
 
-        // Attempt login (menggunakan model Cashier yang sudah extend Authenticatable)
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            
-            // Arahkan ke dashboard admin setelah login sukses
+            cookie()->queue('sd_logged_in', '1', 43200); // 30 days
             return redirect()->intended('/admin/dashboard');
         }
 
-        // Jika login gagal
         return back()->withErrors([
             'username' => 'Username atau password salah.',
         ])->onlyInput('username');
     }
 
-    /**
-     * Mengelola logout admin.
-     */
-    public function logout(Request $request)
+    public function logout(Request $request): RedirectResponse
     {
         Auth::logout();
-
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+        cookie()->queue(cookie()->forget('sd_logged_in'));
+        return redirect()->route('home')
+            ->with('info', 'Anda telah berhasil logout dari sistem ShowDrive.');
+    }
 
-        // Langsung redirect ke homepage — menghindari double redirect
-        // (sebelumnya redirect('/login') yang langsung di-redirect ke '/' oleh Route::redirect)
-        return redirect()->route('home')->with('info', 'Anda telah berhasil logout dari sistem ShowDrive.');
+    public function shortcutRedirect(): RedirectResponse
+    {
+        return redirect('/pintu-akses-masuk-showdrive?gateway_token=' . config('app.gateway_token'));
     }
 }

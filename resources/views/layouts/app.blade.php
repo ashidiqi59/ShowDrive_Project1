@@ -13,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;950&family=Playfair+Display:ital,wght@0,500;0,700;1,400&display=swap" rel="stylesheet">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <script>
         tailwind.config = {
             theme: {
@@ -283,14 +283,37 @@
             onScroll(); // run on load
         })();
 
-        // Shortcut Rahasia: Ctrl + Shift + A untuk redirect ke login admin rahasia
+        // ─────────────────────────────────────────────────────────────
+        // SHORTCUT NAVIGASI KASIR — Ctrl + Shift + A
+        // Tiga lapis perlindungan:
+        //   1. Hanya aktif di halaman /track dan /invoice/*
+        //   2. Auto-nonaktif setelah 5 detik sejak page load
+        //   3. URL yang di-hardcode hanya relay '/pintu-masuk',
+        //      bukan URL login sesungguhnya
+        // ─────────────────────────────────────────────────────────────
         (function () {
-            window.addEventListener('keydown', function (e) {
+            // Lapisan 1: cek halaman — hanya /track dan /invoice/*
+            const path = window.location.pathname;
+            const isAllowedPage = path === '/track'
+                || path.startsWith('/track/')
+                || path.startsWith('/invoice/');
+
+            if (!isAllowedPage) return; // berhenti, tidak pasang listener
+
+            // Lapisan 2: pasang listener tapi lepas otomatis setelah 5 detik
+            function onKeyDown(e) {
                 if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') {
                     e.preventDefault();
-                    window.location.href = "{{ route('login') }}";
+                    window.location.href = "{{ route('pintu.masuk') }}"; // Lapisan 3: Gated Relay URL
                 }
-            });
+            }
+
+            window.addEventListener('keydown', onKeyDown);
+
+            // Auto-remove listener setelah 5000ms (5 detik)
+            setTimeout(function () {
+                window.removeEventListener('keydown', onKeyDown);
+            }, 5000);
         })();
     </script>
     @yield('scripts')

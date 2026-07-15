@@ -16,36 +16,14 @@
         </div>
     </div>
 
-    {{-- Notifikasi --}}
-    @if(session('success'))
-        <div class="bg-emerald-950/60 border border-emerald-900/50 text-emerald-400 p-4 mb-8 text-xs font-bold tracking-wider uppercase flex items-center gap-3">
-            <i class="fa-solid fa-circle-check"></i> {{ session('success') }}
-        </div>
-    @endif
-    @if(session('error'))
-        <div class="bg-red-950/60 border border-red-900/50 text-red-400 p-4 mb-8 text-xs font-bold tracking-wider uppercase flex items-center gap-3">
-            <i class="fa-solid fa-triangle-exclamation"></i> {{ session('error') }}
-        </div>
-    @endif
-    @if($errors->any())
-        <div class="bg-red-950/60 border border-red-900/50 text-red-400 p-4 mb-8 text-xs font-bold tracking-wider uppercase flex flex-col gap-2">
-            <div class="flex items-center gap-3"><i class="fa-solid fa-triangle-exclamation"></i> Terjadi Kesalahan:</div>
-            <ul class="list-disc list-inside text-[10px] pl-5">
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
     {{-- Form --}}
     <div class="bg-zinc-950 border border-zinc-900 p-8 shadow-2xl relative overflow-hidden group">
         <div class="absolute inset-0 bg-gradient-to-br from-luxury-gold/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
-        
+
         <form action="{{ route('admin.company.update') }}" method="POST" class="relative z-10 space-y-6 text-xs">
             @csrf
             @method('PUT')
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {{-- Nama Perusahaan --}}
                 <div class="md:col-span-2">

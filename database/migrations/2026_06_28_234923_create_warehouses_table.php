@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('warehouses', function (Blueprint $table) {
@@ -17,12 +14,12 @@ return new class extends Migration
             $table->string('name');
             $table->string('location');
             $table->timestamps();
+
+            // Index for filtering warehouses by company
+            $table->index('company_id');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('warehouses');

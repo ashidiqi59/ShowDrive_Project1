@@ -10,12 +10,12 @@
     form: {
         brand: 'Porsche', model: '', vin: '', year: 2024,
         color: '', engine: '', transmission: '', price: '',
-        status: 'Available', warehouse_id: ''
+        dp_percentage: 20, status: 'Available', warehouse_id: ''
     },
     openAdd() {
         this.editMode = false;
         this.editId = null;
-        this.form = { brand: 'Porsche', model: '', vin: '', year: 2024, color: '', engine: '', transmission: '', price: '', status: 'Available', warehouse_id: '' };
+        this.form = { brand: 'Porsche', model: '', vin: '', year: 2024, color: '', engine: '', transmission: '', price: '', dp_percentage: 20, status: 'Available', warehouse_id: '' };
         this.modalOpen = true;
     },
     openEdit(car) {
@@ -24,7 +24,8 @@
         this.form = {
             brand: car.brand, model: car.model, vin: car.vin, year: car.year,
             color: car.color, engine: car.engine, transmission: car.transmission,
-            price: car.price, status: car.status, warehouse_id: car.warehouse_id
+            price: car.price, dp_percentage: car.dp_percentage ?? 20,
+            status: car.status, warehouse_id: car.warehouse_id
         };
         this.modalOpen = true;
     }
@@ -47,27 +48,6 @@
         </button>
     </div>
 
-    {{-- ══════════════════════════════════════════
-         FLASH MESSAGES
-    ══════════════════════════════════════════ --}}
-    @if(session('success'))
-        <div class="bg-emerald-950/60 border border-emerald-900/50 text-emerald-400 p-4 text-xs font-bold tracking-wider uppercase flex items-center gap-3">
-            <i class="fa-solid fa-circle-check"></i> {{ session('success') }}
-        </div>
-    @endif
-    @if(session('error'))
-        <div class="bg-red-950/60 border border-red-900/50 text-red-400 p-4 text-xs font-bold tracking-wider uppercase flex items-center gap-3">
-            <i class="fa-solid fa-triangle-exclamation"></i> {{ session('error') }}
-        </div>
-    @endif
-    @if($errors->any())
-        <div class="bg-red-950/60 border border-red-900/50 text-red-400 p-4 text-xs flex flex-col gap-2">
-            <div class="flex items-center gap-3 font-bold uppercase tracking-wider"><i class="fa-solid fa-triangle-exclamation"></i> Terdapat Kesalahan Input:</div>
-            <ul class="list-disc list-inside pl-5 text-[10px]">
-                @foreach($errors->all() as $e) <li>{{ $e }}</li> @endforeach
-            </ul>
-        </div>
-    @endif
 
     {{-- ══════════════════════════════════════════
          TABEL INVENTARIS
@@ -153,7 +133,7 @@
                             <td class="p-4 text-zinc-500 text-[10px]">
                                 @if($car->warehouse)
                                     <span class="block text-zinc-300 font-semibold">{{ $car->warehouse->name }}</span>
-                                    <span class="text-zinc-600">{{ Str::limit($car->warehouse->location, 25) }}</span>
+                                    <span class="text-zinc-600">{{ strlen($car->warehouse->location ?? '') > 25 ? substr($car->warehouse->location, 0, 25) . '...' : ($car->warehouse->location ?? '—') }}</span>
                                 @else
                                     <span class="italic text-zinc-700">—</span>
                                 @endif
@@ -204,6 +184,48 @@
                 </tbody>
             </table>
         </div>
+
+        {{-- Pagination --}}
+        @if($cars->hasPages())
+            <div class="px-6 py-4 border-t border-zinc-900 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <p class="text-zinc-600 text-[10px] font-mono">
+                    Menampilkan {{ $cars->firstItem() }}–{{ $cars->lastItem() }} dari {{ $cars->total() }} unit
+                </p>
+                <nav class="flex items-center gap-1">
+                    @if($cars->onFirstPage())
+                        <span class="px-3 py-1.5 text-[10px] font-bold text-zinc-700 border border-zinc-900 cursor-not-allowed">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </span>
+                    @else
+                        <a href="{{ $cars->previousPageUrl() }}"
+                           class="px-3 py-1.5 text-[10px] font-bold text-zinc-400 border border-zinc-800 hover:border-luxury-gold hover:text-luxury-gold transition-all">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </a>
+                    @endif
+
+                    @foreach($cars->getUrlRange(1, $cars->lastPage()) as $page => $url)
+                        @if($page == $cars->currentPage())
+                            <span class="px-3 py-1.5 text-[10px] font-bold bg-luxury-gold text-black">{{ $page }}</span>
+                        @elseif(abs($page - $cars->currentPage()) <= 2)
+                            <a href="{{ $url }}" class="px-3 py-1.5 text-[10px] font-bold text-zinc-400 border border-zinc-800 hover:border-luxury-gold hover:text-luxury-gold transition-all">{{ $page }}</a>
+                        @elseif(abs($page - $cars->currentPage()) == 3)
+                            <span class="px-2 py-1.5 text-[10px] text-zinc-700">...</span>
+                        @endif
+                    @endforeach
+
+                    @if($cars->hasMorePages())
+                        <a href="{{ $cars->nextPageUrl() }}"
+                           class="px-3 py-1.5 text-[10px] font-bold text-zinc-400 border border-zinc-800 hover:border-luxury-gold hover:text-luxury-gold transition-all">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    @else
+                        <span class="px-3 py-1.5 text-[10px] font-bold text-zinc-700 border border-zinc-900 cursor-not-allowed">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </span>
+                    @endif
+                </nav>
+            </div>
+        @endif
     </div>
 
     {{-- ══════════════════════════════════════════
@@ -277,11 +299,29 @@
                     </div>
                 </div>
 
-                {{-- Baris 5: Harga & Gudang --}}
-                <div class="grid grid-cols-2 gap-4">
+                {{-- Baris 5: Harga, DP %, & Gudang --}}
+                <div class="grid grid-cols-3 gap-4">
                     <div>
                         <label class="block text-zinc-500 font-bold uppercase tracking-widest mb-1.5 text-[10px]">Harga Jual (IDR) <span class="text-red-500">*</span></label>
                         <input type="number" name="price" x-model="form.price" placeholder="Nominal tanpa titik" class="w-full bg-zinc-900 border border-zinc-800 text-white p-3 focus:border-luxury-gold focus:outline-none transition-colors" required min="0">
+                    </div>
+                    <div>
+                        <label class="block text-zinc-500 font-bold uppercase tracking-widest mb-1.5 text-[10px]">
+                            DP % <span class="text-red-500">*</span>
+                            <span class="text-zinc-600 normal-case font-normal ml-1">(1–100)</span>
+                        </label>
+                        <div class="relative">
+                            <input type="number" name="dp_percentage" x-model="form.dp_percentage"
+                                min="1" max="100" placeholder="20"
+                                class="w-full bg-zinc-900 border border-zinc-800 text-white p-3 pr-8 focus:border-luxury-gold focus:outline-none transition-colors"
+                                required>
+                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 text-xs font-bold pointer-events-none">%</span>
+                        </div>
+                        {{-- Preview nominal DP secara real-time --}}
+                        <p class="text-[9px] text-luxury-gold/70 font-mono mt-1"
+                           x-show="form.price && form.dp_percentage"
+                           x-text="'DP: IDR ' + new Intl.NumberFormat('id-ID').format(Math.round(form.price * form.dp_percentage / 100))">
+                        </p>
                     </div>
                     <div>
                         <label class="block text-zinc-500 font-bold uppercase tracking-widest mb-1.5 text-[10px]">Lokasi Gudang <span class="text-red-500">*</span></label>

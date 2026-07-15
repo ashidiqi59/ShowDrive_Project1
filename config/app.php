@@ -65,7 +65,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => env('APP_TIMEZONE', 'Asia/Jakarta'),
 
     /*
     |--------------------------------------------------------------------------
@@ -122,5 +122,16 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Stealth Access Gateway Token
+    |--------------------------------------------------------------------------
+    |
+    | Used to authorize entry to the secret admin login path.
+    |
+    */
+
+    'gateway_token' => env('SD_GATEWAY_TOKEN', 'SD_STEALTH_AUTH_2026'),
 
 ];

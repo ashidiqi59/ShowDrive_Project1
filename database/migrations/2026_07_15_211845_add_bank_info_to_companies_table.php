@@ -12,8 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('companies', function (Blueprint $table) {
-            $table->string('address')->nullable()->after('tax_id');
-            $table->string('phone')->nullable()->after('address');
+            $table->string('bank_name')->nullable();
+            $table->string('bank_account')->nullable();
+            $table->string('bank_account_holder')->nullable();
+            $table->string('qris_image')->nullable();
         });
     }
 
@@ -23,7 +25,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('companies', function (Blueprint $table) {
-            $table->dropColumn(['address', 'phone']);
+            $table->dropColumn(['bank_name', 'bank_account', 'bank_account_holder', 'qris_image']);
         });
     }
 };

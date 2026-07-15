@@ -1,64 +1,145 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+
+// Public controllers
 use App\Http\Controllers\PublicController;
-use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 
-// Public Routes
+// Admin controllers (namespace App\Http\Controllers\Admin)
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ItemController;
+use App\Http\Controllers\Admin\InvoiceController;
+use App\Http\Controllers\Admin\WarehouseController;
+use App\Http\Controllers\Admin\CashierController;
+use App\Http\Controllers\Admin\CompanyController;
+use App\Http\Controllers\Admin\PaymentSettingsController;
+use App\Http\Controllers\Admin\ReportController;
+
+// =====================================================================
+// RATE LIMITERS
+// =====================================================================
+
+RateLimiter::for('otp-request', function (Request $request) {
+    // Batas permintaan OTP baru: maks 5x per 10 menit per IP (ketat, untuk mencegah SMS/WA flood)
+    return Limit::perMinutes(10, 5)->by($request->ip());
+});
+
+RateLimiter::for('otp-verify', function (Request $request) {
+    // Batas percobaan verifikasi OTP: maks 20x per 10 menit per IP
+    // Batasan sebenarnya ditangani di session (maks 3 kali gagal per sesi OTP via SEC-03)
+    // Rate limiter ini hanya sebagai jaring pengaman terakhir dari serangan multi-sesi
+    return Limit::perMinutes(10, 20)->by($request->ip());
+});
+
+RateLimiter::for('booking', function (Request $request) {
+    return Limit::perMinute(10)->by($request->ip());
+});
+
+RateLimiter::for('login', function (Request $request) {
+    return Limit::perMinute(5)->by($request->ip());
+});
+
+// =====================================================================
+// PUBLIC ROUTES
+// =====================================================================
+
 Route::get('/', [PublicController::class, 'index'])->name('home');
-Route::get('/car/{id}', [PublicController::class, 'show'])->name('car.detail');
-Route::post('/booking', [PublicController::class, 'storeBooking'])->name('booking.store');
+
+Route::get('/car/{id}', [PublicController::class, 'show'])->name('car.detail')
+    ->whereNumber('id');
+
+Route::post('/booking', [PublicController::class, 'storeBooking'])->name('booking.store')
+    ->middleware('throttle:booking');
+
 Route::get('/track', [PublicController::class, 'track'])->name('booking.track');
-Route::post('/track/otp', [PublicController::class, 'requestOtp'])->name('booking.track.otp');
-Route::post('/track/verify', [PublicController::class, 'verifyOtp'])->name('booking.track.verify');
+
+Route::post('/track/otp', [PublicController::class, 'requestOtp'])->name('booking.track.otp')
+    ->middleware('throttle:otp-request');
+
+Route::post('/track/verify', [PublicController::class, 'verifyOtp'])->name('booking.track.verify')
+    ->middleware('throttle:otp-verify');
+
 Route::post('/track/reset', [PublicController::class, 'resetTrackSession'])->name('booking.track.reset');
-Route::post('/booking/{id}/upload-proof', [PublicController::class, 'uploadProof'])->name('booking.upload_proof');
-Route::get('/invoice/{id}', [PublicController::class, 'invoice'])->name('booking.invoice');
 
-// Admin Auth Routes (Security by Obscurity)
-Route::redirect('/login', '/'); // Blokir & redirect /login biasa
-Route::get('/pintu-akses-masuk-showdrive', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/pintu-akses-masuk-showdrive', [AuthController::class, 'authenticate']);
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::post('/booking/{id}/upload-proof', [PublicController::class, 'uploadProof'])->name('booking.upload_proof')
+    ->whereNumber('id');
 
-// Protected Admin Routes
+Route::post('/booking/{id}/cancel', [PublicController::class, 'cancelBooking'])->name('booking.cancel')
+    ->whereNumber('id');
+
+Route::get('/invoice/{id}', [PublicController::class, 'invoice'])->name('booking.invoice')
+    ->whereNumber('id');
+
+// =====================================================================
+// ADMIN AUTH ROUTES
+// =====================================================================
+
+Route::redirect('/login', '/');
+
+// Relay endpoint untuk shortcut keyboard kasir (Ctrl+Shift+A) dialihkan secara aman
+Route::get('/pintu-masuk', [AuthController::class, 'shortcutRedirect'])->name('pintu.masuk');
+
+Route::get('/pintu-akses-masuk-showdrive', [AuthController::class, 'showLogin'])->name('login')
+    ->middleware('guest');
+
+Route::post('/pintu-akses-masuk-showdrive', [AuthController::class, 'authenticate'])
+    ->middleware(['guest', 'throttle:login']);
+
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout')
+    ->middleware('auth');
+
+// =====================================================================
+// PROTECTED ADMIN ROUTES
+// =====================================================================
+
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', function () {
-        return redirect()->route('admin.dashboard');
-    });
-    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-    Route::get('/items', [AdminController::class, 'manageItems'])->name('items');
-    Route::get('/invoices', [AdminController::class, 'manageInvoices'])->name('invoices');
-    Route::get('/warehouses', [AdminController::class, 'manageWarehouses'])->name('warehouses');
-    Route::get('/cashiers', [AdminController::class, 'manageCashiers'])->name('cashiers');
-    Route::get('/profile', [AdminController::class, 'manageProfile'])->name('profile');
-    // CRUD Cars (Items)
-    Route::post('/cars', [AdminController::class, 'storeCar'])->name('cars.store');
-    Route::put('/cars/{id}', [AdminController::class, 'updateCar'])->name('cars.update');
-    Route::delete('/cars/{id}', [AdminController::class, 'deleteCar'])->name('cars.destroy');
 
-    // Admin Actions (Full-page redirect — legacy)
-    Route::post('/booking/{id}/verify', [AdminController::class, 'verifyPayment'])->name('booking.verify');
-    Route::post('/booking/{id}/status', [AdminController::class, 'processInspection'])->name('booking.status');
+    Route::redirect('/', '/admin/dashboard');
 
-    // Admin AJAX Quick Actions (JSON response — for real-time UI updates)
-    Route::post('/booking/{id}/verify-ajax', [AdminController::class, 'verifyPaymentAjax'])->name('booking.verify.ajax');
-    Route::post('/booking/{id}/status-ajax', [AdminController::class, 'processInspectionAjax'])->name('booking.status.ajax');
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // CRUD Warehouses (Gudang)
-    Route::post('/warehouses', [AdminController::class, 'storeWarehouse'])->name('warehouses.store');
-    Route::put('/warehouses/{id}', [AdminController::class, 'updateWarehouse'])->name('warehouses.update');
-    Route::delete('/warehouses/{id}', [AdminController::class, 'deleteWarehouse'])->name('warehouses.destroy');
+    // Items (Kendaraan)
+    Route::get('/items',         [ItemController::class, 'index'])->name('items');
+    Route::post('/cars',         [ItemController::class, 'store'])->name('cars.store');
+    Route::put('/cars/{id}',     [ItemController::class, 'update'])->name('cars.update')->whereNumber('id');
+    Route::delete('/cars/{id}',  [ItemController::class, 'destroy'])->name('cars.destroy')->whereNumber('id');
 
-    // CRUD Cashiers (Kasir/Admin)
-    Route::post('/cashiers', [AdminController::class, 'storeCashier'])->name('cashiers.store');
-    Route::put('/cashiers/{id}', [AdminController::class, 'updateCashier'])->name('cashiers.update');
-    Route::delete('/cashiers/{id}', [AdminController::class, 'deleteCashier'])->name('cashiers.destroy');
+    // Invoices (Pembayaran & Inspeksi)
+    Route::get('/invoices',                        [InvoiceController::class, 'index'])->name('invoices');
+    Route::post('/booking/{id}/verify-ajax',       [InvoiceController::class, 'verifyAjax'])->name('booking.verify.ajax')->whereNumber('id');
+    Route::post('/booking/{id}/status-ajax',       [InvoiceController::class, 'inspectionAjax'])->name('booking.status.ajax')->whereNumber('id');
+    Route::post('/booking/{id}/cancel-ajax',         [InvoiceController::class, 'cancelAjax'])->name('booking.cancel.ajax')->whereNumber('id');
+    Route::post('/booking/{id}/approve-ajax',        [InvoiceController::class, 'approveAjax'])->name('booking.approve.ajax')->whereNumber('id');
+    Route::post('/booking/{id}/reject-ajax',         [InvoiceController::class, 'rejectAjax'])->name('booking.reject.ajax')->whereNumber('id');
+    Route::post('/booking/{id}/update-customer-ajax',   [InvoiceController::class, 'updateCustomerAjax'])->name('booking.update.customer.ajax')->whereNumber('id');
+    Route::post('/booking/{id}/amend-ajax',             [InvoiceController::class, 'amendAjax'])->name('booking.amend.ajax')->whereNumber('id');
+    Route::post('/booking/{id}/handover-ajax',          [InvoiceController::class, 'confirmHandover'])->name('booking.handover.ajax')->whereNumber('id');
+
+    // Warehouses (Gudang)
+    Route::get('/warehouses',          [WarehouseController::class, 'index'])->name('warehouses');
+    Route::post('/warehouses',         [WarehouseController::class, 'store'])->name('warehouses.store');
+    Route::put('/warehouses/{id}',     [WarehouseController::class, 'update'])->name('warehouses.update')->whereNumber('id');
+    Route::delete('/warehouses/{id}',  [WarehouseController::class, 'destroy'])->name('warehouses.destroy')->whereNumber('id');
+
+    // Cashiers (Kasir / Staf)
+    Route::get('/cashiers',           [CashierController::class, 'index'])->name('cashiers');
+    Route::post('/cashiers',          [CashierController::class, 'store'])->name('cashiers.store');
+    Route::put('/cashiers/{id}',      [CashierController::class, 'update'])->name('cashiers.update')->whereNumber('id');
+    Route::delete('/cashiers/{id}',   [CashierController::class, 'destroy'])->name('cashiers.destroy')->whereNumber('id');
 
     // Company Profile
-    Route::put('/company', [AdminController::class, 'updateCompany'])->name('company.update');
+    Route::get('/profile',   [CompanyController::class, 'edit'])->name('profile');
+    Route::put('/company',   [CompanyController::class, 'update'])->name('company.update');
+
+    // Payment Settings (Rekening & QRIS)
+    Route::get('/payment-settings', [PaymentSettingsController::class, 'edit'])->name('payment_settings');
+    Route::put('/payment-settings', [PaymentSettingsController::class, 'update'])->name('payment_settings.update');
 
     // Laporan Keuangan
-    Route::get('/laporan', [AdminController::class, 'laporan'])->name('laporan');
+    Route::get('/laporan',   [ReportController::class, 'index'])->name('laporan');
 });

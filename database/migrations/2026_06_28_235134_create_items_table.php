@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('items', function (Blueprint $table) {
@@ -16,21 +13,24 @@ return new class extends Migration
             $table->foreignId('warehouse_id')->constrained('warehouses')->onDelete('cascade');
             $table->string('brand');
             $table->string('model');
-            $table->string('vin', 17)->unique(); // Batasan Unique 17 Karakter
-            $table->integer('year');
+            // VIN is exactly 17 chars per ISO 3779 — enforce at DB level too
+            $table->string('vin', 17)->unique();
+            $table->smallInteger('year')->unsigned();
             $table->decimal('price', 15, 2);
             $table->enum('status', ['Available', 'Invoiced', 'Sold'])->default('Available');
             $table->string('engine');
             $table->string('transmission');
             $table->string('color');
-            $table->string('image_url');
+            $table->string('image_url')->nullable();
             $table->timestamps();
+
+            // Composite index: catalog page filters (brand + model search + status filter)
+            $table->index(['brand', 'model']);
+            $table->index('status');
+            $table->index('warehouse_id');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('items');

@@ -4,21 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Company extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'tax_id', 'address', 'phone'];
+    protected $fillable = ['name', 'tax_id', 'address', 'phone', 'bank_name', 'bank_account', 'bank_account_holder', 'qris_image'];
 
-    // Relasi One-to-Many: Satu perusahaan punya banyak gudang
-    public function warehouses()
+    public function warehouses(): HasMany
     {
         return $this->hasMany(Warehouse::class);
     }
 
-    // Relasi One-to-Many: Satu perusahaan punya banyak kasir/admin
-    public function cashiers()
+    public function cashiers(): HasMany
     {
         return $this->hasMany(Cashier::class);
     }

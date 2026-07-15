@@ -6,25 +6,23 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('cashiers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
             $table->string('name');
+            // username is the login credential — unique index is critical
             $table->string('username')->unique();
             $table->string('password');
-            $table->string('role')->default('Head Cashier');
+            $table->string('role', 100)->default('Head Cashier');
+            $table->rememberToken();
             $table->timestamps();
+
+            $table->index('company_id');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('cashiers');

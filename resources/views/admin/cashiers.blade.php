@@ -46,27 +46,6 @@
         </button>
     </div>
 
-    {{-- Notifikasi --}}
-    @if(session('success'))
-        <div class="bg-emerald-950/60 border border-emerald-900/50 text-emerald-400 p-4 mb-8 text-xs font-bold tracking-wider uppercase flex items-center gap-3">
-            <i class="fa-solid fa-circle-check"></i> {{ session('success') }}
-        </div>
-    @endif
-    @if(session('error'))
-        <div class="bg-red-950/60 border border-red-900/50 text-red-400 p-4 mb-8 text-xs font-bold tracking-wider uppercase flex items-center gap-3">
-            <i class="fa-solid fa-triangle-exclamation"></i> {{ session('error') }}
-        </div>
-    @endif
-    @if($errors->any())
-        <div class="bg-red-950/60 border border-red-900/50 text-red-400 p-4 mb-8 text-xs font-bold tracking-wider uppercase flex flex-col gap-2">
-            <div class="flex items-center gap-3"><i class="fa-solid fa-triangle-exclamation"></i> Terjadi Kesalahan:</div>
-            <ul class="list-disc list-inside text-[10px] pl-5">
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
 
     {{-- Tabel Kasir --}}
     <div class="bg-zinc-950 border border-zinc-900 p-6 shadow-2xl relative">
@@ -91,10 +70,18 @@
                             </td>
                             <td class="p-4 text-zinc-400 font-mono text-[10px]">{{ $c->username }}</td>
                             <td class="p-4">
-                                @if($c->role === 'Admin')
-                                    <span class="px-3 py-1 bg-amber-950/60 border border-amber-900/50 text-amber-400 font-bold text-[9px] uppercase tracking-wider rounded-full">Administrator</span>
+                                @if(in_array($c->role, ['Admin', 'Super Admin', 'Administrator']))
+                                    <span class="px-3 py-1 bg-amber-950/60 border border-amber-900/50 text-amber-400 font-bold text-[9px] uppercase tracking-wider rounded-full">
+                                        {{ $c->role }}
+                                    </span>
+                                @elseif(in_array($c->role, ['Head Cashier', 'Cashier']))
+                                    <span class="px-3 py-1 bg-blue-950/60 border border-blue-900/50 text-blue-400 font-bold text-[9px] uppercase tracking-wider rounded-full">
+                                        {{ $c->role }}
+                                    </span>
                                 @else
-                                    <span class="px-3 py-1 bg-blue-950/60 border border-blue-900/50 text-blue-400 font-bold text-[9px] uppercase tracking-wider rounded-full">Cashier / Staff</span>
+                                    <span class="px-3 py-1 bg-zinc-900 border border-zinc-800 text-zinc-400 font-bold text-[9px] uppercase tracking-wider rounded-full">
+                                        {{ $c->role }}
+                                    </span>
                                 @endif
                             </td>
                             <td class="p-4 text-right">
@@ -137,7 +124,7 @@
              x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
              x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
              class="bg-zinc-950 border border-zinc-800 w-full max-w-lg shadow-2xl relative">
-            
+
             <div class="px-6 py-4 border-b border-zinc-900 flex justify-between items-center">
                 <div class="flex items-center gap-2">
                     <div class="w-1 h-5 bg-luxury-gold"></div>
@@ -155,7 +142,7 @@
                     <label class="block text-zinc-500 font-bold uppercase tracking-widest mb-1.5 text-[10px]">Nama Lengkap <span class="text-red-500">*</span></label>
                     <input type="text" name="name" x-model="form.name" placeholder="Nama staf" class="w-full bg-zinc-900 border border-zinc-800 text-white p-3 focus:border-luxury-gold focus:outline-none transition-colors" required>
                 </div>
-                
+
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-zinc-500 font-bold uppercase tracking-widest mb-1.5 text-[10px]">Username <span class="text-red-500">*</span></label>

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Invoice extends Model
 {
@@ -15,61 +16,85 @@ class Invoice extends Model
         'item_id',
         'cashier_id',
         'date',
+        'subtotal',
+        'tax_rate',
+        'tax_amount',
         'total_amount',
         'paid_amount',
         'payment_type',
         'payment_status',
         'status',
-        'authentic_receipt'
+        'authentic_receipt',
+        'rejection_note',
+        'cancellation_note',
+        'handed_over_at',
     ];
+
+    protected $casts = [
+        'date'           => 'date',
+        'subtotal'       => 'decimal:2',
+        'tax_rate'       => 'decimal:2',
+        'tax_amount'     => 'decimal:2',
+        'total_amount'   => 'decimal:2',
+        'paid_amount'    => 'decimal:2',
+        'handed_over_at' => 'datetime',
+    ];
+
+    // ---- Query Scopes ----
 
     /**
-     * Cast atribut ke tipe data yang tepat.
-     * Memastikan type safety dan konsistensi saat data diakses dari model.
+     * Scope: invoice yang masih bisa dibatalkan oleh pelanggan.
+     * Hanya boleh cancel jika belum ada pembayaran masuk sama sekali.
      */
-    protected $casts = [
-        'date'         => 'date',          // Otomatis menjadi Carbon instance
-        'total_amount' => 'decimal:2',     // Selalu 2 angka desimal
-        'paid_amount'  => 'decimal:2',     // Selalu 2 angka desimal
-    ];
+    public function scopeCancellable($query)
+    {
+        return $query->where('payment_status', 'Unpaid')
+                     ->where('status', 'Pending');
+    }
 
-    // Relasi Belongs-To ke 3 Entitas Sekaligus
-    public function customer()
+    // ---- Static Helpers ----
+
+    /**
+     * Generate a sequential, collision-safe invoice code.
+     * Format: SD/YYYY/NNNN  (e.g. SD/2026/0001)
+     *
+     * Must be called INSIDE a DB transaction with a preceding lockForUpdate()
+     * on the parent row to guarantee uniqueness under concurrent requests.
+     */
+    public static function generateCode(): string
+{
+    $year   = now()->format('Y');
+    $prefix = 'SD/' . $year . '/';
+
+    // lockForUpdate() memastikan tidak ada dua request konkuren
+    // yang mendapatkan sequence number yang sama sebelum salah satu commit
+    $last = self::where('invoice_code', 'like', $prefix . '%')
+        ->lockForUpdate()
+        ->orderByDesc('id')
+        ->value('invoice_code');
+
+    $nextSeq = $last
+        ? ((int) substr($last, strlen($prefix))) + 1
+        : 1;
+
+    return $prefix . str_pad((string) $nextSeq, 4, '0', STR_PAD_LEFT);
+}
+
+
+    // ---- Relationships ----
+
+    public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
     }
 
-    public function item()
+    public function item(): BelongsTo
     {
         return $this->belongsTo(Item::class);
     }
 
-    public function cashier()
+    public function cashier(): BelongsTo
     {
         return $this->belongsTo(Cashier::class);
-    }
-
-    // Alias relasi 'item' ke 'car' agar kompatibel dengan view Blade
-    public function car()
-    {
-        return $this->belongsTo(Item::class, 'item_id');
-    }
-
-    // Accessor untuk nama pelanggan
-    public function getCustomerNameAttribute()
-    {
-        return $this->customer->name ?? '';
-    }
-
-    // Accessor untuk nomor telepon pelanggan
-    public function getPhoneAttribute()
-    {
-        return $this->customer->phone ?? '';
-    }
-
-    // Accessor untuk bukti pembayaran
-    public function getPaymentProofAttribute()
-    {
-        return $this->authentic_receipt;
     }
 }

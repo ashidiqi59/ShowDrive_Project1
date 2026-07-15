@@ -137,6 +137,7 @@
         phone: '{{ addslashes($oldPhone) }}',
         date: '{{ addslashes($oldDate) }}',
         payment_type: '{{ old('payment_type', 'Down Payment') }}',
+        nik: '{{ old('nik', '') }}',
         nameError: '',
         phoneError: '',
         dateError: '',
@@ -284,6 +285,29 @@
                     </p>
                 </div>
 
+                {{-- NIK (Opsional) --}}
+                <div>
+                    <label class="block text-zinc-500 font-bold uppercase tracking-wider mb-1.5">
+                        NIK / No. KTP
+                        <span class="text-zinc-600 normal-case font-normal ml-1">(opsional, untuk pengurusan BPKB/STNK)</span>
+                    </label>
+                    <input
+                        type="text"
+                        name="nik"
+                        x-model="nik"
+                        placeholder="16 digit NIK sesuai KTP"
+                        maxlength="16"
+                        inputmode="numeric"
+                        pattern="[0-9]{16}"
+                        :class="nik && nik.length > 0 && nik.length !== 16 ? 'border-amber-500 bg-amber-950/10' : 'border-zinc-800'"
+                        class="w-full bg-zinc-900 border text-white p-3 focus:outline-none transition-colors focus:border-luxury-gold font-mono tracking-widest">
+                    <p x-show="nik && nik.length > 0 && nik.length !== 16"
+                       class="text-amber-400 text-[10px] mt-1 flex items-center gap-1">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span>NIK harus tepat 16 digit angka.</span>
+                    </p>
+                </div>
+
                 {{-- Tanggal --}}
                 <div>
                     <label class="block text-zinc-500 font-bold uppercase tracking-wider mb-1.5">
@@ -311,12 +335,20 @@
                     <label class="block text-zinc-500 font-bold uppercase tracking-wider mb-1.5">
                         Pilihan Metode Pembayaran Komitmen <span class="text-red-400">*</span>
                     </label>
+                    @php
+                        $dpAmount   = (int) round($car->price * ($car->dp_percentage / 100));
+                        $dpPct      = $car->dp_percentage;
+                    @endphp
                     <select
                         name="payment_type"
                         x-model="payment_type"
                         class="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 p-3 focus:outline-none focus:border-luxury-gold">
-                        <option value="Down Payment">Uang Muka / DP (IDR 50.000.000)</option>
-                        <option value="Paid">Pelunasan Penuh (IDR {{ number_format($car->price, 0, ',', '.') }})</option>
+                        <option value="Down Payment">
+                            Uang Muka / DP {{ $dpPct }}% &mdash; IDR {{ number_format($dpAmount, 0, ',', '.') }}
+                        </option>
+                        <option value="Paid">
+                            Pelunasan Penuh &mdash; IDR {{ number_format($car->price, 0, ',', '.') }}
+                        </option>
                     </select>
                 </div>
 
