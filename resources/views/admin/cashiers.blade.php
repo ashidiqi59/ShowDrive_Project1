@@ -86,21 +86,40 @@
                             </td>
                             <td class="p-4 text-right">
                                 <div class="inline-flex gap-2">
-                                    <button @click="openEdit({{ json_encode($c) }})" class="text-luxury-gold hover:text-white transition-colors py-1 px-3 border border-luxury-gold/20 hover:border-luxury-gold rounded text-[10px] bg-zinc-900/50">
+                                    <button @click="openEdit({{ json_encode($c) }})"
+                                            @if($c->role === 'Super Admin') disabled title="Super Admin tidak dapat diedit dari UI" @endif
+                                            class="{{ $c->role === 'Super Admin' ? 'text-zinc-600 border-zinc-800 cursor-not-allowed bg-zinc-900' : 'text-luxury-gold hover:text-white border-luxury-gold/20 hover:border-luxury-gold bg-zinc-900/50 cursor-pointer' }} transition-colors py-1 px-3 border rounded text-[10px]">
                                         <i class="fa-solid fa-pen-to-square"></i> Edit
                                     </button>
-                                    @if(Auth::id() != $c->id)
-                                        <form action="{{ route('admin.cashiers.destroy', $c->id) }}" method="POST" onsubmit="return confirm('Yakin menghapus akun staf ini?')" class="inline">
+                                    @if($c->role === 'Super Admin')
+                                        {{-- Super Admin: tidak bisa dihapus dari UI --}}
+                                        <button disabled
+                                                title="Super Admin tidak dapat dihapus"
+                                                class="text-zinc-600 border border-zinc-800 py-1 px-3 rounded text-[10px] bg-zinc-900 cursor-not-allowed">
+                                            <i class="fa-solid fa-shield-halved"></i>
+                                        </button>
+                                    @elseif(Auth::id() == $c->id)
+                                        {{-- Tidak bisa hapus akun sendiri --}}
+                                        <button disabled
+                                                title="Akun aktif saat ini"
+                                                class="text-zinc-600 border border-zinc-800 py-1 px-3 rounded text-[10px] bg-zinc-900 cursor-not-allowed">
+                                            <i class="fa-solid fa-user-shield"></i>
+                                        </button>
+                                    @elseif(Auth::user()->role !== 'Super Admin' && $c->role === 'Admin')
+                                        {{-- Kasir/Admin biasa tidak bisa hapus Admin lain --}}
+                                        <button disabled
+                                                title="Hanya Super Admin yang dapat menghapus akun Admin"
+                                                class="text-zinc-600 border border-zinc-800 py-1 px-3 rounded text-[10px] bg-zinc-900 cursor-not-allowed">
+                                            <i class="fa-solid fa-lock"></i>
+                                        </button>
+                                    @else
+                                        <form action="{{ route('admin.cashiers.destroy', $c->id) }}" method="POST" onsubmit="return confirm('Yakin menghapus akun staf ini? Aksi ini tidak dapat dibatalkan.')" class="inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="text-red-500 hover:text-red-400 transition-colors py-1 px-3 border border-red-900/30 hover:border-red-500 rounded text-[10px] bg-red-950/20">
                                                 <i class="fa-solid fa-trash-can"></i>
                                             </button>
                                         </form>
-                                    @else
-                                        <button disabled class="text-zinc-600 border border-zinc-800 py-1 px-3 rounded text-[10px] bg-zinc-900 cursor-not-allowed" title="Aktif saat ini">
-                                            <i class="fa-solid fa-user-shield"></i>
-                                        </button>
                                     @endif
                                 </div>
                             </td>

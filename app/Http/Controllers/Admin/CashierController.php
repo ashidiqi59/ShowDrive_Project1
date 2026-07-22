@@ -54,12 +54,29 @@ class CashierController extends Controller
 
     public function destroy(int $id): RedirectResponse
     {
+        $target = Cashier::findOrFail($id);
+
+        // Proteksi 1: tidak bisa hapus akun sendiri
         if (Auth::id() === $id) {
             return redirect()->back()->with('error', 'Tidak dapat menghapus akun yang sedang aktif digunakan.');
         }
 
-        Cashier::findOrFail($id)->delete();
+        // Proteksi 2: Super Admin tidak bisa dihapus dari UI
+        // Nilai 'Super Admin' harus di-set langsung di DB, tidak tersedia di form dropdown
+        if ($target->role === 'Super Admin') {
+            return redirect()->back()->with('error', 'Akun Super Admin tidak dapat dihapus. Gunakan CLI jika benar-benar diperlukan.');
+        }
 
-        return redirect()->back()->with('success', 'Akun kasir berhasil dihapus.');
+        // Proteksi 3: hanya Super Admin yang bisa menghapus akun Admin
+        // Kasir biasa tidak punya hak menghapus siapapun selain dirinya sendiri (sudah di-block di atas)
+        /** @var \App\Models\Cashier $actor */
+        $actor = Auth::user();
+        if ($target->role === 'Admin' && $actor->role !== 'Super Admin') {
+            return redirect()->back()->with('error', 'Hanya Super Admin yang dapat menghapus akun Admin.');
+        }
+
+        $target->delete();
+
+        return redirect()->back()->with('success', 'Akun staf berhasil dihapus.');
     }
 }

@@ -31,9 +31,15 @@
                 Periode: {{ $bulan ? \Carbon\Carbon::create()->month($bulan)->translatedFormat('F') : 'Semua Bulan' }} {{ $tahun }}
             </p>
         </div>
-        <button onclick="window.print()" class="bg-luxury-gold hover:bg-luxury-goldHover text-black font-extrabold px-5 py-2.5 text-[10px] tracking-[0.2em] uppercase flex items-center gap-2 transition-all no-print">
-            <i class="fa-solid fa-print"></i> CETAK / UNDUH PDF
-        </button>
+        <div class="flex flex-wrap gap-3">
+            <a href="{{ route('admin.laporan.export', ['bulan' => $bulan, 'tahun' => $tahun, 'status' => $status]) }}"
+               class="bg-emerald-700 hover:bg-emerald-600 text-white font-extrabold px-5 py-2.5 text-[10px] tracking-[0.2em] uppercase flex items-center gap-2 transition-all no-print">
+                <i class="fa-solid fa-file-csv"></i> EKSPOR CSV
+            </a>
+            <button onclick="window.print()" class="bg-luxury-gold hover:bg-luxury-goldHover text-black font-extrabold px-5 py-2.5 text-[10px] tracking-[0.2em] uppercase flex items-center gap-2 transition-all no-print">
+                <i class="fa-solid fa-print"></i> CETAK / UNDUH PDF
+            </button>
+        </div>
     </div>
 
     {{-- ===== FILTER PANEL ===== --}}

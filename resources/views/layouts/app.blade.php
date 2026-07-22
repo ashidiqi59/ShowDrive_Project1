@@ -4,11 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    {{-- Meta Tags SEO & Open Graph (WhatsApp / Telegram / Social Preview) --}}
+    <meta name="description" content="@yield('og_description', 'ShowDrive — Platform pemesanan kendaraan premium berbasis web.')">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ $company->name ?? 'ShowDrive' }}">
+    <meta property="og:title" content="@yield('title', 'ShowDrive')">
+    <meta property="og:description" content="@yield('og_description', 'Platform pemesanan kendaraan premium.')">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:image" content="@yield('og_image', isset($company) && $company?->logo_url ? asset('storage/'.$company->logo_url) : asset('images/og-default.jpg'))">
+    @yield('meta')
+    {{-- Calendar & Time picker color fix for dark theme --}}
+    <style>
+        /* Warnai ikon kalender dan jam agar terlihat di background gelap */
+        input[type="date"].calendar-gold::-webkit-calendar-picker-indicator,
+        input[type="time"].calendar-gold::-webkit-calendar-picker-indicator {
+            filter: invert(75%) sepia(60%) saturate(400%) hue-rotate(5deg) brightness(110%);
+            cursor: pointer;
+            opacity: 0.85;
+        }
+        input[type="date"].calendar-gold::-webkit-calendar-picker-indicator:hover,
+        input[type="time"].calendar-gold::-webkit-calendar-picker-indicator:hover {
+            opacity: 1;
+        }
+        /* Styling scrollbar tipis untuk modal overflow */
+        .overflow-y-auto::-webkit-scrollbar { width: 4px; }
+        .overflow-y-auto::-webkit-scrollbar-track { background: #09090b; }
+        .overflow-y-auto::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 2px; }
+    </style>
+    @if(isset($company) && $company?->favicon_url)
+        <link rel="icon" type="image/png" href="{{ asset('storage/' . $company->favicon_url) }}">
+        <link rel="shortcut icon" href="{{ asset('storage/' . $company->favicon_url) }}">
+    @else
+        <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23D4AF37'/><text y='.9em' font-size='70' font-weight='900' font-family='sans-serif' fill='black' x='8'>SD</text></svg>">
+    @endif
     <title>@yield('title', 'ShowDrive - Sistem Manajemen Showroom Otomotif Premium')</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Alpine.js v3 -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Preconnect: kurangi DNS lookup latency untuk CDN eksternal yang dipakai di halaman ini -->
+    <link rel="preconnect" href="https://images.unsplash.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Google Fonts: Inter & Playfair Display -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;950&family=Playfair+Display:ital,wght@0,500;0,700;1,400&display=swap" rel="stylesheet">
     <!-- FontAwesome for Icons -->
@@ -132,10 +169,16 @@
             <div class="max-w-7xl mx-auto px-6 flex justify-between items-center">
                 <!-- Logo Brand -->
                 <a href="{{ route('home') }}" class="flex items-center gap-2.5 group">
-                    <div class="w-9 h-9 bg-gradient-to-tr from-luxury-gold to-yellow-500 flex items-center justify-center font-black text-black text-sm tracking-tighter shrink-0">SD</div>
-                    <span class="text-xl font-black tracking-[0.3em] text-white group-hover:text-luxury-gold transition-colors duration-300">
-                        SHOW<span class="text-luxury-gold">DRIVE</span>
-                    </span>
+                    @if(isset($company) && $company?->logo_url)
+                        <img src="{{ asset('storage/' . $company->logo_url) }}"
+                             alt="{{ $company->name ?? 'ShowDrive' }}"
+                             class="h-9 max-w-[160px] object-contain group-hover:opacity-90 transition-opacity">
+                    @else
+                        <div class="w-9 h-9 bg-gradient-to-tr from-luxury-gold to-yellow-500 flex items-center justify-center font-black text-black text-sm tracking-tighter shrink-0">SD</div>
+                        <span class="text-xl font-black tracking-[0.3em] text-white group-hover:text-luxury-gold transition-colors duration-300">
+                            SHOW<span class="text-luxury-gold">DRIVE</span>
+                        </span>
+                    @endif
                 </a>
 
                 <!-- Main Navigation -->
@@ -147,6 +190,10 @@
                     <a href="{{ route('booking.track') }}" class="{{ request()->routeIs('booking.track') ? 'text-luxury-gold' : '' }} hover:text-white transition-colors duration-200 relative group">
                         CEK STATUS &amp; KWITANSI
                         <span class="absolute -bottom-1 left-0 h-px bg-luxury-gold transition-all duration-300 {{ request()->routeIs('booking.track') ? 'w-full' : 'w-0 group-hover:w-full' }}"></span>
+                    </a>
+                    <a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'text-luxury-gold' : '' }} hover:text-white transition-colors duration-200 relative group">
+                        TENTANG
+                        <span class="absolute -bottom-1 left-0 h-px bg-luxury-gold transition-all duration-300 {{ request()->routeIs('about') ? 'w-full' : 'w-0 group-hover:w-full' }}"></span>
                     </a>
                     @auth
                         <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'bg-luxury-gold text-black border-luxury-gold' : 'border-luxury-gold/50 text-luxury-gold hover:bg-luxury-gold hover:text-black' }} border transition-all duration-200 px-5 py-2">
@@ -165,6 +212,7 @@
             <div id="mobile-menu" class="hidden md:hidden bg-zinc-950 border-t border-zinc-900 mt-4 px-6 py-4 space-y-3 text-xs font-semibold tracking-[0.15em]">
                 <a href="{{ route('home') }}" class="block {{ request()->routeIs('home') ? 'text-luxury-gold' : 'text-zinc-400 hover:text-white' }} py-2 transition-colors">INVENTORY</a>
                 <a href="{{ route('booking.track') }}" class="block {{ request()->routeIs('booking.track') ? 'text-luxury-gold' : 'text-zinc-400 hover:text-white' }} py-2 transition-colors">CEK STATUS &amp; KWITANSI</a>
+                <a href="{{ route('about') }}" class="block {{ request()->routeIs('about') ? 'text-luxury-gold' : 'text-zinc-400 hover:text-white' }} py-2 transition-colors">TENTANG</a>
                 @auth
                     <a href="{{ route('admin.dashboard') }}" class="block text-luxury-gold border border-luxury-gold/30 text-center py-2">CONTROL PANEL</a>
                     <form action="{{ route('logout') }}" method="POST" class="block">
@@ -225,9 +273,13 @@
                 <p class="text-zinc-600 text-[10px]">D4 Teknik Informatika - Universitas Logistik & Bisnis Internasional</p>
             </div>
             <div class="space-y-3 md:text-right">
-                <h4 class="text-white font-extrabold tracking-[0.15em] text-xs">DOSEN KOORDINATOR</h4>
-                <p class="font-light text-zinc-400">M. Yusril Helmi Setyawan, S.Kom., M.Kom.</p>
-                <p class="text-zinc-600 text-[10px]">&copy; 2026 ShowDrive System. Hak Cipta Dilindungi.</p>
+                <h4 class="text-white font-extrabold tracking-[0.15em] text-xs">NAVIGASI</h4>
+                <div class="space-y-1.5">
+                    <a href="{{ route('home') }}" class="block text-zinc-500 hover:text-luxury-gold transition-colors font-light">Katalog Kendaraan</a>
+                    <a href="{{ route('booking.track') }}" class="block text-zinc-500 hover:text-luxury-gold transition-colors font-light">Cek Status Reservasi</a>
+                    <a href="{{ route('about') }}" class="block text-zinc-500 hover:text-luxury-gold transition-colors font-light">Tentang ShowDrive</a>
+                </div>
+                <p class="text-zinc-600 text-[10px] pt-1">&copy; 2026 ShowDrive System. Hak Cipta Dilindungi.</p>
             </div>
         </div>
     </footer>
@@ -244,6 +296,11 @@
         <a href="#" onclick="navigateTo('booking-status')" class="{{ request()->routeIs('booking.track') ? 'text-luxury-gold' : 'text-zinc-400' }} hover:text-luxury-gold flex-1 flex flex-col items-center transition-all">
             <i class="fa-solid fa-receipt text-lg"></i>
             <span class="text-[10px] font-bold tracking-widest mt-1">CEK INVOICE</span>
+        </a>
+        <div class="w-px h-6 bg-zinc-800"></div>
+        <a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'text-luxury-gold' : 'text-zinc-400' }} hover:text-luxury-gold flex-1 flex flex-col items-center transition-all">
+            <i class="fa-solid fa-circle-info text-lg"></i>
+            <span class="text-[10px] font-bold tracking-widest mt-1">TENTANG</span>
         </a>
     </div>
     @endif
@@ -317,5 +374,80 @@
         })();
     </script>
     @yield('scripts')
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════
+        // GLOBAL FORM SUBMISSION GUARD
+        // Mencegah double-submit pada semua <form> yang melakukan
+        // full-page POST/GET. Tombol di-disable + spinner ditampilkan
+        // segera saat form di-submit.
+        //
+        // Pengecualian:
+        //   - Form dengan data-no-lock="true" tidak akan di-lock
+        //     (berguna untuk form yang dihandle Alpine atau AJAX sendiri)
+        //   - Tombol type="button" tidak termasuk (hanya type="submit")
+        // ═══════════════════════════════════════════════════════════════
+
+        /**
+         * Kunci sebuah tombol secara manual — berguna untuk tombol
+         * yang trigger submit via JavaScript (bukan <button type="submit">).
+         *
+         * @param {HTMLElement} btn      — elemen tombol yang dikunci
+         * @param {string}      label    — teks loading yang ditampilkan
+         */
+        function lockFormButton(btn, label = 'Memproses...') {
+            if (!btn || btn.dataset.locked === 'true') return;
+            btn.dataset.locked     = 'true';
+            btn.dataset.originalHtml = btn.innerHTML;
+            btn.disabled           = true;
+            btn.style.opacity      = '0.75';
+            btn.style.cursor       = 'not-allowed';
+            btn.innerHTML =
+                `<svg class="inline-block animate-spin h-3.5 w-3.5 mr-1.5 -mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">` +
+                `<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>` +
+                `<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>` +
+                `</svg>${label}`;
+        }
+
+        /**
+         * Pulihkan tombol ke kondisi semula — dipanggil otomatis jika
+         * browser kembali ke halaman via back-button (bfcache restore).
+         *
+         * @param {HTMLElement} btn
+         */
+        function unlockFormButton(btn) {
+            if (!btn || btn.dataset.locked !== 'true') return;
+            btn.disabled             = false;
+            btn.style.opacity        = '';
+            btn.style.cursor         = '';
+            btn.dataset.locked       = 'false';
+            btn.innerHTML            = btn.dataset.originalHtml || btn.innerHTML;
+        }
+
+        // ── Auto-lock: pasang listener submit pada setiap <form> ──────
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('form:not([data-no-lock="true"])').forEach(function (form) {
+                form.addEventListener('submit', function (e) {
+                    // Jika Alpine sudah menangani validasi & loading state sendiri,
+                    // jangan kunci dua kali (cek atribut x-on:submit atau @submit)
+                    if (form.hasAttribute('x-on:submit') || form.hasAttribute('@submit')) return;
+
+                    var submitBtn = form.querySelector('button[type="submit"], input[type="submit"]');
+                    if (submitBtn) {
+                        var label = submitBtn.dataset.loadingText || 'Memproses...';
+                        lockFormButton(submitBtn, label);
+                    }
+                });
+            });
+        });
+
+        // ── Pulihkan tombol saat browser restore via back-button ──────
+        window.addEventListener('pageshow', function (e) {
+            if (e.persisted) {
+                document.querySelectorAll('button[data-locked="true"], input[data-locked="true"]')
+                    .forEach(function (btn) { unlockFormButton(btn); });
+            }
+        });
+    </script>
 </body>
 </html>

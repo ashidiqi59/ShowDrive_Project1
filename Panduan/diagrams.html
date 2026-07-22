@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShowDrive — Blueprint & Diagram Perancangan Awal</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  /* ============================================================
+     DARK BLUE BLUEPRINT DESIGN SYSTEM (HIGH CONTRAST)
+  ============================================================ */
+  ::-webkit-scrollbar { width: 6px; background: #030a16; }
+  ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #38bdf8; }
+
+  /* Classic Dark Blue Blueprint Grid Pattern */
+  .blueprint-grid {
+    background-color: #0b132b; /* Deep Navy Blue */
+    background-image: radial-gradient(rgba(56, 189, 248, 0.15) 1.2px, transparent 1.2px);
+    background-size: 20px 20px;
+  }
+
+  /* Schematic Dashed Borders */
+  .blueprint-border {
+    border: 1px dashed rgba(56, 189, 248, 0.35);
+  }
+
+  /* Technical Glow for High-Contrast Elements */
+  .blueprint-glow {
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.1);
+  }
+
+  /* Connector Lines for Schematic Flow */
+  .schematic-line-v {
+    width: 2px;
+    background: repeating-linear-gradient(to bottom, #38bdf8, #38bdf8 4px, transparent 4px, transparent 8px);
+    margin: 0 auto;
+  }
+
+  .schematic-line-h {
+    height: 2px;
+    background: repeating-linear-gradient(to right, #38bdf8, #38bdf8 4px, transparent 4px, transparent 8px);
+  }
+
+  /* Monospace Font styling */
+  .font-mono-tech {
+    font-family: 'Courier New', Courier, monospace;
+  }
+</style>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          blueprint: {
+            blue: '#38bdf8',       /* Sky/Cyan Blueprint Blue */
+            blueHover: '#0284c7',
+            darkBlue: '#1e293b',   /* Dark Slate */
+            navyBg: '#0b132b',     /* Base Navy */
+            cardBg: '#0f172a',     /* Card Slate-900 */
+            slate: '#94a3b8',
+            ink: '#f8fafc'
+          }
+        }
+      }
+    }
+  }
+</script>
+</head>
+<body class="bg-blueprint-navyBg text-slate-200 min-h-screen flex font-sans selection:bg-blueprint-blue selection:text-black blueprint-grid">
+
+<!-- ============================================================
+     SIDEBAR NAVIGATION (Fixed on Screen Left)
+============================================================ -->
+<aside class="w-64 bg-[#070d19]/95 border-r border-slate-800 flex flex-col justify-between fixed h-full z-50 p-6 shadow-2xl backdrop-blur-md">
+  <div class="space-y-8 overflow-y-auto max-h-[85vh] pr-2">
+    <div class="flex items-center gap-3 border-b border-slate-800 pb-4">
+      <div class="w-8 h-8 bg-blueprint-blue text-black flex items-center justify-center font-bold rounded">SD</div>
+      <div>
+        <span class="text-xs font-black tracking-[0.2em] text-blueprint-blue block">SHOWDRIVE</span>
+        <span class="text-[9px] font-bold text-slate-500 tracking-wider block uppercase">Draf Perancangan</span>
+      </div>
+    </div>
+
+    <nav class="space-y-2">
+      <span class="text-[9px] font-bold tracking-widest text-slate-500 block px-3 mb-2">SCHEMATICS MODEL</span>
+      <a href="#arsitektur" class="flex items-center gap-3 px-3 py-2 rounded text-xs font-semibold text-slate-300 hover:bg-slate-800/50 hover:text-blueprint-blue transition-all">
+        <i class="fa-solid fa-layer-group text-blueprint-blue"></i>
+        <span>1. Arsitektur 3-Tier</span>
+      </a>
+      <a href="#workflow-pelanggan" class="flex items-center gap-3 px-3 py-2 rounded text-xs font-semibold text-slate-300 hover:bg-slate-800/50 hover:text-blueprint-blue transition-all">
+        <i class="fa-solid fa-users text-blueprint-blue"></i>
+        <span>2. Alur Pelanggan (Ref)</span>
+      </a>
+      <a href="#workflow-admin" class="flex items-center gap-3 px-3 py-2 rounded text-xs font-semibold text-slate-300 hover:bg-slate-800/50 hover:text-blueprint-blue transition-all">
+        <i class="fa-solid fa-user-shield text-blueprint-blue"></i>
+        <span>3. Alur Kasir (Ref)</span>
+      </a>
+      <a href="#class-diagram" class="flex items-center gap-3 px-3 py-2 rounded text-xs font-semibold text-slate-300 hover:bg-slate-800/50 hover:text-blueprint-blue transition-all">
+        <i class="fa-solid fa-diagram-project text-blueprint-blue"></i>
+        <span>4. Class Diagram</span>
+      </a>
+      <a href="#erd" class="flex items-center gap-3 px-3 py-2 rounded text-xs font-semibold text-slate-300 hover:bg-slate-800/50 hover:text-blueprint-blue transition-all">
+        <i class="fa-solid fa-database text-blueprint-blue"></i>
+        <span>5. ERD (6 Tabel)</span>
+      </a>
+
+      <span class="text-[9px] font-bold tracking-widest text-slate-500 block px-3 pt-4 mb-2">WIREFRAME SKETCHES</span>
+      <a href="#wf-katalog" class="flex items-center gap-3 px-3 py-2 rounded text-xs font-semibold text-slate-300 hover:bg-slate-800/50 hover:text-blueprint-blue transition-all">
+        <i class="fa-solid fa-images text-blueprint-blue"></i>
+        <span>6. Wireframe Katalog</span>
+      </a>
+      <a href="#wf-pesan" class="flex items-center gap-3 px-3 py-2 rounded text-xs font-semibold text-slate-300 hover:bg-slate-800/50 hover:text-blueprint-blue transition-all">
+        <i class="fa-solid fa-file-invoice-dollar text-blueprint-blue"></i>
+        <span>7. Wireframe Booking</span>
+      </a>
+      <a href="#wf-track" class="flex items-center gap-3 px-3 py-2 rounded text-xs font-semibold text-slate-300 hover:bg-slate-800/50 hover:text-blueprint-blue transition-all">
+        <i class="fa-solid fa-magnifying-glass-chart text-blueprint-blue"></i>
+        <span>8. Wireframe Lacak</span>
+      </a>
+      <a href="#wf-dashboard" class="flex items-center gap-3 px-3 py-2 rounded text-xs font-semibold text-slate-300 hover:bg-slate-800/50 hover:text-blueprint-blue transition-all">
+        <i class="fa-solid fa-chart-line text-blueprint-blue"></i>
+        <span>9. Wireframe Dashboard</span>
+      </a>
+
+      <span class="text-[9px] font-bold tracking-widest text-slate-500 block px-3 pt-4 mb-2">STRUCTURE & CLI</span>
+      <a href="#struktur-folder" class="flex items-center gap-3 px-3 py-2 rounded text-xs font-semibold text-slate-300 hover:bg-slate-800/50 hover:text-blueprint-blue transition-all">
+        <i class="fa-solid fa-folder-tree text-blueprint-blue"></i>
+        <span>10. Struktur Direktori</span>
+      </a>
+      <a href="#terminal-migrate" class="flex items-center gap-3 px-3 py-2 rounded text-xs font-semibold text-slate-300 hover:bg-slate-800/50 hover:text-blueprint-blue transition-all">
+        <i class="fa-solid fa-terminal text-blueprint-blue"></i>
+        <span>11. Setup Command</span>
+      </a>
+    </nav>
+  </div>
+
+  <div class="border-t border-slate-800 pt-4 text-center">
+    <p class="text-[10px] text-slate-400 font-bold tracking-wider">KELOMPOK 18 - D4 TI</p>
+    <p class="text-[9px] text-slate-500 mt-0.5">Universitas Logistik & Bisnis Internasional</p>
+  </div>
+</aside>
+
+<!-- Dynamic Toast Notification for Copy Confirmation -->
+<div id="toast" class="fixed top-5 right-5 bg-blueprint-blue text-black text-xs font-bold px-4 py-3 rounded shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none z-50 flex items-center gap-2">
+  <i class="fa-solid fa-circle-check"></i>
+  <span id="toast-message">Kode berhasil disalin!</span>
+</div>
+
+<!-- ============================================================
+     MAIN MAIN CONTENT AREA
+============================================================ -->
+<main class="flex-grow pl-64 p-10 min-h-screen">
+
+  <!-- Header Dokumentasi -->
+  <div class="mb-12 p-8 bg-blueprint-cardBg/90 border border-slate-800 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-xl blueprint-glow">
+    <div>
+      <span class="text-blueprint-blue font-bold tracking-widest text-xs uppercase"><i class="fa-solid fa-drafting-compass"></i> Lampiran Draft Teknis Laporan Akhir</span>
+      <h1 class="text-2xl font-bold tracking-tight text-white mt-1">DRAF SKEMATIS & RANCANGAN DETAIL — SHOWDRIVE</h1>
+      <p class="text-xs text-slate-400 mt-2">Diagram representasi perancangan awal sistem ShowDrive yang diselaraskan secara profesional sesuai referensi berkas.</p>
+    </div>
+    <div class="text-xs text-slate-300 bg-[#070d19]/80 p-4 border border-slate-800 rounded font-mono max-w-sm">
+      <p class="font-bold text-blueprint-blue">💡 Panduan Ekspor:</p>
+      <p class="mt-1 text-slate-400">Gunakan tombol <span class="bg-blueprint-blue text-black px-1.5 py-0.5 rounded text-[10px] font-bold"><i class="fa-solid fa-copy"></i> Salin Kode Mermaid</span> untuk mengekspor data diagram langsung ke Mermaid AI atau Live Editor.</p>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       DIAGRAM 1: ARSITEKTUR TIGA LAPIS (THREE-TIER)
+  ============================================================ -->
+  <section id="arsitektur" class="mb-16 scroll-mt-6">
+    <div class="flex items-center justify-between mb-6 border-b border-slate-800 pb-3">
+      <div class="flex items-center gap-3">
+        <span class="bg-blueprint-blue text-black text-[10px] font-bold px-2.5 py-1 rounded-full">GAMBAR 1</span>
+        <h2 class="text-base font-bold text-white tracking-tight">Arsitektur Tiga Lapis Sistem (System Blueprint Architecture)</h2>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Visual Draf Wireframe -->
+      <div class="lg:col-span-2 bg-blueprint-cardBg border border-slate-800 p-8 rounded-lg shadow-xl flex flex-col justify-between blueprint-glow">
+        <div class="space-y-6">
+          <!-- Aktor -->
+          <div class="flex justify-center gap-8">
+            <div class="bg-[#070d19] border border-slate-700 p-3 rounded text-center w-40">
+              <span class="text-xl">👤</span>
+              <h4 class="text-xs font-bold text-slate-200 mt-1">Pelanggan</h4>
+              <span class="text-[9px] text-slate-500 font-mono block">Customer View</span>
+            </div>
+            <div class="bg-[#070d19] border border-slate-700 p-3 rounded text-center w-40">
+              <span class="text-xl">🔑</span>
+              <h4 class="text-xs font-bold text-slate-200 mt-1">Kasir Showroom</h4>
+              <span class="text-[9px] text-slate-500 font-mono block">Admin Console</span>
+            </div>
+          </div>
+
+          <div class="schematic-line-v h-6 w-0.5"></div>
+
+          <!-- Tier 1: Presentation -->
+          <div class="bg-[#070d19] border-2 border-blueprint-blue p-4 rounded relative">
+            <span class="absolute top-1 right-2 text-[9px] font-mono text-blueprint-blue font-bold">TIER 1</span>
+            <h3 class="text-xs font-bold text-blueprint-blue tracking-wider uppercase mb-2"><i class="fa-solid fa-desktop"></i> Presentation Layer (Front-End)</h3>
+            <div class="grid grid-cols-2 gap-2 text-[10px] font-mono text-slate-300">
+              <div class="bg-blueprint-cardBg border border-slate-800 p-2 rounded">✓ Blade Template Engine</div>
+              <div class="bg-blueprint-cardBg border border-slate-800 p-2 rounded">✓ Tailwind CSS Engine</div>
+              <div class="bg-blueprint-cardBg border border-slate-800 p-2 rounded">✓ JavaScript Client API</div>
+              <div class="bg-blueprint-cardBg border border-slate-800 p-2 rounded">✓ Asynchronous Fetch (AJAX)</div>
+            </div>
+          </div>
+
+          <div class="schematic-line-v h-6 w-0.5"></div>
+
+          <!-- Tier 2: Application -->
+          <div class="bg-[#070d19] border-2 border-blueprint-blue p-4 rounded relative">
+            <span class="absolute top-1 right-2 text-[9px] font-mono text-blueprint-blue font-bold">TIER 2</span>
+            <h3 class="text-xs font-bold text-blueprint-blue tracking-wider uppercase mb-2"><i class="fa-solid fa-gears"></i> Application Layer (Back-End Engine)</h3>
+            <div class="grid grid-cols-2 gap-2 text-[10px] font-mono text-slate-300">
+              <div class="bg-blueprint-cardBg border border-slate-800 p-2 rounded">✓ Laravel 12 Core Framework</div>
+              <div class="bg-blueprint-cardBg border border-slate-800 p-2 rounded">✓ PHP 8.2 Engine runtime</div>
+              <div class="bg-blueprint-cardBg border border-slate-800 p-2 rounded">✓ Eloquent ORM Mapper</div>
+              <div class="bg-blueprint-cardBg border border-slate-800 p-2 rounded">✓ DB::transaction() ACID</div>
+            </div>
+          </div>
+
+          <div class="schematic-line-v h-6 w-0.5"></div>
+
+          <!-- Tier 3: Database -->
+          <div class="bg-[#070d19] border-2 border-blueprint-blue p-4 rounded relative">
+            <span class="absolute top-1 right-2 text-[9px] font-mono text-blueprint-blue font-bold">TIER 3</span>
+            <h3 class="text-xs font-bold text-blueprint-blue tracking-wider uppercase mb-2"><i class="fa-solid fa-database"></i> Database Storage Layer</h3>
+            <div class="grid grid-cols-2 gap-2 text-[10px] font-mono text-slate-300">
+              <div class="bg-blueprint-cardBg border border-slate-800 p-2 rounded">✓ MySQL 8.0 Community Server</div>
+              <div class="bg-blueprint-cardBg border border-slate-800 p-2 rounded">✓ InnoDB engine (Row-Level Locking)</div>
+              <div class="bg-blueprint-cardBg border border-slate-800 p-2 rounded">✓ Referential RESTRICT Constraint</div>
+              <div class="bg-blueprint-cardBg border border-slate-800 p-2 rounded">✓ 6 Tables Normalized Schema</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kode Mermaid AI -->
+      <div class="bg-[#030812] border border-slate-800 text-slate-300 p-6 rounded-lg shadow-2xl flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center mb-4">
+            <span class="text-[10px] font-mono uppercase text-blueprint-blue font-bold bg-blueprint-blue/10 px-2 py-0.5 rounded">Mermaid.js Code</span>
+            <button onclick="copyMermaidCode('code-tier')" class="bg-blueprint-blue hover:bg-blueprint-blueHover text-black text-[10px] font-bold px-3 py-1.5 rounded transition-all">
+              <i class="fa-solid fa-copy"></i> Salin Kode
+            </button>
+          </div>
+          <pre id="code-tier" class="text-[11px] font-mono leading-relaxed overflow-x-auto select-all whitespace-pre-wrap text-slate-400">graph TD
+    User([Pelanggan & Kasir]) -->|HTTP / HTTPS| Tier1[Tier 1: Presentation Layer]
+    subgraph Front-End
+        Tier1 -->|Blade Template| HTML[Blade HTML & CSS]
+        Tier1 -->|Asynchronous| JS[JS Fetch API & AJAX]
+    end
+    Tier1 -->|Request Routing| Tier2[Tier 2: Application Layer]
+    subgraph Back-End Core
+        Tier2 -->|PHP 8.2 Engine| Laravel[Laravel 12 Engine]
+        Laravel -->|ACID DB::transaction| ORM[Eloquent ORM Model]
+    end
+    Tier2 -->|SQL Queries| Tier3[Tier 3: Database Layer]
+    subgraph Persistence
+        Tier3 -->|InnoDB Engine| MySQL[MySQL 8.0 Server]
+        MySQL -->|Restrict Rules| Normalized[6 Relational Tables]
+    end</pre>
+        </div>
+        <p class="text-[9px] text-slate-500 mt-4 border-t border-slate-800 pt-3">Arsitektur modular ini memastikan front-end dapat diubah tanpa merusak integritas basis data di lapisan belakang.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       DIAGRAM 2: FLOWCHART WORKFLOW PELANGGAN (CUSTOMER JOURNEY)
+       REFERENSI: image_c5961c.png
+  ============================================================ -->
+  <section id="workflow-pelanggan" class="mb-16 scroll-mt-6">
+    <div class="flex items-center justify-between mb-6 border-b border-slate-800 pb-3">
+      <div class="flex items-center gap-3">
+        <span class="bg-blueprint-blue text-black text-[10px] font-bold px-2.5 py-1 rounded-full">GAMBAR 2</span>
+        <h2 class="text-base font-bold text-white tracking-tight">Flowchart Alur Pelanggan (Ref: image_c5961c.png)</h2>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Visual Draf Wireframe -->
+      <div class="lg:col-span-2 bg-blueprint-cardBg border border-slate-800 p-8 rounded-lg shadow-xl blueprint-glow">
+        <div class="max-w-4xl mx-auto text-center space-y-4">
+
+          <!-- Mulai -->
+          <div class="border border-slate-700 rounded-full py-1.5 px-6 inline-block text-xs font-mono text-slate-300 bg-[#070d19] font-bold uppercase tracking-wider">Mulai: Landing Page</div>
+          <div class="schematic-line-v h-5 w-0.5"></div>
+
+          <!-- Input Layanan -->
+          <div class="bg-amber-950/40 border border-amber-600 p-3 rounded-lg max-w-sm mx-auto">
+            <span class="text-[9px] font-bold text-amber-400 block font-mono">DECISION GATE</span>
+            <p class="text-xs text-slate-200 font-bold">Pilih Jenis Layanan?</p>
+          </div>
+
+          <!-- Percabangan 2 Arah -->
+          <div class="flex justify-between items-start gap-4 mt-2">
+
+            <!-- SISI KIRI: A. Pemesanan Unit Baru -->
+            <div class="w-1/2 p-4 border border-dashed border-blueprint-blue/30 rounded-lg bg-[#070d19] space-y-4">
+              <div class="bg-blueprint-blue text-black py-1.5 px-3 rounded text-[10px] font-bold tracking-wider uppercase mb-2">A. Pemesanan Unit Baru</div>
+
+              <div class="blueprint-border p-2 bg-[#0d1b2a] rounded text-left">
+                <span class="text-[8px] font-bold text-blueprint-blue block font-mono">Langkah A1</span>
+                <p class="text-[10px] text-slate-300 font-bold">Memilih Unit Mobil Status 'Available'</p>
+              </div>
+              <div class="schematic-line-v h-4 w-0.5"></div>
+
+              <div class="blueprint-border p-2 bg-[#0d1b2a] rounded text-left">
+                <span class="text-[8px] font-bold text-blueprint-blue block font-mono">Langkah A2</span>
+                <p class="text-[10px] text-slate-300 font-bold">Isi Formulir Booking & Kontak Customer</p>
+              </div>
+              <div class="schematic-line-v h-4 w-0.5"></div>
+
+              <div class="bg-blue-950/40 border-2 border-blueprint-blue p-2 rounded text-left">
+                <span class="text-[8px] font-bold text-blueprint-blue block font-mono">Langkah A3 - RDBMS</span>
+                <p class="text-[10px] text-blueprint-blue font-bold">Eksekusi DB::transaction & lockForUpdate</p>
+              </div>
+              <div class="schematic-line-v h-4 w-0.5"></div>
+
+              <div class="blueprint-border p-2 bg-[#0d1b2a] rounded text-left">
+                <span class="text-[8px] font-bold text-blueprint-blue block font-mono">Langkah A4</span>
+                <p class="text-[10px] text-slate-300 font-bold">Sistem Menerbitkan Invoice Code (INV-)</p>
+              </div>
+            </div>
+
+            <!-- SISI KANAN: B. Pelacakan & Pelunasan Invoice -->
+            <div class="w-1/2 p-4 border border-dashed border-blueprint-blue/30 rounded-lg bg-[#070d19] space-y-4">
+              <div class="bg-blueprint-blue text-black py-1.5 px-3 rounded text-[10px] font-bold tracking-wider uppercase mb-2">B. Pelacakan &amp; Pelunasan</div>
+
+              <div class="blueprint-border p-2 bg-[#0d1b2a] rounded text-left">
+                <span class="text-[8px] font-bold text-blueprint-blue block font-mono">Langkah B1</span>
+                <p class="text-[10px] text-slate-300 font-bold">Masukkan Nomor Telepon Customer</p>
+              </div>
+              <div class="schematic-line-v h-4 w-0.5"></div>
+
+              <div class="blueprint-border p-2 bg-[#0d1b2a] rounded text-left">
+                <span class="text-[8px] font-bold text-blueprint-blue block font-mono">Langkah B2</span>
+                <p class="text-[10px] text-slate-300 font-bold">Lihat Riwayat Invoice Status 'Unpaid'</p>
+              </div>
+              <div class="schematic-line-v h-4 w-0.5"></div>
+
+              <div class="blueprint-border p-2 bg-[#0d1b2a] rounded text-left">
+                <span class="text-[8px] font-bold text-blueprint-blue block font-mono">Langkah B3</span>
+                <p class="text-[10px] text-slate-300 font-bold">Unggah Bukti Transfer Resi Fisik Asli</p>
+              </div>
+              <div class="schematic-line-v h-4 w-0.5"></div>
+
+              <div class="bg-amber-950/40 border border-amber-600 p-2 rounded text-left">
+                <span class="text-[8px] font-bold text-amber-400 block font-mono">Langkah B4 - Menunggu</span>
+                <p class="text-[10px] text-slate-300 font-bold">Status Berubah: Pending Validation</p>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="schematic-line-v h-6 w-0.5"></div>
+
+          <!-- Decision: Bukti Transfer Sah? -->
+          <div class="bg-amber-950/40 border border-amber-600 p-4 rounded-lg max-w-sm mx-auto text-center">
+            <span class="text-[9px] font-bold text-amber-400 block font-mono">DECISION BLOCK</span>
+            <p class="text-xs text-slate-200 font-bold">Apakah Bukti Pembayaran Sah / Valid?</p>
+            <div class="flex justify-center gap-8 mt-2 text-[10px] font-bold">
+              <span class="text-red-400">❌ Tidak (Tolak)</span>
+              <span class="text-emerald-400">✓ Ya (Approve)</span>
+            </div>
+          </div>
+
+          <div class="schematic-line-v h-6 w-0.5"></div>
+
+          <!-- Selesai Alur -->
+          <div class="border border-slate-700 rounded-full py-1.5 px-6 inline-block text-xs font-mono text-slate-300 bg-[#070d19] font-bold uppercase tracking-wider">Selesai: Serah Terima Unit (Status Paid & Sold)</div>
+
+        </div>
+      </div>
+
+      <!-- Kode Mermaid AI -->
+      <div class="bg-[#030812] border border-slate-800 text-slate-300 p-6 rounded-lg shadow-2xl flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center mb-4">
+            <span class="text-[10px] font-mono uppercase text-blueprint-blue font-bold bg-blueprint-blue/10 px-2 py-0.5 rounded">Mermaid.js Code</span>
+            <button onclick="copyMermaidCode('code-cust')" class="bg-blueprint-blue hover:bg-blueprint-blueHover text-black text-[10px] font-bold px-3 py-1.5 rounded transition-all">
+              <i class="fa-solid fa-copy"></i> Salin Kode
+            </button>
+          </div>
+          <pre id="code-cust" class="text-[11px] font-mono leading-relaxed overflow-x-auto select-all whitespace-pre-wrap text-slate-400">flowchart TD
+    Start([Mulai: Landing Page]) --> ServiceDecision{Pilih Menu Layanan?}
+
+    %% Cabang A: Booking Unit Baru
+    ServiceDecision -->|A: Pemesanan Unit| SelectUnit[Pilih Unit Mobil Status 'Available']
+    SelectUnit --> FillForm[Isi Formulir Booking & Kontak Customer]
+    FillForm --> DBTrans[Eksekusi DB::transaction & lockForUpdate]
+    DBTrans --> GenerateInv[Terbitkan Invoice Unik & Status 'Unpaid']
+    GenerateInv --> UploadReceiptPrompt[Arahkan ke Menu Lacak untuk Unggah Bukti]
+
+    %% Cabang B: Lacak & Pelunasan
+    ServiceDecision -->|B: Pelacakan & Pelunasan| TrackInvoice[Masukkan No HP Customer]
+    TrackInvoice --> SelectInvoice[Pilih Invoice Status 'Unpaid']
+    SelectInvoice --> UploadReceipt[Unggah Bukti Transfer Resi Fisik Asli]
+    UploadReceipt --> StatusPending[Status Invoice Berubah: Pending Validation]
+    StatusPending --> WaitValidation[Menunggu Verifikasi Kasir]
+
+    UploadReceiptPrompt --> TrackInvoice
+    WaitValidation --> VerifyDecision{Bukti Transfer Sah?}
+    VerifyDecision -->|Tidak| TolakBukti[Tolak: Status Tetap Pending / Tolak Pembayaran]
+    VerifyDecision -->|Ya| SahkanLunas[Sahkan Lunas: Status Paid & Unit Sold]
+
+    TolakBukti --> TrackInvoice
+    SahkanLunas --> PrintReceipt[Terbitkan Kwitansi Resmi Lunas]
+    PrintReceipt --> End([Selesai: Penyerahan Unit])</pre>
+        </div>
+        <p class="text-[9px] text-slate-500 mt-4 border-t border-slate-800 pt-3">Flowchart ini diadaptasi dari struktur visual komparatif image_c5961c.png untuk kejelasan pembaca.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       DIAGRAM 3: FLOWCHART WORKFLOW KASIR / ADMIN (STAFF JOURNEY)
+       REFERENSI: image_c59621.png
+  ============================================================ -->
+  <section id="workflow-admin" class="mb-16 scroll-mt-6">
+    <div class="flex items-center justify-between mb-6 border-b border-slate-800 pb-3">
+      <div class="flex items-center gap-3">
+        <span class="bg-blueprint-blue text-black text-[10px] font-bold px-2.5 py-1 rounded-full">GAMBAR 3</span>
+        <h2 class="text-base font-bold text-white tracking-tight">Flowchart Alur Verifikasi Kasir (Ref: image_c59621.png)</h2>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Visual Draf Wireframe -->
+      <div class="lg:col-span-2 bg-blueprint-cardBg border border-slate-800 p-8 rounded-lg shadow-xl blueprint-glow">
+        <div class="max-w-4xl mx-auto text-center space-y-4">
+
+          <!-- Mulai -->
+          <div class="border border-slate-700 rounded-full py-1.5 px-6 inline-block text-xs font-mono text-slate-300 bg-[#070d19] font-bold uppercase tracking-wider">Start: Portal Showroom</div>
+          <div class="schematic-line-v h-5 w-0.5"></div>
+
+          <!-- Shortcut Gate -->
+          <div class="bg-blue-950/30 border border-blueprint-blue p-2.5 rounded max-w-sm mx-auto text-left font-mono-tech text-[10px] text-slate-300">
+            <span class="text-[8px] font-bold text-blueprint-blue block">SECURITY BY OBSCURITY</span>
+            <p>Sistem Memicu Kombinasi: Ctrl + Shift + A</p>
+          </div>
+          <div class="schematic-line-v h-5 w-0.5"></div>
+
+          <!-- Login & Dashboard -->
+          <div class="blueprint-border p-3 bg-[#0d1b2a] rounded max-w-sm mx-auto">
+            <p class="text-xs text-slate-200 font-bold">Login Kredensial Kasir &amp; Masuk Dashboard</p>
+          </div>
+          <div class="schematic-line-v h-5 w-0.5"></div>
+
+          <!-- Decision Menu -->
+          <div class="bg-amber-950/40 border border-amber-600 p-3 rounded-lg max-w-sm mx-auto">
+            <span class="text-[9px] font-bold text-amber-400 block font-mono">DECISION GATE</span>
+            <p class="text-xs text-slate-200 font-bold">Pilih Menu Operasional Kasir?</p>
+          </div>
+
+          <!-- Percabangan 2 Arah Kasir -->
+          <div class="flex justify-between items-start gap-4 mt-2">
+
+            <!-- SISI KIRI: A. Verifikasi Pembayaran (Invoices) -->
+            <div class="w-1/2 p-4 border border-dashed border-blueprint-blue/30 rounded-lg bg-[#070d19] space-y-4">
+              <div class="bg-blueprint-blue text-black py-1.5 px-3 rounded text-[10px] font-bold tracking-wider uppercase mb-2">A. Validasi Pembayaran</div>
+
+              <div class="blueprint-border p-2 bg-[#0d1b2a] rounded text-left">
+                <span class="text-[8px] font-bold text-blueprint-blue block font-mono">Proses A1</span>
+                <p class="text-[10px] text-slate-300 font-bold">Tinjau Invoice Status 'Pending Validation'</p>
+              </div>
+              <div class="schematic-line-v h-4 w-0.5"></div>
+
+              <div class="blueprint-border p-2 bg-[#0d1b2a] rounded text-left">
+                <span class="text-[8px] font-bold text-blueprint-blue block font-mono">Proses A2</span>
+                <p class="text-[10px] text-slate-300 font-bold">Buka Berkas Bukti Resi Fisik Asli</p>
+              </div>
+              <div class="schematic-line-v h-4 w-0.5"></div>
+
+              <div class="bg-amber-950/40 border border-amber-600 p-2 rounded text-left">
+                <span class="text-[8px] font-bold text-amber-400 block font-mono">Decision A3</span>
+                <p class="text-[10px] text-slate-200 font-bold">Resi Valid &amp; Sesuai?</p>
+              </div>
+              <div class="schematic-line-v h-4 w-0.5"></div>
+
+              <div class="bg-blue-950/40 border-2 border-blueprint-blue p-2 rounded text-left">
+                <span class="text-[8px] font-bold text-blueprint-blue block font-mono">Proses A4 - DB Action</span>
+                <p class="text-[10px] text-blueprint-blue font-bold">Sahkan Lunas: Status Paid &amp; Item Sold</p>
+              </div>
+            </div>
+
+            <!-- SISI KANAN: B. Manajemen Inventaris (Items CRUD) -->
+            <div class="w-1/2 p-4 border border-dashed border-blueprint-blue/30 rounded-lg bg-[#070d19] space-y-4">
+              <div class="bg-blueprint-blue text-black py-1.5 px-3 rounded text-[10px] font-bold tracking-wider uppercase mb-2">B. Manajemen Inventaris</div>
+
+              <div class="blueprint-border p-2 bg-[#0d1b2a] rounded text-left">
+                <span class="text-[8px] font-bold text-blueprint-blue block font-mono">Proses B1</span>
+                <p class="text-[10px] text-slate-300 font-bold">Buka Menu Kelola Unit Mobil Premium</p>
+              </div>
+              <div class="schematic-line-v h-4 w-0.5"></div>
+
+              <div class="blueprint-border p-2 bg-[#0d1b2a] rounded text-left">
+                <span class="text-[8px] font-bold text-blueprint-blue block font-mono">Proses B2</span>
+                <p class="text-[10px] text-slate-300 font-bold">Pilih Aksi: Simpan, Ubah, atau Hapus</p>
+              </div>
+              <div class="schematic-line-v h-4 w-0.5"></div>
+
+              <div class="bg-amber-950/40 border border-amber-600 p-2 rounded text-left">
+                <span class="text-[8px] font-bold text-amber-400 block font-mono">Decision B3</span>
+                <p class="text-[10px] text-slate-200 font-bold">Apakah Unit Terikat Transaksi Aktif?</p>
+              </div>
+              <div class="schematic-line-v h-4 w-0.5"></div>
+
+              <div class="bg-red-950/40 border border-red-500 p-2 rounded text-left">
+                <span class="text-[8px] font-bold text-red-400 block font-mono">Proses B4 - DB Restriction</span>
+                <p class="text-[10px] text-red-400 font-bold">Gagal Hapus: ON DELETE RESTRICT</p>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="schematic-line-v h-6 w-0.5"></div>
+
+          <!-- Selesai Alur -->
+          <div class="border border-slate-700 rounded-full py-1.5 px-6 inline-block text-xs font-mono text-slate-300 bg-[#070d19] font-bold uppercase tracking-wider">Selesai: Kembali ke Dashboard</div>
+
+        </div>
+      </div>
+
+      <!-- Kode Mermaid AI -->
+      <div class="bg-[#030812] border border-slate-800 text-slate-300 p-6 rounded-lg shadow-2xl flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center mb-4">
+            <span class="text-[10px] font-mono uppercase text-blueprint-blue font-bold bg-blueprint-blue/10 px-2 py-0.5 rounded">Mermaid.js Code</span>
+            <button onclick="copyMermaidCode('code-cashier')" class="bg-blueprint-blue hover:bg-blueprint-blueHover text-black text-[10px] font-bold px-3 py-1.5 rounded transition-all">
+              <i class="fa-solid fa-copy"></i> Salin Kode
+            </button>
+          </div>
+          <pre id="code-cashier" class="text-[11px] font-mono leading-relaxed overflow-x-auto select-all whitespace-pre-wrap text-slate-400">flowchart TD
+    Start([Mulai]) --> Login[Login Portal Tersembunyi: Ctrl + Shift + A]
+    Login --> Dashboard[Masuk Dashboard Control Panel]
+    Dashboard --> ActionDecision{Pilih Menu Operasional?}
+
+    %% Cabang A: Verifikasi Pembayaran
+    ActionDecision -->|A: Validasi Pembayaran| CheckInvoice[Tinjau Invoice Status 'Pending Validation']
+    CheckInvoice --> OpenReceipt[Buka Berkas Bukti Resi Fisik Asli]
+    OpenReceipt --> ApprovalDecision{Bukti Transfer Valid?}
+    ApprovalDecision -->|Tidak| RejectPayment[Tolak Bukti & Kirim Notifikasi Tolak]
+    ApprovalDecision -->|Ya| ApprovePayment[Sahkan Lunas: Hubungkan ID Kasir]
+    ApprovePayment --> MutateStatus[Mutasi Invoice ke 'Paid' & Item ke 'Sold']
+    MutateStatus --> PrintInvoice[Cetak Struk/Kwitansi Lunas Resmi]
+
+    %% Cabang B: Manajemen Inventaris (CRUD)
+    ActionDecision -->|B: Manajemen Inventaris| MenuItems[Buka Menu Kelola Unit Mobil]
+    MenuItems --> SelectAction{Pilih Aksi?}
+    SelectAction -->|Create/Update| SaveItem[Validasi Spesifikasi & Simpan Unit]
+    SelectAction -->|Delete| DeleteItem[Eksekusi Hapus Unit]
+    DeleteItem --> ConstraintDecision{Apakah Unit Memiliki Invoice Aktif?}
+    ConstraintDecision -->|Ya| RestrictAction[Tolak Penghapusan: ON DELETE RESTRICT]
+    ConstraintDecision -->|Tidak| ConfirmDelete[Hapus Data Unit dari Database]
+
+    RejectPayment --> Dashboard
+    PrintInvoice --> Dashboard
+    SaveItem --> Dashboard
+    RestrictAction --> Dashboard
+    ConfirmDelete --> Dashboard</pre>
+        </div>
+        <p class="text-[9px] text-slate-500 mt-4 border-t border-slate-800 pt-3">Flowchart staf operasional kasir ini diadaptasi secara dinamis sesuai struktur visual dari image_c59621.png.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       DIAGRAM 4: CLASS DIAGRAM (6 MODEL ELOQUENT ORM)
+  ============================================================ -->
+  <section id="class-diagram" class="mb-16 scroll-mt-6">
+    <div class="flex items-center justify-between mb-6 border-b border-slate-800 pb-3">
+      <div class="flex items-center gap-3">
+        <span class="bg-blueprint-blue text-black text-[10px] font-bold px-2.5 py-1 rounded-full">GAMBAR 4</span>
+        <h2 class="text-base font-bold text-white tracking-tight">Class Diagram (6 Eloquent ORM Classes &amp; Relations)</h2>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Visual Draf Wireframe -->
+      <div class="lg:col-span-2 bg-blueprint-cardBg border border-slate-800 p-8 rounded-lg shadow-xl overflow-x-auto blueprint-glow">
+        <div class="min-w-[700px] space-y-8">
+
+          <!-- Baris 1: Company, Warehouse, Cashier -->
+          <div class="grid grid-cols-3 gap-6">
+            <div class="bg-[#070d19] border border-slate-750 rounded p-3 font-mono text-[10px]">
+              <div class="font-bold text-blueprint-blue text-xs border-b border-slate-800 pb-1 mb-2">Class: Company</div>
+              <p>+bigint id (PK)</p>
+              <p>+string name</p>
+              <p>+string tax_id</p>
+              <div class="border-t border-slate-800 pt-1 mt-2 text-[9px] text-slate-500">
+                <p>+warehouses() : HasMany</p>
+                <p>+cashiers() : HasMany</p>
+              </div>
+            </div>
+
+            <div class="bg-[#070d19] border border-slate-750 rounded p-3 font-mono text-[10px]">
+              <div class="font-bold text-blueprint-blue text-xs border-b border-slate-800 pb-1 mb-2">Class: Warehouse</div>
+              <p>+bigint id (PK)</p>
+              <p>+bigint company_id (FK)</p>
+              <p>+string name</p>
+              <p>+string location</p>
+              <div class="border-t border-slate-800 pt-1 mt-2 text-[9px] text-slate-500">
+                <p>+company() : BelongsTo</p>
+                <p>+items() : HasMany</p>
+              </div>
+            </div>
+
+            <div class="bg-[#070d19] border border-slate-750 rounded p-3 font-mono text-[10px]">
+              <div class="font-bold text-blueprint-blue text-xs border-b border-slate-800 pb-1 mb-2">Class: Cashier</div>
+              <p>+bigint id (PK)</p>
+              <p>+bigint company_id (FK)</p>
+              <p>+string name</p>
+              <p>+string username</p>
+              <p>+string password</p>
+              <p>+string role</p>
+              <div class="border-t border-slate-800 pt-1 mt-2 text-[9px] text-slate-500">
+                <p>+company() : BelongsTo</p>
+                <p>+invoices() : HasMany</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Baris 2: Customer, Item, Invoice -->
+          <div class="grid grid-cols-3 gap-6">
+            <div class="bg-[#070d19] border border-slate-750 rounded p-3 font-mono text-[10px]">
+              <div class="font-bold text-blueprint-blue text-xs border-b border-slate-800 pb-1 mb-2">Class: Customer</div>
+              <p>+bigint id (PK)</p>
+              <p>+string name</p>
+              <p>+string phone</p>
+              <div class="border-t border-slate-800 pt-1 mt-2 text-[9px] text-slate-500">
+                <p>+invoices() : HasMany</p>
+              </div>
+            </div>
+
+            <div class="bg-[#070d19] border border-slate-750 rounded p-3 font-mono text-[10px]">
+              <div class="font-bold text-blueprint-blue text-xs border-b border-slate-800 pb-1 mb-2">Class: Item</div>
+              <p>+bigint id (PK)</p>
+              <p>+bigint warehouse_id (FK)</p>
+              <p>+string brand</p>
+              <p>+string model</p>
+              <p>+string vin</p>
+              <p>+decimal price</p>
+              <p>+enum status</p>
+              <div class="border-t border-slate-800 pt-1 mt-2 text-[9px] text-slate-500">
+                <p>+warehouse() : BelongsTo</p>
+                <p>+invoices() : HasMany</p>
+              </div>
+            </div>
+
+            <div class="bg-[#070d19] border-2 border-blueprint-blue rounded p-3 font-mono text-[10px]">
+              <div class="font-bold text-blueprint-blue text-xs border-b border-slate-800 pb-1 mb-2">Class: Invoice</div>
+              <p>+bigint id (PK)</p>
+              <p>+string invoice_code</p>
+              <p>+bigint customer_id (FK)</p>
+              <p>+bigint item_id (FK)</p>
+              <p>+bigint cashier_id (FK)</p>
+              <p>+decimal total_amount</p>
+              <p>+enum payment_status</p>
+              <p>+string authentic_receipt</p>
+              <div class="border-t border-blueprint-blue pt-1 mt-2 text-[9px] text-slate-500">
+                <p>+customer() : BelongsTo</p>
+                <p>+item() : BelongsTo</p>
+                <p>+cashier() : BelongsTo</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Kode Mermaid AI -->
+      <div class="bg-[#030812] border border-slate-800 text-slate-300 p-6 rounded-lg shadow-2xl flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center mb-4">
+            <span class="text-[10px] font-mono uppercase text-blueprint-blue font-bold bg-blueprint-blue/10 px-2 py-0.5 rounded">Mermaid.js Code</span>
+            <button onclick="copyMermaidCode('code-class')" class="bg-blueprint-blue hover:bg-blueprint-blueHover text-black text-[10px] font-bold px-3 py-1.5 rounded transition-all">
+              <i class="fa-solid fa-copy"></i> Salin Kode
+            </button>
+          </div>
+          <pre id="code-class" class="text-[11px] font-mono leading-relaxed overflow-x-auto select-all whitespace-pre-wrap text-slate-400">classDiagram
+    class Company {
+        +bigint id
+        +string name
+        +string tax_id
+        +warehouses() HasMany
+        +cashiers() HasMany
+    }
+    class Warehouse {
+        +bigint id
+        +bigint company_id
+        +string name
+        +string location
+        +company() BelongsTo
+        +items() HasMany
+    }
+    class Cashier {
+        +bigint id
+        +bigint company_id
+        +string name
+        +string username
+        +string password
+        +string role
+        +company() BelongsTo
+        +invoices() HasMany
+    }
+    class Customer {
+        +bigint id
+        +string name
+        +string phone
+        +invoices() HasMany
+    }
+    class Item {
+        +bigint id
+        +bigint warehouse_id
+        +string brand
+        +string model
+        +string vin
+        +integer year
+        +decimal price
+        +enum status
+        +warehouse() BelongsTo
+        +invoices() HasMany
+    }
+    class Invoice {
+        +bigint id
+        +string invoice_code
+        +bigint customer_id
+        +bigint item_id
+        +bigint cashier_id
+        +date date
+        +decimal total_amount
+        +enum payment_status
+        +string authentic_receipt
+        +customer() BelongsTo
+        +item() BelongsTo
+        +cashier() BelongsTo
+    }
+    Company "1" --> "*" Warehouse : membawahi
+    Company "1" --> "*" Cashier : mempekerjakan
+    Warehouse "1" --> "*" Item : menyimpan
+    Customer "1" --> "*" Invoice : memiliki
+    Item "1" --> "*" Invoice : tercatat_pada
+    Cashier "1" --> "*" Invoice : mengesahkan</pre>
+        </div>
+        <p class="text-[9px] text-slate-500 mt-4 border-t border-slate-800 pt-3">Diagram kelas ini menunjukkan relasi ORM model Eloquent yang diwariskan dari tabel database fisik.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       DIAGRAM 5: ERD (6 TABEL DATABASE RELASIONAL)
+  ============================================================ -->
+  <section id="erd" class="mb-16 scroll-mt-6">
+    <div class="flex items-center justify-between mb-6 border-b border-slate-800 pb-3">
+      <div class="flex items-center gap-3">
+        <span class="bg-blueprint-blue text-black text-[10px] font-bold px-2.5 py-1 rounded-full">GAMBAR 5</span>
+        <h2 class="text-base font-bold text-white tracking-tight">Entity Relationship Diagram (6 RDBMS Physical Tables)</h2>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Visual Draf Wireframe -->
+      <div class="lg:col-span-2 bg-blueprint-cardBg border border-slate-800 p-8 rounded-lg shadow-xl overflow-x-auto blueprint-glow">
+        <div class="min-w-[800px] space-y-10">
+
+          <div class="grid grid-cols-3 gap-6">
+            <!-- companies -->
+            <div class="bg-[#070d19] border border-slate-750 rounded font-mono text-[10px]">
+              <div class="bg-slate-800 text-slate-200 font-bold px-3 py-1 border-b border-slate-700">companies</div>
+              <div class="p-3 space-y-1 text-slate-300">
+                <p class="font-bold text-blueprint-blue">id : bigint (PK)</p>
+                <p>name : varchar(255)</p>
+                <p>tax_id : varchar(50)</p>
+              </div>
+            </div>
+
+            <!-- warehouses -->
+            <div class="bg-[#070d19] border border-slate-750 rounded font-mono text-[10px]">
+              <div class="bg-slate-800 text-slate-200 font-bold px-3 py-1 border-b border-slate-700">warehouses</div>
+              <div class="p-3 space-y-1 text-slate-300">
+                <p class="font-bold text-blueprint-blue">id : bigint (PK)</p>
+                <p class="font-bold text-emerald-400">company_id : bigint (FK)</p>
+                <p>name : varchar(255)</p>
+                <p>location : varchar(255)</p>
+              </div>
+            </div>
+
+            <!-- cashiers -->
+            <div class="bg-[#070d19] border border-slate-750 rounded font-mono text-[10px]">
+              <div class="bg-slate-800 text-slate-200 font-bold px-3 py-1 border-b border-slate-700">cashiers</div>
+              <div class="p-3 space-y-1 text-slate-300">
+                <p class="font-bold text-blueprint-blue">id : bigint (PK)</p>
+                <p class="font-bold text-emerald-400">company_id : bigint (FK)</p>
+                <p>name : varchar(255)</p>
+                <p class="font-bold text-purple-400">username : varchar(100) UQ</p>
+                <p>password : varchar(255)</p>
+                <p>role : varchar(50)</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-6">
+            <!-- customers -->
+            <div class="bg-[#070d19] border border-slate-750 rounded font-mono text-[10px]">
+              <div class="bg-slate-800 text-slate-200 font-bold px-3 py-1 border-b border-slate-700">customers</div>
+              <div class="p-3 space-y-1 text-slate-300">
+                <p class="font-bold text-blueprint-blue">id : bigint (PK)</p>
+                <p>name : varchar(255)</p>
+                <p class="font-bold text-purple-400">phone : varchar(20) UQ</p>
+              </div>
+            </div>
+
+            <!-- items -->
+            <div class="bg-[#070d19] border border-slate-750 rounded font-mono text-[10px]">
+              <div class="bg-slate-800 text-slate-200 font-bold px-3 py-1 border-b border-slate-700">items</div>
+              <div class="p-3 space-y-1 text-slate-300">
+                <p class="font-bold text-blueprint-blue">id : bigint (PK)</p>
+                <p class="font-bold text-emerald-400">warehouse_id : bigint (FK)</p>
+                <p>brand : varchar(100)</p>
+                <p>model : varchar(100)</p>
+                <p class="font-bold text-purple-400">vin : char(17) UQ</p>
+                <p>year : integer</p>
+                <p>price : decimal(15,2)</p>
+                <p>status : enum('Available','Invoiced','Sold')</p>
+              </div>
+            </div>
+
+            <!-- invoices -->
+            <div class="bg-[#070d19] border-2 border-blueprint-blue rounded font-mono text-[10px]">
+              <div class="bg-blueprint-blue text-black font-bold px-3 py-1 border-b border-blueprint-blue">invoices</div>
+              <div class="p-3 space-y-1 text-slate-300">
+                <p class="font-bold text-blueprint-blue">id : bigint (PK)</p>
+                <p class="font-bold text-purple-400">invoice_code : varchar(50) UQ</p>
+                <p class="font-bold text-emerald-400">customer_id : bigint (FK) - CASCADE</p>
+                <p class="font-bold text-red-400">item_id : bigint (FK) - RESTRICT</p>
+                <p class="font-bold text-blue-400">cashier_id : bigint (FK) - SET NULL</p>
+                <p>date : date</p>
+                <p>total_amount : decimal(15,2)</p>
+                <p>payment_status : enum('Unpaid','Pending Validation','Paid')</p>
+                <p>authentic_receipt : varchar(255)</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Kode Mermaid AI -->
+      <div class="bg-[#030812] border border-slate-800 text-slate-300 p-6 rounded-lg shadow-2xl flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center mb-4">
+            <span class="text-[10px] font-mono uppercase text-blueprint-blue font-bold bg-blueprint-blue/10 px-2 py-0.5 rounded">Mermaid.js Code</span>
+            <button onclick="copyMermaidCode('code-erd')" class="bg-blueprint-blue hover:bg-blueprint-blueHover text-black text-[10px] font-bold px-3 py-1.5 rounded transition-all">
+              <i class="fa-solid fa-copy"></i> Salin Kode
+            </button>
+          </div>
+          <pre id="code-erd" class="text-[11px] font-mono leading-relaxed overflow-x-auto select-all whitespace-pre-wrap text-slate-400">erDiagram
+    companies ||--o{ warehouses : "company_id"
+    companies ||--o{ cashiers : "company_id"
+    warehouses ||--o{ items : "warehouse_id"
+    customers ||--o{ invoices : "customer_id"
+    items ||--o{ invoices : "item_id (RESTRICT)"
+    cashiers ||--o{ invoices : "cashier_id (SET NULL)"
+    companies {
+        bigint id PK
+        string name
+        string tax_id
+    }
+    warehouses {
+        bigint id PK
+        bigint company_id FK
+        string name
+        string location
+    }
+    cashiers {
+        bigint id PK
+        bigint company_id FK
+        string name
+        string username
+        string password
+        string role
+    }
+    customers {
+        bigint id PK
+        string name
+        string phone
+    }
+    items {
+        bigint id PK
+        bigint warehouse_id FK
+        string brand
+        string model
+        string vin
+        integer year
+        decimal price
+        enum status
+    }
+    invoices {
+        bigint id PK
+        string invoice_code
+        bigint customer_id FK
+        bigint item_id FK
+        bigint cashier_id FK
+        date date
+        decimal total_amount
+        enum payment_status
+        string authentic_receipt
+    }</pre>
+        </div>
+        <p class="text-[9px] text-slate-500 mt-4 border-t border-slate-800 pt-3">Sistem pengamanan database level fisik menggunakan RESTRICT mencegah terhapusnya unit mobil yang memiliki invoice pembayaran.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       DIAGRAM 6: WIREFRAME HOMEPAGE / KATALOG PELANGGAN
+  ============================================================ -->
+  <section id="wf-katalog" class="mb-16 scroll-mt-6">
+    <div class="flex items-center gap-3 mb-6 border-b border-slate-800 pb-3">
+      <span class="bg-blueprint-blue text-black text-[10px] font-bold px-2.5 py-1 rounded-full">GAMBAR 6</span>
+      <h2 class="text-base font-bold text-white tracking-tight">Wireframe Homepage &amp; Katalog Publik (Schematic Layout)</h2>
+    </div>
+
+    <div class="bg-blueprint-cardBg border border-slate-800 p-6 rounded-lg shadow-xl blueprint-glow">
+      <div class="border border-slate-700 rounded overflow-hidden">
+        <!-- Mock Browser Bar -->
+        <div class="bg-slate-800 border-b border-slate-700 px-4 py-2 flex items-center justify-between">
+          <div class="flex gap-1">
+            <span class="w-2.5 h-2.5 rounded-full bg-slate-600 inline-block"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-slate-600 inline-block"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-slate-600 inline-block"></span>
+          </div>
+          <span class="text-[10px] font-mono text-slate-400 bg-slate-900 px-8 py-0.5 border border-slate-700 rounded">http://showdrive.test/</span>
+          <div class="w-10"></div>
+        </div>
+
+        <!-- Wireframe Content -->
+        <div class="p-6 bg-[#070d19] space-y-6">
+          <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+            <span class="font-bold text-xs font-mono text-white">LOGO: SHOWDRIVE</span>
+            <div class="flex gap-4 text-[10px] font-bold text-slate-400">
+              <span>[KATALOG ITEMS]</span>
+              <span>[CEK INVOICE]</span>
+            </div>
+          </div>
+
+          <div class="border border-slate-700 p-6 text-center bg-blueprint-cardBg rounded">
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest">[ AREA BANNER HERO ]</h4>
+            <div class="mt-3 flex max-w-sm mx-auto border border-slate-700 rounded overflow-hidden">
+              <input type="text" placeholder="Search by Brand, Model, VIN..." class="text-[10px] p-2 bg-[#070d19] w-full focus:outline-none text-slate-300" disabled>
+              <button class="bg-slate-800 text-[10px] font-bold px-4 text-slate-300">CARI</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <!-- Box 1 -->
+            <div class="border border-slate-700 bg-blueprint-cardBg p-4 space-y-2">
+              <div class="bg-slate-800 h-24 border border-slate-700 flex items-center justify-center text-[9px] text-slate-400 uppercase tracking-wider font-mono">[ Image_Main_Porsche.jpg ]</div>
+              <div class="flex justify-between items-start text-[10px]">
+                <div>
+                  <h4 class="font-bold text-white">Porsche 911 GT3 RS</h4>
+                  <span class="text-[8px] font-mono text-slate-500">VIN: WP0ZZZ99ZLS...</span>
+                </div>
+                <span class="border border-slate-700 text-slate-400 text-[8px] px-1 rounded uppercase">AVAILABLE</span>
+              </div>
+              <div class="flex justify-between items-center pt-2 border-t border-slate-850 text-[10px]">
+                <span class="font-bold font-mono text-blueprint-blue">IDR 4.500.000.000</span>
+                <span class="bg-slate-800 text-slate-300 font-bold px-2 py-1 rounded text-[8px]">[PILIH ITEM]</span>
+              </div>
+            </div>
+
+            <!-- Box 2 -->
+            <div class="border border-slate-700 bg-blueprint-cardBg p-4 space-y-2">
+              <div class="bg-slate-800 h-24 border border-slate-700 flex items-center justify-center text-[9px] text-slate-400 uppercase tracking-wider font-mono">[ Image_Main_Corvette.jpg ]</div>
+              <div class="flex justify-between items-start text-[10px]">
+                <div>
+                  <h4 class="font-bold text-white">Chevrolet Corvette C8</h4>
+                  <span class="text-[8px] font-mono text-slate-500">VIN: 1G1Y22D41P5...</span>
+                </div>
+                <span class="border border-slate-700 text-slate-400 text-[8px] px-1 rounded uppercase">AVAILABLE</span>
+              </div>
+              <div class="flex justify-between items-center pt-2 border-t border-slate-850 text-[10px]">
+                <span class="font-bold font-mono text-blueprint-blue">IDR 2.800.000.000</span>
+                <span class="bg-slate-800 text-slate-300 font-bold px-2 py-1 rounded text-[8px]">[PILIH ITEM]</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       DIAGRAM 7: WIREFRAME DETAIL UNIT & FORMULIR BOOKING
+  ============================================================ -->
+  <section id="wf-pesan" class="mb-16 scroll-mt-6">
+    <div class="flex items-center gap-3 mb-6 border-b border-slate-800 pb-3">
+      <span class="bg-blueprint-blue text-black text-[10px] font-bold px-2.5 py-1 rounded-full">GAMBAR 7</span>
+      <h2 class="text-base font-bold text-white tracking-tight">Wireframe Detail Kendaraan &amp; Booking Form (Schematic Layout)</h2>
+    </div>
+
+    <div class="bg-blueprint-cardBg border border-slate-800 p-6 rounded-lg shadow-xl blueprint-glow">
+      <div class="border border-slate-700 rounded overflow-hidden">
+        <!-- Mock Browser Bar -->
+        <div class="bg-slate-800 border-b border-slate-700 px-4 py-2 flex items-center justify-between">
+          <span class="text-[10px] font-mono text-slate-400 bg-slate-900 px-8 py-0.5 border border-slate-700 rounded">http://showdrive.test/item/101</span>
+          <div class="w-10"></div>
+        </div>
+
+        <div class="p-6 bg-[#070d19] grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-4">
+            <div class="bg-blueprint-cardBg border border-slate-700 h-48 flex items-center justify-center text-[10px] text-slate-500 font-mono">[ Image_Main_Porsche.jpg ]</div>
+            <div class="grid grid-cols-4 gap-2">
+              <div class="bg-blueprint-cardBg border border-slate-700 h-10 flex items-center justify-center text-[7px] text-slate-500 font-mono">[ Image_1.jpg ]</div>
+              <div class="bg-blueprint-cardBg border border-slate-700 h-10 flex items-center justify-center text-[7px] text-slate-500 font-mono">[ Image_2.jpg ]</div>
+              <div class="bg-blueprint-cardBg border border-slate-700 h-10 flex items-center justify-center text-[7px] text-slate-500 font-mono">[ Image_3.jpg ]</div>
+              <div class="bg-blueprint-cardBg border border-slate-700 h-10 flex items-center justify-center text-[7px] text-slate-500 font-mono">[ Image_4.jpg ]</div>
+            </div>
+          </div>
+
+          <div class="bg-blueprint-cardBg border border-slate-700 p-4 space-y-4 rounded text-xs">
+            <h4 class="font-bold border-b border-slate-800 pb-2 text-blueprint-blue">[ FORMULIR REGISTRASI CUSTOMER &amp; INVOICE ]</h4>
+            <div class="space-y-2">
+              <label class="text-[9px] font-bold text-slate-500 uppercase tracking-widest block">Nama Lengkap Customer *</label>
+              <input type="text" placeholder="e.g. John Doe" class="w-full bg-[#070d19] border border-slate-750 p-2 rounded text-[10px] text-slate-300" disabled>
+            </div>
+            <div class="space-y-2">
+              <label class="text-[9px] font-bold text-slate-500 uppercase tracking-widest block">No. HP / WhatsApp *</label>
+              <input type="text" placeholder="e.g. 0812345678" class="w-full bg-[#070d19] border border-slate-750 p-2 rounded text-[10px] text-slate-300" disabled>
+            </div>
+            <div class="bg-[#070d19] p-3 border border-slate-800 rounded font-mono text-[9px] text-slate-400 space-y-1">
+              <p>MSRP : IDR 4.500.000.000</p>
+              <p class="font-bold text-blueprint-blue">Total Faktur: IDR 4.500.000.000</p>
+            </div>
+            <button class="w-full bg-slate-800 border border-slate-700 text-slate-300 font-bold py-2 text-[10px] uppercase rounded">BUAT INVOICE TRANSAKSI</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       DIAGRAM 8: WIREFRAME PELACAKAN INVOICE & UNGHAH RESI
+  ============================================================ -->
+  <section id="wf-track" class="mb-16 scroll-mt-6">
+    <div class="flex items-center gap-3 mb-6 border-b border-slate-800 pb-3">
+      <span class="bg-blueprint-blue text-black text-[10px] font-bold px-2.5 py-1 rounded-full">GAMBAR 8</span>
+      <h2 class="text-base font-bold text-white tracking-tight">Wireframe Pelacakan &amp; Unggah Bukti Transaksi (Schematic Layout)</h2>
+    </div>
+
+    <div class="bg-blueprint-cardBg border border-slate-800 p-6 rounded-lg shadow-xl blueprint-glow">
+      <div class="border border-slate-700 rounded overflow-hidden max-w-xl mx-auto">
+        <!-- Mock Browser Bar -->
+        <div class="bg-slate-800 border-b border-slate-700 px-4 py-2 flex items-center justify-between">
+          <span class="text-[10px] font-mono text-slate-400 bg-slate-900 px-8 py-0.5 border border-slate-700 rounded">http://showdrive.test/track?phone=0812345678</span>
+          <div class="w-10"></div>
+        </div>
+
+        <div class="p-6 bg-[#070d19] space-y-4 text-xs">
+          <div class="bg-blueprint-cardBg border border-slate-700 p-4 rounded space-y-3">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+              <span class="font-bold text-blueprint-blue font-mono">Invoice: INV-928172</span>
+              <span class="border border-amber-500/50 text-amber-500 bg-amber-950/20 px-2 py-0.5 text-[8px] rounded font-bold">PENDING VALIDATION</span>
+            </div>
+            <p class="text-[10px] text-slate-400 font-mono">Aset Terkait: Porsche 911 GT3 RS</p>
+            <p class="text-[10px] text-slate-400 font-mono">Nominal: IDR 4.500.000.000</p>
+
+            <div class="border-t border-slate-800 pt-3 space-y-2">
+              <label class="text-[9px] font-bold text-slate-500 uppercase tracking-widest block">Unggah Bukti Transfer Resi Fisik Asli (.jpg, .png) *</label>
+              <div class="flex gap-2">
+                <input type="file" class="bg-[#070d19] border border-slate-750 p-1 w-full text-[10px] text-slate-400" disabled>
+                <button class="bg-slate-800 text-slate-300 px-4 font-bold text-[9px] border border-slate-700 rounded">UNGGAH</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       DIAGRAM 9: WIREFRAME DASHBOARD CONTROL PANEL KASIR
+  ============================================================ -->
+  <section id="wf-dashboard" class="mb-16 scroll-mt-6">
+    <div class="flex items-center gap-3 mb-6 border-b border-slate-800 pb-3">
+      <span class="bg-blueprint-blue text-black text-[10px] font-bold px-2.5 py-1 rounded-full">GAMBAR 9</span>
+      <h2 class="text-base font-bold text-white tracking-tight">Wireframe Control Panel Dashboard Kasir (Schematic Layout)</h2>
+    </div>
+
+    <div class="bg-blueprint-cardBg border border-slate-800 p-6 rounded-lg shadow-xl blueprint-glow">
+      <div class="border border-slate-700 rounded overflow-hidden">
+        <!-- Mock Browser Bar -->
+        <div class="bg-slate-800 border-b border-slate-700 px-4 py-2">
+          <span class="text-[10px] font-mono text-slate-400 bg-slate-900 px-8 py-0.5 border border-slate-700 rounded">http://showdrive.test/admin/dashboard</span>
+        </div>
+
+        <div class="flex bg-[#070d19]">
+          <!-- Sidebar -->
+          <div class="w-48 bg-blueprint-cardBg border-r border-slate-800 p-4 space-y-4 text-[10px] font-bold text-slate-500">
+            <span class="text-blueprint-blue text-xs font-black">SD CONTROL</span>
+            <div class="space-y-1.5">
+              <span class="text-[8px] font-bold tracking-widest text-slate-600 block">MAIN MENU</span>
+              <div class="text-blueprint-blue bg-slate-800/50 border-l-2 border-blueprint-blue p-2 rounded">[DASHBOARD METRIK]</div>
+              <div class="p-2 hover:bg-slate-800/30 rounded">[DAFTAR INVENTARIS]</div>
+              <div class="p-2 hover:bg-slate-800/30 rounded">[VALIDASI TRANSAKSI]</div>
+            </div>
+          </div>
+
+          <!-- Content Area -->
+          <div class="flex-grow p-6 space-y-6 text-xs">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+              <span class="font-bold text-slate-300">Selamat Datang, Kasir M. Aris</span>
+              <span class="text-[9px] text-slate-500">ID Kasir: 01</span>
+            </div>
+
+            <div class="grid grid-cols-4 gap-4 text-center">
+              <div class="bg-blueprint-cardBg border border-slate-800 p-3 rounded">
+                <span class="text-[8px] text-slate-500 block uppercase font-bold">Total Unit</span>
+                <span class="text-lg font-black text-slate-300 font-mono">2</span>
+              </div>
+              <div class="bg-blueprint-cardBg border border-slate-800 p-3 rounded">
+                <span class="text-[8px] text-slate-500 block uppercase font-bold">Terjual (Sold)</span>
+                <span class="text-lg font-black text-slate-300 font-mono">0</span>
+              </div>
+              <div class="bg-blueprint-cardBg border border-slate-800 p-3 rounded">
+                <span class="text-[8px] text-slate-500 block uppercase font-bold">Pending Validasi</span>
+                <span class="text-lg font-black text-amber-500 font-mono">1</span>
+              </div>
+              <div class="bg-blueprint-cardBg border border-slate-800 p-3 rounded">
+                <span class="text-[8px] text-slate-500 block uppercase font-bold">Total Revenue</span>
+                <span class="text-sm font-black text-blueprint-blue font-mono">IDR 0</span>
+              </div>
+            </div>
+
+            <div class="bg-blueprint-cardBg border border-slate-800 p-4 rounded space-y-3">
+              <h5 class="font-bold text-slate-400 uppercase text-[9px] tracking-wider font-mono-tech text-blueprint-blue">Antrean Validasi Pembayaran Terbaru</h5>
+              <table class="w-full text-left text-[9px] font-mono text-slate-400">
+                <thead class="border-b border-slate-800">
+                  <tr><th class="pb-2">Invoice Code</th><th class="pb-2">Customer</th><th class="pb-2">Unit</th><th class="pb-2">Bukti Fisik</th><th class="pb-2">Aksi</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="py-2 text-blueprint-blue font-bold">INV-928172</td>
+                    <td>John Doe</td>
+                    <td>Porsche 911</td>
+                    <td>Resi_Fisik.jpg</td>
+                    <td><button class="bg-blueprint-blue text-black font-bold text-[8px] px-2 py-1 rounded">Sahkan Lunas</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       DIAGRAM 10: STRUKTUR DIREKTORI (FOLDER TREE LARAVEL 12)
+  ============================================================ -->
+  <section id="struktur-folder" class="mb-16 scroll-mt-6">
+    <div class="flex items-center gap-3 mb-6 border-b border-slate-800 pb-3">
+      <span class="bg-blueprint-blue text-black text-[10px] font-bold px-2.5 py-1 rounded-full">GAMBAR 10</span>
+      <h2 class="text-base font-bold text-white tracking-tight">Struktur Direktori Proyek ShowDrive (Laravel 12 Standard)</h2>
+    </div>
+
+    <div class="bg-blueprint-cardBg border border-slate-800 p-8 rounded-lg font-mono text-[11px] text-slate-400 space-y-1.5 leading-6 shadow-xl blueprint-glow">
+      <div>📁 <span class="text-white font-bold">ShowDrive_Project1/</span></div>
+      <div class="pl-6 text-slate-300">📁 app/</div>
+      <div class="pl-12 text-slate-400">📁 Http/</div>
+      <div class="pl-18 ml-6">📁 Controllers/</div>
+      <div class="pl-24 ml-6 text-slate-400">📄 <span class="text-blueprint-blue font-semibold">AuthController.php</span> (Otentikasi Login Kasir &amp; Shortcut Ctrl+Shift+A)</div>
+      <div class="pl-24 ml-6 text-slate-400">📄 <span class="text-blueprint-blue font-semibold">PublicController.php</span> (Katalog, Booking, Lacak, Cetak Kwitansi)</div>
+      <div class="pl-24 ml-6 text-slate-400">📄 <span class="text-blueprint-blue font-semibold">AdminController.php</span> (Dashboard KPI Metrik, CRUD, Verifikasi Transaksi)</div>
+      <div class="pl-12 text-slate-300">📁 Models/</div>
+      <div class="pl-18 ml-6 text-slate-400">📄 Company.php</div>
+      <div class="pl-18 ml-6 text-slate-400">📄 Warehouse.php</div>
+      <div class="pl-18 ml-6 text-slate-400">📄 Cashier.php (Authenticatable)</div>
+      <div class="pl-18 ml-6 text-slate-400">📄 Customer.php</div>
+      <div class="pl-18 ml-6 text-slate-400">📄 Item.php</div>
+      <div class="pl-18 ml-6 text-slate-400">📄 Invoice.php</div>
+      <div class="pl-6 text-slate-300">📁 database/</div>
+      <div class="pl-12 text-slate-400">📁 migrations/ (6 Skema Berkas Migrasi Database MySQL)</div>
+      <div class="pl-12 text-slate-400">📁 seeders/</div>
+      <div class="pl-18 ml-6 text-slate-400">📄 <span class="text-emerald-400 font-semibold">DatabaseSeeder.php</span> (Seed Data Showroom, Porsche, &amp; Corvette)</div>
+      <div class="pl-6 text-slate-300">📁 resources/views/</div>
+      <div class="pl-12 text-slate-400">📁 layouts/</div>
+      <div class="pl-18 ml-6 text-slate-400">📄 app.blade.php (Main Master Layout Frame)</div>
+      <div class="pl-12 text-slate-400">📁 public/</div>
+      <div class="pl-18 ml-6 text-slate-400">📄 index.blade.php (Katalog Inventaris Publik)</div>
+      <div class="pl-18 ml-6 text-slate-400">📄 detail.blade.php (Detail Mobil &amp; Booking Modal)</div>
+      <div class="pl-18 ml-6 text-slate-400">📄 track.blade.php (Halaman Lacak Riwayat Invoice)</div>
+      <div class="pl-18 ml-6 text-slate-400">📄 print_invoice.blade.php (Cetak Kwitansi Format Ramah Tinta)</div>
+      <div class="pl-12 text-slate-400">📁 admin/</div>
+      <div class="pl-18 ml-6 text-slate-400">📄 dashboard.blade.php (Tampilan Panel Dashboard Kasir)</div>
+      <div class="pl-6 text-slate-300">📁 routes/</div>
+      <div class="pl-12 text-slate-400">📄 <span class="text-blue-400 font-semibold">web.php</span> (Rute Publik, Gateway Tersembunyi, Grup Rute Admin + Auth)</div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       DIAGRAM 11: TERMINAL SETUP - CLI MIGRATE FRESH SEED
+  ============================================================ -->
+  <section id="terminal-migrate" class="mb-16 scroll-mt-6">
+    <div class="flex items-center gap-3 mb-6 border-b border-slate-800 pb-3">
+      <span class="bg-blueprint-blue text-black text-[10px] font-bold px-2.5 py-1 rounded-full">GAMBAR 11</span>
+      <h2 class="text-base font-bold text-white tracking-tight">Terminal Command — Migrasi Database &amp; Seeding Instan</h2>
+    </div>
+
+    <div class="bg-blueprint-cardBg border border-slate-800 p-8 rounded-lg shadow-xl blueprint-glow">
+      <div class="bg-[#030812] rounded-lg border border-slate-800 shadow-2xl overflow-hidden max-w-2xl mx-auto">
+
+        <!-- Tab Header -->
+        <div class="bg-slate-900 px-4 py-2 border-b border-slate-800 flex items-center gap-1.5">
+          <div class="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+          <div class="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
+          <div class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
+          <span class="text-[10px] text-slate-400 font-mono ml-4">Terminal — bash (Laravel Setup)</span>
+        </div>
+
+        <!-- Terminal Output Screen -->
+        <div class="p-6 font-mono text-xs text-slate-300 space-y-2 leading-relaxed">
+          <div><span class="text-emerald-400 font-bold">aris@macbook-showroom:~/ShowDrive_Project1$</span> php artisan migrate:fresh --seed</div>
+
+          <div class="text-slate-500 mt-2">Dropping all tables ...................................................... <span class="text-emerald-400">DONE</span></div>
+          <div class="text-slate-500">Preparing database ....................................................... <span class="text-emerald-400">DONE</span></div>
+
+          <div class="text-slate-500 mt-3">Running migrations:</div>
+          <div class="pl-4 text-slate-400">✓ xxxx_xx_xx_create_companies_table .................................... <span class="text-emerald-400 font-bold">12ms</span></div>
+          <div class="pl-4 text-slate-400">✓ xxxx_xx_xx_create_warehouses_table ................................... <span class="text-emerald-400 font-bold">18ms</span></div>
+          <div class="pl-4 text-slate-400">✓ xxxx_xx_xx_create_cashiers_table ..................................... <span class="text-emerald-400 font-bold">24ms</span></div>
+          <div class="pl-4 text-slate-400">✓ xxxx_xx_xx_create_customers_table .................................... <span class="text-emerald-400 font-bold">14ms</span></div>
+          <div class="pl-4 text-slate-400">✓ xxxx_xx_xx_create_items_table ........................................ <span class="text-emerald-400 font-bold">38ms</span></div>
+          <div class="pl-4 text-slate-400">✓ xxxx_xx_xx_create_invoices_table ..................................... <span class="text-emerald-400 font-bold">41ms</span></div>
+
+          <div class="text-slate-500 mt-3">Database seeding:</div>
+          <div class="pl-4 text-slate-400">Seeding: <span class="text-blueprint-blue font-bold">DatabaseSeeder</span></div>
+          <div class="pl-6 text-slate-500">✓ Seed Company: ShowDrive Showroom Group Ltd.</div>
+          <div class="pl-6 text-slate-500">✓ Seed Warehouses: Main Showroom Bandung, Transit Jakarta</div>
+          <div class="pl-6 text-slate-500">✓ Seed Admin Account: username "admin" / password "admin"</div>
+          <div class="pl-6 text-slate-500">✓ Seed Luxury Units: Porsche 911 GT3 RS, Corvette C8 Stingray</div>
+
+          <div class="text-emerald-400 font-bold mt-4">Database seeding completed successfully.</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  /**
+   * Helper function to copy the exact text content of a block to clipboard.
+   * Utilizes an inline text area to comply with sandbox constraints.
+   */
+  function copyMermaidCode(blockId) {
+    const codeElement = document.getElementById(blockId);
+    if (!codeElement) return;
+
+    const textToCopy = codeElement.innerText;
+
+    // Create a temporary hidden textarea to perform execution
+    const tempTextArea = document.createElement('textarea');
+    tempTextArea.value = textToCopy;
+    tempTextArea.style.position = 'absolute';
+    tempTextArea.style.left = '-9999px';
+    document.body.appendChild(tempTextArea);
+
+    tempTextArea.select();
+
+    try {
+      document.execCommand('copy');
+      triggerToast("Kode Mermaid.js berhasil disalin!");
+    } catch (err) {
+      triggerToast("Gagal menyalin kode, silakan salin manual.");
+    }
+
+    document.body.removeChild(tempTextArea);
+  }
+
+  function triggerToast(message) {
+    const toast = document.getElementById('toast');
+    const toastMsg = document.getElementById('toast-message');
+    if (!toast || !toastMsg) return;
+
+    toastMsg.innerText = message;
+    toast.style.opacity = '1';
+    toast.style.pointerEvents = 'auto';
+
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.pointerEvents = 'none';
+    }, 2500);
+  }
+</script>
+</body>
+</html>

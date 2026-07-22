@@ -55,17 +55,21 @@ class PublicController extends Controller
     public function storeBooking(StoreBookingRequest $request): RedirectResponse
     {
         // Validasi sudah ditangani sepenuhnya oleh StoreBookingRequest
-        $item = Item::select('id', 'status', 'price', 'dp_percentage')->findOrFail($request->car_id);
-
-        if ($item->getRawOriginal('status') !== 'Available') {
-            return redirect()->back()->withInput()
-                ->withErrors(['car_id' => 'Maaf, unit ini sudah tidak tersedia untuk dibooking.']);
-        }
-
         $invoiceId = null;
 
         try {
-            DB::transaction(function () use ($request, $item, &$invoiceId) {
+            DB::transaction(function () use ($request, &$invoiceId) {
+                // Lock item di dalam transaksi untuk mencegah race condition:
+                // dua request concurrent tidak bisa sama-sama melewati pengecekan status
+                // karena yang kedua akan menunggu lock dilepas oleh yang pertama.
+                $item = Item::select('id', 'status', 'price', 'dp_percentage')
+                    ->lockForUpdate()
+                    ->findOrFail($request->car_id);
+
+                if ($item->getRawOriginal('status') !== 'Available') {
+                    throw new \RuntimeException('Unit sudah tidak tersedia.');
+                }
+
                 $customer = Customer::firstOrCreate(
                     ['phone' => $request->phone],
                     ['name'  => $request->customer_name]
@@ -88,7 +92,7 @@ class PublicController extends Controller
                     'customer_id'    => $customer->id,
                     'item_id'        => $item->id,
                     'cashier_id'     => null,
-                    'date'           => $request->date,
+                    'date'           => $request->date . ' ' . $request->time . ':00',
                     'subtotal'       => $subtotal,
                     'tax_rate'       => $taxRate,
                     'tax_amount'     => $taxAmount,
@@ -103,6 +107,10 @@ class PublicController extends Controller
 
                 $item->update(['status' => 'Invoiced']);
             });
+        } catch (\RuntimeException $e) {
+            // Unit sudah tidak tersedia (terdeteksi setelah lock di dalam transaksi)
+            return redirect()->back()->withInput()
+                ->withErrors(['car_id' => 'Maaf, unit ini sudah tidak tersedia untuk dibooking.']);
         } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
             // NIK yang dimasukkan sudah terdaftar pada akun pelanggan lain
             return redirect()->back()->withInput()
@@ -113,11 +121,38 @@ class PublicController extends Controller
         }
 
         if ($invoiceId) {
-            session(['booking_phone_' . $invoiceId => $request->phone]);
+            session([
+                'booking_phone_' . $invoiceId  => $request->phone,
+                'last_booked_invoice_id'        => $invoiceId,
+            ]);
         }
 
-        return redirect()->route('booking.track', ['phone' => $request->phone])
-            ->with('success', 'Booking berhasil dibuat! Silakan unggah bukti transfer di bawah.');
+        return redirect()->route('booking.success', $invoiceId);
+    }
+
+    /**
+     * Halaman konfirmasi setelah booking berhasil dibuat.
+     * Dilindungi oleh session 'last_booked_invoice_id' — hanya bisa diakses
+     * sekali langsung setelah storeBooking() redirect ke sini.
+     */
+    public function bookingSuccess(int $id): View
+    {
+        // Validasi: session harus ada dan harus cocok dengan {id}
+        if ((int) session('last_booked_invoice_id') !== $id) {
+            abort(403, 'Akses tidak diizinkan. Halaman ini hanya tersedia segera setelah proses booking.');
+        }
+
+        $invoice = Invoice::with([
+            'customer:id,name,phone,nik',
+            'item:id,brand,model,year,vin,price,dp_percentage,image_url',
+        ])->findOrFail($id);
+
+        // Forget session setelah data diambil — mencegah akses ulang / bookmark
+        session()->forget('last_booked_invoice_id');
+
+        $company = \App\Models\Company::first();
+
+        return view('booking-success', compact('invoice', 'company'));
     }
 
     /**
@@ -267,6 +302,8 @@ class PublicController extends Controller
                         ? (int) round($invoice->item->price * ($invoice->item->dp_percentage / 100))
                         : $invoice->total_amount);
 
+                $oldReceipt = $invoice->authentic_receipt;
+
                 $path = $request->file('payment_proof')->store('receipts', 'public');
 
                 $invoice->update([
@@ -275,6 +312,11 @@ class PublicController extends Controller
                     'payment_status'    => 'Pending Validation',
                     'status'            => 'Pending', // kembalikan ke Pending (jika sebelumnya Rejected)
                 ]);
+
+                // Hapus file bukti lama secara async jika ada (mencegah storage penuh dari file orphan)
+                if ($oldReceipt && $oldReceipt !== $path) {
+                    \App\Jobs\DeleteOldImageJob::dispatch($oldReceipt);
+                }
 
                 // Jika unit mobil saat ini Available (karena ditolak/alasan lain), ubah kembali menjadi Invoiced (Booked)
                 if ($invoice->item) {
@@ -316,6 +358,14 @@ class PublicController extends Controller
         }
 
         return view('invoice', compact('booking'));
+    }
+
+    /**
+     * Halaman Tentang ShowDrive — informasi platform, tech stack, dan tim pengembang.
+     */
+    public function about(): View
+    {
+        return view('about');
     }
 
     /**

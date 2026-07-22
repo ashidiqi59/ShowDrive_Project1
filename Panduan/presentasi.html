@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShowDrive — Presentasi Sidang Proyek 1</title>
+<style>
+:root {
+  --gold: #D4AF37;
+  --gold-hover: #b8961e;
+  --gold-dim: #D4AF3740;
+  --dark: #09090b;
+  --dark2: #0f0f12;
+  --dark3: #18181b;
+  --dark4: #27272a;
+  --zinc600: #52525b;
+  --zinc400: #a1a1aa;
+  --zinc300: #d4d4d8;
+  --white: #ffffff;
+  --emerald: #10b981;
+  --blue: #3b82f6;
+  --red: #ef4444;
+  --amber: #f59e0b;
+  --violet: #8b5cf6;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; background: var(--dark); font-family: 'Segoe UI', system-ui, sans-serif; overflow: hidden; }
+
+/* ── SLIDESHOW CONTAINER ── */
+.slideshow { position: relative; width: 100vw; height: 100vh; }
+.slide {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  padding: 3rem 5rem;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.45s ease;
+  background: var(--dark2);
+  overflow: hidden;
+}
+.slide.active { opacity: 1; pointer-events: all; }
+
+/* ── BACKGROUND PATTERN ── */
+.slide::before {
+  content: '';
+  position: absolute; inset: 0; z-index: 0;
+  background-image:
+    repeating-linear-gradient(0deg,transparent,transparent 59px,var(--gold-dim) 59px,var(--gold-dim) 60px),
+    repeating-linear-gradient(90deg,transparent,transparent 59px,var(--gold-dim) 59px,var(--gold-dim) 60px);
+  opacity: 0.06; pointer-events: none;
+}
+.slide-content { position: relative; z-index: 1; width: 100%; max-width: 1200px; }
+
+/* ── TYPOGRAPHY ── */
+.label-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.35em;
+  text-transform: uppercase; color: var(--zinc600);
+  margin-bottom: 12px;
+}
+.label-tag::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+h1.title { font-size: clamp(2.2rem, 4vw, 3.6rem); font-weight: 900; letter-spacing: -0.02em; line-height: 1.1; color: var(--white); }
+h1.title span { color: var(--gold); }
+h2.slide-title { font-size: clamp(1.6rem, 2.8vw, 2.4rem); font-weight: 900; letter-spacing: 0.05em; color: var(--white); text-transform: uppercase; margin-bottom: 2rem; }
+h2.slide-title .accent { color: var(--gold); }
+.divider { width: 64px; height: 3px; background: var(--gold); margin: 1.2rem 0; }
+
+/* ── CARDS ── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+.card {
+  background: var(--dark3); border: 1px solid var(--dark4);
+  padding: 1.4rem; position: relative; overflow: hidden;
+  transition: border-color 0.3s;
+}
+.card:hover { border-color: var(--gold); }
+.card-icon { font-size: 1.8rem; margin-bottom: 0.8rem; }
+.card h4 { font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.15em; color: var(--white); margin-bottom: 0.5rem; }
+.card p { font-size: 0.72rem; color: var(--zinc400); line-height: 1.6; }
+.card .badge-corner { position: absolute; top: 0; right: 0; padding: 3px 8px; font-size: 9px; font-weight: 800; letter-spacing: 0.1em; background: var(--gold); color: var(--dark); }
+
+/* ── BADGE ── */
+.badge { display: inline-block; padding: 3px 10px; font-size: 9px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; border-radius: 999px; border: 1px solid; }
+.badge-gold { border-color: var(--gold); color: var(--gold); background: rgba(212,175,55,0.1); }
+.badge-emerald { border-color: var(--emerald); color: var(--emerald); background: rgba(16,185,129,0.1); }
+.badge-blue { border-color: var(--blue); color: var(--blue); background: rgba(59,130,246,0.1); }
+.badge-red { border-color: var(--red); color: var(--red); background: rgba(239,68,68,0.1); }
+.badge-amber { border-color: var(--amber); color: var(--amber); background: rgba(245,158,11,0.1); }
+.badge-violet { border-color: var(--violet); color: var(--violet); background: rgba(139,92,246,0.1); }
+
+/* ── LISTS ── */
+.check-list { list-style: none; display: flex; flex-direction: column; gap: 0.7rem; }
+.check-list li { font-size: 0.8rem; color: var(--zinc300); display: flex; align-items: flex-start; gap: 10px; line-height: 1.5; }
+.check-list li .icon { color: var(--gold); font-size: 0.75rem; margin-top: 2px; flex-shrink: 0; }
+
+/* ── NAVIGATION ── */
+.nav-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+  height: 52px; background: rgba(9,9,11,0.95); border-top: 1px solid var(--dark4);
+  display: flex; align-items: center; justify-content: center; gap: 1rem;
+  backdrop-filter: blur(8px);
+}
+.nav-btn {
+  background: var(--dark3); border: 1px solid var(--dark4);
+  color: var(--zinc400); padding: 6px 20px; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
+  transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+}
+.nav-btn:hover { background: var(--gold); color: var(--dark); border-color: var(--gold); }
+.nav-counter { font-size: 11px; font-weight: 800; color: var(--zinc600); letter-spacing: 0.2em; min-width: 60px; text-align: center; }
+.nav-counter span { color: var(--gold); }
+.progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: var(--gold); transition: width 0.4s ease; z-index: 100; }
+.slide-num-dots { display: flex; gap: 6px; align-items: center; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--dark4); border: 1px solid var(--zinc600); cursor: pointer; transition: all 0.2s; }
+.dot.active { background: var(--gold); border-color: var(--gold); transform: scale(1.3); }
+
+/* ── SPECIAL COMPONENTS ── */
+.kpi-box { background: var(--dark3); border: 1px solid var(--dark4); padding: 1.5rem; text-align: center; }
+.kpi-box .num { font-size: 2.4rem; font-weight: 900; font-family: monospace; color: var(--gold); }
+.kpi-box .lbl { font-size: 9px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: var(--zinc600); margin-top: 4px; }
+.flow-step { display: flex; align-items: center; gap: 0; }
+.flow-box { background: var(--dark3); border: 1px solid var(--dark4); padding: 0.9rem 1rem; text-align: center; flex: 1; }
+.flow-box .num { font-size: 9px; font-weight: 800; color: var(--gold); letter-spacing: 0.2em; display: block; margin-bottom: 4px; }
+.flow-box span { font-size: 11px; font-weight: 700; color: var(--white); display: block; }
+.flow-box small { font-size: 9px; color: var(--zinc600); }
+.flow-arrow { color: var(--gold); padding: 0 6px; font-size: 16px; flex-shrink: 0; }
+.table-style { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+.table-style th { background: var(--dark3); color: var(--zinc400); font-size: 9px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--dark4); }
+.table-style td { padding: 10px 14px; border-bottom: 1px solid var(--dark4); color: var(--zinc300); vertical-align: middle; }
+.table-style tr:last-child td { border-bottom: none; }
+.accent-bar { width: 4px; background: var(--gold); align-self: stretch; flex-shrink: 0; }
+.tech-pill { background: var(--dark3); border: 1px solid var(--dark4); padding: 6px 14px; font-size: 11px; font-weight: 700; color: var(--zinc300); display: inline-flex; align-items: center; gap: 8px; }
+.screen-mockup { background: var(--dark); border: 1px solid var(--dark4); border-radius: 4px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
+.screen-bar { background: var(--dark3); padding: 8px 14px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--dark4); }
+.screen-dot { width: 8px; height: 8px; border-radius: 50%; }
+.screen-body { padding: 16px; }
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progressBar"></div>
+<div class="slideshow" id="slideshow">
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 1 — COVER
+═══════════════════════════════════════════════════════ -->
+<div class="slide active" id="slide-1">
+  <div class="slide-content" style="display:flex;gap:5rem;align-items:center;">
+
+    <!-- Left: Identity -->
+    <div style="flex:1.2;">
+      <div class="label-tag">Proyek 1 &mdash; Kelompok 18 &mdash; D4 Teknik Informatika ULBI</div>
+      <h1 class="title" style="margin-bottom:0.6rem;">
+        SHOW<span>DRIVE</span>
+      </h1>
+      <p style="font-size:0.9rem;color:var(--zinc400);font-weight:300;line-height:1.6;max-width:480px;margin-bottom:1.8rem;">
+        Rancang Bangun Sistem Informasi Inventaris dan Transaksi<br>Penjualan Kendaraan Premium Berbasis Web
+      </p>
+      <div class="divider"></div>
+
+      <!-- Team -->
+      <div style="display:flex;flex-direction:column;gap:0.6rem;margin-top:1.2rem;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--dark3);border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;font-weight:900;color:var(--gold);font-size:13px;">A</div>
+          <div>
+            <p style="font-size:12px;font-weight:800;color:var(--white);">Muhammad Aris Ashidiqi</p>
+            <p style="font-size:10px;color:var(--zinc600);font-family:monospace;">714250042 &nbsp;·&nbsp; Full-Stack Developer</p>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--dark3);border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;font-weight:900;color:var(--gold);font-size:13px;">F</div>
+          <div>
+            <p style="font-size:12px;font-weight:800;color:var(--white);">Fathoni Abdul Jabbar</p>
+            <p style="font-size:10px;color:var(--zinc600);font-family:monospace;">714250039 &nbsp;·&nbsp; Frontend Developer & UI/UX</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Supervisor -->
+      <div style="margin-top:1.4rem;padding:0.8rem 1rem;background:var(--dark3);border:1px solid var(--dark4);display:flex;align-items:center;gap:10px;">
+        <div style="width:4px;height:40px;background:var(--gold);flex-shrink:0;"></div>
+        <div>
+          <p style="font-size:9px;color:var(--zinc600);font-weight:800;letter-spacing:0.2em;text-transform:uppercase;">Dosen Koordinator</p>
+          <p style="font-size:12px;font-weight:800;color:var(--white);">M. Yusril Helmi Setyawan, S.Kom., M.Kom., SFPC.</p>
+          <p style="font-size:9px;color:var(--zinc600);">Proyek 1 &nbsp;·&nbsp; Tahun Akademik 2025/2026</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Visual -->
+    <div style="flex:1;display:flex;flex-direction:column;gap:1rem;align-items:center;">
+      <!-- Logo placeholder -->
+      <div style="width:160px;height:160px;border:2px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--dark3);box-shadow:0 0 60px rgba(212,175,55,0.15);">
+        <div style="text-align:center;">
+          <div style="font-size:2.4rem;font-weight:900;color:var(--gold);letter-spacing:-2px;">SD</div>
+          <div style="font-size:9px;font-weight:800;color:var(--zinc600);letter-spacing:0.3em;">SHOWDRIVE</div>
+        </div>
+      </div>
+      <!-- Stat pills -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;width:100%;">
+        <div class="kpi-box"><div class="num">6</div><div class="lbl">Tabel DB</div></div>
+        <div class="kpi-box"><div class="num">3</div><div class="lbl">Aktor Sistem</div></div>
+        <div class="kpi-box"><div class="num">4</div><div class="lbl">Lapisan Keamanan</div></div>
+        <div class="kpi-box"><div class="num">AJAX</div><div class="lbl">Zero Reload UX</div></div>
+      </div>
+      <!-- Tech pills -->
+      <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;">
+        <span class="tech-pill">⚡ Laravel 12</span>
+        <span class="tech-pill">🐘 PHP 8.2</span>
+        <span class="tech-pill">🗄️ MySQL 8.0</span>
+        <span class="tech-pill">🎨 Tailwind CSS</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 2 — LATAR BELAKANG
+═══════════════════════════════════════════════════════ -->
+<div class="slide" id="slide-2">
+  <div class="slide-content">
+    <div class="label-tag">Bab 1 &mdash; Pendahuluan</div>
+    <h2 class="slide-title">Latar <span class="accent">Belakang</span></h2>
+
+    <div class="grid-2" style="gap:2rem;align-items:start;">
+      <!-- Left: Problems -->
+      <div>
+        <p style="font-size:0.75rem;color:var(--zinc400);margin-bottom:1.2rem;line-height:1.7;">
+          Sebagian besar showroom kendaraan di Indonesia — terutama skala menengah —
+          masih mengandalkan pencatatan <strong style="color:var(--white);">manual</strong> dan proses pemesanan
+          via telepon/pertemuan langsung. Setidaknya ada <strong style="color:var(--gold);">4 titik kegagalan utama</strong>:
+        </p>
+        <div style="display:flex;flex-direction:column;gap:0.8rem;">
+          <div style="display:flex;gap:12px;align-items:flex-start;padding:0.9rem;background:var(--dark3);border-left:3px solid var(--red);">
+            <span style="font-size:1.3rem;flex-shrink:0;">❌</span>
+            <div>
+              <p style="font-size:11px;font-weight:800;color:var(--white);margin-bottom:2px;">Ketidakakuratan Data Inventaris</p>
+              <p style="font-size:11px;color:var(--zinc400);">Status ketersediaan unit tidak real-time → pelanggan memesan unit yang sudah terjual.</p>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;padding:0.9rem;background:var(--dark3);border-left:3px solid var(--amber);">
+            <span style="font-size:1.3rem;flex-shrink:0;">⚠️</span>
+            <div>
+              <p style="font-size:11px;font-weight:800;color:var(--white);margin-bottom:2px;">Minimnya Transparansi Transaksi</p>
+              <p style="font-size:11px;color:var(--zinc400);">Pelanggan tidak bisa verifikasi pembayaran secara mandiri — harus hubungi staf aktif.</p>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;padding:0.9rem;background:var(--dark3);border-left:3px solid var(--amber);">
+            <span style="font-size:1.3rem;flex-shrink:0;">🐌</span>
+            <div>
+              <p style="font-size:11px;font-weight:800;color:var(--white);margin-bottom:2px;">Proses Verifikasi yang Lambat</p>
+              <p style="font-size:11px;color:var(--zinc400);">Kasir periksa bukti transfer manual satu per satu — rawan kesalahan saat volume tinggi.</p>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;padding:0.9rem;background:var(--dark3);border-left:3px solid var(--red);">
+            <span style="font-size:1.3rem;flex-shrink:0;">💾</span>
+            <div>
+              <p style="font-size:11px;font-weight:800;color:var(--white);margin-bottom:2px;">Risiko Duplikasi & Kehilangan Data</p>
+              <p style="font-size:11px;color:var(--zinc400);">Tanpa basis data ternormalisasi, riwayat transaksi rentan terduplikasi atau hilang.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Solution -->
+      <div>
+        <div style="padding:1.4rem;background:linear-gradient(135deg,rgba(212,175,55,0.08),transparent);border:1px solid var(--gold);margin-bottom:1.2rem;">
+          <p style="font-size:9px;font-weight:800;letter-spacing:0.25em;color:var(--gold);text-transform:uppercase;margin-bottom:8px;">Solusi</p>
+          <p style="font-size:1.1rem;font-weight:900;color:var(--white);margin-bottom:8px;">Platform Web Terintegrasi</p>
+          <p style="font-size:11px;color:var(--zinc400);line-height:1.7;">
+            <strong style="color:var(--white);">ShowDrive</strong> memindahkan seluruh alur transaksi showroom — dari penemuan unit di katalog,
+            pengajuan pemesanan, unggah bukti transfer, hingga penerbitan kwitansi digital —
+            ke dalam satu platform yang dapat diakses <em>kapan saja dan dari mana saja</em>.
+          </p>
+        </div>
+        <div style="background:var(--dark3);border:1px solid var(--dark4);padding:1rem 1.2rem;">
+          <p style="font-size:9px;font-weight:800;letter-spacing:0.2em;color:var(--zinc600);text-transform:uppercase;margin-bottom:10px;">Tech Stack</p>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-size:11px;color:var(--zinc400);">Backend Framework</span>
+              <span class="badge badge-gold">Laravel 12 / PHP 8.2</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-size:11px;color:var(--zinc400);">Database</span>
+              <span class="badge badge-blue">MySQL 8.0 (InnoDB)</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-size:11px;color:var(--zinc400);">Frontend</span>
+              <span class="badge badge-violet">Blade + Tailwind CSS</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-size:11px;color:var(--zinc400);">Async Operations</span>
+              <span class="badge badge-emerald">Fetch API / AJAX</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 3 — TUJUAN & RUANG LINGKUP
+═══════════════════════════════════════════════════════ -->
+<div class="slide" id="slide-3">
+  <div class="slide-content">
+    <div class="label-tag">Bab 1.3 &amp; 1.4 &mdash; Tujuan &amp; Ruang Lingkup</div>
+    <h2 class="slide-title">Tujuan <span class="accent">&amp; Ruang Lingkup</span></h2>
+
+    <div class="grid-2" style="gap:2rem;align-items:start;">
+      <!-- Tujuan -->
+      <div>
+        <p style="font-size:9px;font-weight:800;letter-spacing:0.25em;color:var(--gold);text-transform:uppercase;margin-bottom:1rem;">6 Tujuan Pengembangan</p>
+        <ul class="check-list">
+          <li><span class="icon">▶</span><span><strong style="color:var(--white);">Digitalisasi Inventaris</strong> — CRUD kendaraan dengan proteksi database-level (ON DELETE RESTRICT).</span></li>
+          <li><span class="icon">▶</span><span><strong style="color:var(--white);">Pemesanan Mandiri Pelanggan</strong> — Formulir self-service dengan kalkulasi PPN 11% otomatis + jadwal tanggal &amp; jam inspeksi.</span></li>
+          <li><span class="icon">▶</span><span><strong style="color:var(--white);">Keamanan Akses via OTP</strong> — Verifikasi identitas pelanggan berbasis nomor HP, tanpa akun/password.</span></li>
+          <li><span class="icon">▶</span><span><strong style="color:var(--white);">Validasi Transaksi AJAX</strong> — Kasir approve/reject/amend tanpa page reload, respons &lt;1 detik.</span></li>
+          <li><span class="icon">▶</span><span><strong style="color:var(--white);">Konsistensi Data (ACID)</strong> — DB::transaction() membungkus semua operasi multitabel.</span></li>
+          <li><span class="icon">▶</span><span><strong style="color:var(--white);">Laporan Keuangan Real-time</strong> — Dashboard 4 KPI + ekspor CSV dengan filter periode &amp; status.</span></li>
+        </ul>
+      </div>
+
+      <!-- Ruang Lingkup -->
+      <div style="display:flex;flex-direction:column;gap:1rem;">
+        <div>
+          <p style="font-size:9px;font-weight:800;letter-spacing:0.25em;color:var(--gold);text-transform:uppercase;margin-bottom:0.8rem;">Aktor Sistem</p>
+          <div style="display:flex;flex-direction:column;gap:0.6rem;">
+            <div style="display:flex;gap:10px;align-items:center;padding:0.7rem 1rem;background:var(--dark3);border:1px solid var(--dark4);">
+              <span style="font-size:1.2rem;">👤</span>
+              <div>
+                <p style="font-size:11px;font-weight:800;color:var(--white);">Pelanggan Publik</p>
+                <p style="font-size:10px;color:var(--zinc400);">Akses tanpa akun · identifikasi via OTP nomor HP</p>
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;padding:0.7rem 1rem;background:var(--dark3);border:1px solid var(--gold);">
+              <span style="font-size:1.2rem;">🔐</span>
+              <div>
+                <p style="font-size:11px;font-weight:800;color:var(--gold);">Administrator / Kasir</p>
+                <p style="font-size:10px;color:var(--zinc400);">Login via URL tersembunyi · Ctrl+Shift+A shortcut</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <p style="font-size:9px;font-weight:800;letter-spacing:0.25em;color:var(--gold);text-transform:uppercase;margin-bottom:0.8rem;">Platform &amp; Teknologi</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+            <div style="padding:0.6rem 0.8rem;background:var(--dark3);border:1px solid var(--dark4);">
+              <p style="font-size:9px;color:var(--zinc600);font-weight:700;text-transform:uppercase;letter-spacing:0.1em;">Backend</p>
+              <p style="font-size:11px;color:var(--white);font-weight:700;">Laravel 12 / PHP 8.2</p>
+            </div>
+            <div style="padding:0.6rem 0.8rem;background:var(--dark3);border:1px solid var(--dark4);">
+              <p style="font-size:9px;color:var(--zinc600);font-weight:700;text-transform:uppercase;letter-spacing:0.1em;">Database</p>
+              <p style="font-size:11px;color:var(--white);font-weight:700;">MySQL 8.0 (InnoDB)</p>
+            </div>
+            <div style="padding:0.6rem 0.8rem;background:var(--dark3);border:1px solid var(--dark4);">
+              <p style="font-size:9px;color:var(--zinc600);font-weight:700;text-transform:uppercase;letter-spacing:0.1em;">Frontend</p>
+              <p style="font-size:11px;color:var(--white);font-weight:700;">Blade + Tailwind CSS</p>
+            </div>
+            <div style="padding:0.6rem 0.8rem;background:var(--dark3);border:1px solid var(--dark4);">
+              <p style="font-size:9px;color:var(--zinc600);font-weight:700;text-transform:uppercase;letter-spacing:0.1em;">Environment</p>
+              <p style="font-size:11px;color:var(--white);font-weight:700;">XAMPP · Windows</p>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding:0.8rem 1rem;background:rgba(212,175,55,0.06);border:1px solid var(--gold);border-left:3px solid var(--gold);">
+          <p style="font-size:10px;color:var(--zinc400);line-height:1.6;">
+            <strong style="color:var(--gold);">Di luar ruang lingkup:</strong> Payment gateway otomatis, notifikasi WA via API berbayar, pengiriman fisik kendaraan.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 4 — ARSITEKTUR SISTEM
+═══════════════════════════════════════════════════════ -->
+<div class="slide" id="slide-4">
+  <div class="slide-content">
+    <div class="label-tag">Bab 3.1 &mdash; Perancangan Sistem</div>
+    <h2 class="slide-title">Arsitektur <span class="accent">Sistem</span></h2>
+
+    <!-- Three-Tier visual -->
+    <div style="display:flex;flex-direction:column;gap:0.8rem;margin-bottom:1.4rem;">
+
+      <!-- Tier 1: Presentation -->
+      <div style="border:1px solid var(--blue);background:rgba(59,130,246,0.05);padding:1rem 1.4rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.8rem;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:4px;height:36px;background:var(--blue);flex-shrink:0;"></div>
+            <div>
+              <p style="font-size:9px;font-weight:800;letter-spacing:0.25em;color:var(--blue);text-transform:uppercase;">Lapisan Presentasi / Frontend</p>
+              <p style="font-size:11px;color:var(--zinc400);">Berinteraksi langsung dengan pengguna melalui browser</p>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <span class="badge badge-blue">Blade Template Engine</span>
+            <span class="badge badge-blue">Tailwind CSS</span>
+            <span class="badge badge-blue">JavaScript Fetch API / AJAX</span>
+            <span class="badge badge-blue">Alpine.js</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Arrow -->
+      <div style="text-align:center;color:var(--zinc600);font-size:18px;">⇅ HTTP Request / Response</div>
+
+      <!-- Tier 2: Application -->
+      <div style="border:1px solid var(--gold);background:rgba(212,175,55,0.05);padding:1rem 1.4rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.8rem;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:4px;height:36px;background:var(--gold);flex-shrink:0;"></div>
+            <div>
+              <p style="font-size:9px;font-weight:800;letter-spacing:0.25em;color:var(--gold);text-transform:uppercase;">Lapisan Aplikasi / Backend</p>
+              <p style="font-size:11px;color:var(--zinc400);">Logika bisnis, validasi input, kalkulasi finansial, session OTP</p>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <span class="badge badge-gold">Laravel 12 MVC</span>
+            <span class="badge badge-gold">Form Request Validation</span>
+            <span class="badge badge-gold">Eloquent ORM</span>
+            <span class="badge badge-gold">Middleware + Rate Limiter</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Arrow -->
+      <div style="text-align:center;color:var(--zinc600);font-size:18px;">⇅ SQL via Eloquent ORM / lockForUpdate()</div>
+
+      <!-- Tier 3: Data -->
+      <div style="border:1px solid var(--emerald);background:rgba(16,185,129,0.05);padding:1rem 1.4rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.8rem;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:4px;height:36px;background:var(--emerald);flex-shrink:0;"></div>
+            <div>
+              <p style="font-size:9px;font-weight:800;letter-spacing:0.25em;color:var(--emerald);text-transform:uppercase;">Lapisan Basis Data</p>
+              <p style="font-size:11px;color:var(--zinc400);">6 tabel relasional ternormalisasi (3NF) · InnoDB engine</p>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <span class="badge badge-emerald">MySQL 8.0 InnoDB</span>
+            <span class="badge badge-emerald">ON DELETE RESTRICT/CASCADE/SET NULL</span>
+            <span class="badge badge-emerald">DECIMAL untuk finansial</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key principles -->
+    <div class="grid-4" style="gap:0.8rem;">
+      <div style="padding:0.9rem;background:var(--dark3);border:1px solid var(--dark4);border-top:2px solid var(--gold);text-align:center;">
+        <p style="font-size:1.4rem;margin-bottom:6px;">🔒</p>
+        <p style="font-size:10px;font-weight:800;color:var(--white);margin-bottom:4px;">ACID Transactions</p>
+        <p style="font-size:9px;color:var(--zinc600);">DB::transaction() semua operasi multitabel</p>
+      </div>
+      <div style="padding:0.9rem;background:var(--dark3);border:1px solid var(--dark4);border-top:2px solid var(--blue);text-align:center;">
+        <p style="font-size:1.4rem;margin-bottom:6px;">⚡</p>
+        <p style="font-size:10px;font-weight:800;color:var(--white);margin-bottom:4px;">Zero Reload UX</p>
+        <p style="font-size:9px;color:var(--zinc600);">Seluruh aksi kasir via AJAX tanpa page refresh</p>
+      </div>
+      <div style="padding:0.9rem;background:var(--dark3);border:1px solid var(--dark4);border-top:2px solid var(--emerald);text-align:center;">
+        <p style="font-size:1.4rem;margin-bottom:6px;">🛡️</p>
+        <p style="font-size:10px;font-weight:800;color:var(--white);margin-bottom:4px;">Rate Limiting</p>
+        <p style="font-size:9px;color:var(--zinc600);">OTP, login, booking masing-masing dilindungi rate limiter</p>
+      </div>
+      <div style="padding:0.9rem;background:var(--dark3);border:1px solid var(--dark4);border-top:2px solid var(--violet);text-align:center;">
+        <p style="font-size:1.4rem;margin-bottom:6px;">📦</p>
+        <p style="font-size:10px;font-weight:800;color:var(--white);margin-bottom:4px;">Background Queue</p>
+        <p style="font-size:9px;color:var(--zinc600);">DeleteOldImageJob hapus file lama secara async</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 5 — ERD & DATABASE
+═══════════════════════════════════════════════════════ -->
+<div class="slide" id="slide-5">
+  <div class="slide-content">
+    <div class="label-tag">Bab 3.5 &mdash; Entity Relationship Diagram</div>
+    <h2 class="slide-title">Perancangan <span class="accent">Database</span></h2>
+
+    <div class="grid-2" style="gap:2rem;align-items:start;">
+      <!-- Left: ERD Visual -->
+      <div>
+        <p style="font-size:9px;font-weight:800;letter-spacing:0.2em;color:var(--gold);text-transform:uppercase;margin-bottom:0.9rem;">6 Entitas Utama (Normalisasi 3NF)</p>
+        <!-- ERD boxes -->
+        <div style="display:flex;flex-direction:column;gap:0.5rem;">
+          <div style="display:flex;gap:0.5rem;">
+            <div style="flex:1;padding:0.7rem;background:var(--dark3);border:1px solid var(--violet);">
+              <p style="font-size:10px;font-weight:800;color:var(--violet);margin-bottom:3px;">companies</p>
+              <p style="font-size:9px;color:var(--zinc600);font-family:monospace;">id, name, tax_id, phone, bank_name, bank_account, qris_image, logo_url</p>
+            </div>
+            <div style="flex:1;padding:0.7rem;background:var(--dark3);border:1px solid var(--amber);">
+              <p style="font-size:10px;font-weight:800;color:var(--amber);margin-bottom:3px;">warehouses</p>
+              <p style="font-size:9px;color:var(--zinc600);font-family:monospace;">id, company_id→companies, name, location</p>
+            </div>
+          </div>
+          <div style="display:flex;gap:0.5rem;">
+            <div style="flex:1;padding:0.7rem;background:var(--dark3);border:1px solid var(--blue);">
+              <p style="font-size:10px;font-weight:800;color:var(--blue);margin-bottom:3px;">cashiers</p>
+              <p style="font-size:9px;color:var(--zinc600);font-family:monospace;">id, company_id→companies, name, username, password(bcrypt)</p>
+            </div>
+            <div style="flex:1;padding:0.7rem;background:var(--dark3);border:1px solid var(--gold);">
+              <p style="font-size:10px;font-weight:800;color:var(--gold);margin-bottom:3px;">items</p>
+              <p style="font-size:9px;color:var(--zinc600);font-family:monospace;">id, warehouse_id, brand, model, vin[UQ], year, price, dp_percentage, status[ENUM], engine, transmission, color, image_url</p>
+            </div>
+          </div>
+          <div style="display:flex;gap:0.5rem;">
+            <div style="flex:1;padding:0.7rem;background:var(--dark3);border:1px solid var(--blue);">
+              <p style="font-size:10px;font-weight:800;color:var(--blue);margin-bottom:3px;">customers</p>
+              <p style="font-size:9px;color:var(--zinc600);font-family:monospace;">id, name, phone[UQ], nik[UQ,NULLABLE]</p>
+            </div>
+            <div style="flex:1;padding:0.7rem;background:var(--dark3);border:1px solid var(--emerald);">
+              <p style="font-size:10px;font-weight:800;color:var(--emerald);margin-bottom:3px;">invoices ★</p>
+              <p style="font-size:9px;color:var(--zinc600);font-family:monospace;">id, invoice_code[UQ], customer_id, item_id, cashier_id[NULL], date[DATETIME], subtotal, tax_rate(11%), tax_amount, total_amount, paid_amount, payment_type, payment_status, status, authentic_receipt, rejection_note, cancellation_note, handed_over_at</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: ON DELETE policies -->
+      <div style="display:flex;flex-direction:column;gap:1rem;">
+        <div>
+          <p style="font-size:9px;font-weight:800;letter-spacing:0.2em;color:var(--gold);text-transform:uppercase;margin-bottom:0.9rem;">3 Kebijakan ON DELETE Berbeda</p>
+          <div style="display:flex;flex-direction:column;gap:0.7rem;">
+            <div style="display:flex;gap:10px;padding:0.9rem;background:var(--dark3);border-left:3px solid var(--red);">
+              <div style="flex-shrink:0;"><span class="badge badge-red">RESTRICT</span></div>
+              <div>
+                <p style="font-size:11px;font-weight:800;color:var(--white);margin-bottom:3px;">items → invoices</p>
+                <p style="font-size:10px;color:var(--zinc400);line-height:1.5;">Tolak penghapusan unit kendaraan jika masih ada invoice aktif. Proteksi aset finansial paling kritis.</p>
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;padding:0.9rem;background:var(--dark3);border-left:3px solid var(--amber);">
+              <div style="flex-shrink:0;"><span class="badge badge-amber">CASCADE</span></div>
+              <div>
+                <p style="font-size:11px;font-weight:800;color:var(--white);margin-bottom:3px;">customers → invoices</p>
+                <p style="font-size:10px;color:var(--zinc400);line-height:1.5;">Hapus pelanggan → seluruh invoice ikut terhapus atomik. Cegah data orphan di tabel invoices.</p>
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;padding:0.9rem;background:var(--dark3);border-left:3px solid var(--blue);">
+              <div style="flex-shrink:0;"><span class="badge badge-blue">SET NULL</span></div>
+              <div>
+                <p style="font-size:11px;font-weight:800;color:var(--white);margin-bottom:3px;">cashiers → invoices</p>
+                <p style="font-size:10px;color:var(--zinc400);line-height:1.5;">Hapus akun kasir → cashier_id di-set NULL. Histori transaksi tetap utuh meski personel berganti.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding:0.9rem;background:rgba(212,175,55,0.06);border:1px solid var(--gold);">
+          <p style="font-size:9px;font-weight:800;letter-spacing:0.2em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">Siklus Status Unit</p>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span style="padding:4px 12px;background:var(--emerald);color:var(--dark);font-size:10px;font-weight:800;border-radius:999px;">Available</span>
+            <span style="color:var(--zinc600);font-size:12px;">→ booking →</span>
+            <span style="padding:4px 12px;background:var(--amber);color:var(--dark);font-size:10px;font-weight:800;border-radius:999px;">Invoiced</span>
+            <span style="color:var(--zinc600);font-size:12px;">→ lunas →</span>
+            <span style="padding:4px 12px;background:var(--zinc600);color:var(--white);font-size:10px;font-weight:800;border-radius:999px;">Sold ★</span>
+          </div>
+          <p style="font-size:9px;color:var(--zinc600);margin-top:6px;">★ Status Sold bersifat permanen setelah handover dikonfirmasi kasir.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 6 — FITUR UNGGULAN TEKNIS
+═══════════════════════════════════════════════════════ -->
+<div class="slide" id="slide-6">
+  <div class="slide-content">
+    <div class="label-tag">Bab 2.5 &mdash; Keunggulan Sistem</div>
+    <h2 class="slide-title">Fitur <span class="accent">Unggulan Teknis</span></h2>
+
+    <div class="grid-2" style="gap:1.2rem;">
+
+      <!-- Card 1: Race Condition -->
+      <div style="padding:1.2rem;background:var(--dark3);border:1px solid var(--dark4);border-top:3px solid var(--gold);position:relative;overflow:hidden;">
+        <div style="position:absolute;top:12px;right:12px;font-size:9px;font-weight:800;letter-spacing:0.15em;color:var(--gold);background:rgba(212,175,55,0.1);padding:2px 8px;">CORE</div>
+        <p style="font-size:1.5rem;margin-bottom:8px;">⚔️</p>
+        <h4 style="font-size:12px;font-weight:800;color:var(--white);margin-bottom:6px;">Proteksi Race Condition</h4>
+        <p style="font-size:10px;color:var(--zinc400);line-height:1.6;margin-bottom:10px;">Dua pelanggan booking unit yang sama bersamaan → hanya satu yang berhasil.</p>
+        <div style="background:var(--dark);padding:8px 10px;font-family:monospace;font-size:10px;color:var(--emerald);border-left:2px solid var(--emerald);">
+          DB::transaction()<br>
+          &nbsp;→ Item::lockForUpdate()->find($id)<br>
+          &nbsp;→ check status === 'Available'<br>
+          &nbsp;→ create Invoice + update status
+        </div>
+      </div>
+
+      <!-- Card 2: OTP -->
+      <div style="padding:1.2rem;background:var(--dark3);border:1px solid var(--dark4);border-top:3px solid var(--blue);">
+        <p style="font-size:1.5rem;margin-bottom:8px;">🔐</p>
+        <h4 style="font-size:12px;font-weight:800;color:var(--white);margin-bottom:6px;">Sistem OTP Berlapis</h4>
+        <p style="font-size:10px;color:var(--zinc400);line-height:1.6;margin-bottom:10px;">Pelanggan akses riwayat tansaksi tanpa akun/password — via OTP nomor HP.</p>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:5px;">
+          <li style="font-size:10px;color:var(--zinc300);display:flex;gap:8px;"><span style="color:var(--blue);">▸</span> random_int(1000,9999) → di-hash Bcrypt</li>
+          <li style="font-size:10px;color:var(--zinc300);display:flex;gap:8px;"><span style="color:var(--blue);">▸</span> Expire 5 menit · maks 3× percobaan</li>
+          <li style="font-size:10px;color:var(--zinc300);display:flex;gap:8px;"><span style="color:var(--blue);">▸</span> Verifikasi via Hash::check() — bukan string compare</li>
+          <li style="font-size:10px;color:var(--zinc300);display:flex;gap:8px;"><span style="color:var(--blue);">▸</span> Rate limiter 5×/10 menit per IP</li>
+        </ul>
+      </div>
+
+      <!-- Card 3: Invoice Sequential -->
+      <div style="padding:1.2rem;background:var(--dark3);border:1px solid var(--dark4);border-top:3px solid var(--emerald);">
+        <p style="font-size:1.5rem;margin-bottom:8px;">🔢</p>
+        <h4 style="font-size:12px;font-weight:800;color:var(--white);margin-bottom:6px;">Kode Invoice Anti-Duplikasi</h4>
+        <p style="font-size:10px;color:var(--zinc400);line-height:1.6;margin-bottom:10px;">Format <strong style="color:var(--emerald);font-family:monospace;">SD/2026/0001</strong> — sequential numbering aman dari race condition.</p>
+        <div style="background:var(--dark);padding:8px 10px;font-family:monospace;font-size:10px;color:var(--emerald);border-left:2px solid var(--emerald);">
+          lockForUpdate() → ambil nomor terakhir<br>
+          → increment + format SD/YYYY/NNNN<br>
+          → commit sebelum request ke-2 baca nilai
+        </div>
+      </div>
+
+      <!-- Card 4: Security Layers -->
+      <div style="padding:1.2rem;background:var(--dark3);border:1px solid var(--dark4);border-top:3px solid var(--violet);">
+        <p style="font-size:1.5rem;margin-bottom:8px;">🛡️</p>
+        <h4 style="font-size:12px;font-weight:800;color:var(--white);margin-bottom:6px;">4 Lapisan Keamanan</h4>
+        <p style="font-size:10px;color:var(--zinc400);line-height:1.6;margin-bottom:10px;">Bekerja berlapis dari UI hingga database level.</p>
+        <div style="display:flex;flex-direction:column;gap:5px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="width:20px;height:20px;background:var(--violet);color:var(--dark);font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;border-radius:2px;flex-shrink:0;">1</span>
+            <span style="font-size:10px;color:var(--zinc300);">Security by obscurity — URL login tersembunyi</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="width:20px;height:20px;background:var(--violet);color:var(--dark);font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;border-radius:2px;flex-shrink:0;">2</span>
+            <span style="font-size:10px;color:var(--zinc300);">Rate limiting per IP (OTP / login / booking)</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="width:20px;height:20px;background:var(--violet);color:var(--dark);font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;border-radius:2px;flex-shrink:0;">3</span>
+            <span style="font-size:10px;color:var(--zinc300);">Session-based OTP dengan Bcrypt hash</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="width:20px;height:20px;background:var(--violet);color:var(--dark);font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;border-radius:2px;flex-shrink:0;">4</span>
+            <span style="font-size:10px;color:var(--zinc300);">Database-level integrity (ON DELETE constraints)</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 7 — WORKFLOW PELANGGAN
+═══════════════════════════════════════════════════════ -->
+<div class="slide" id="slide-7">
+  <div class="slide-content">
+    <div class="label-tag">Bab 3.2 &mdash; Workflow Sistem</div>
+    <h2 class="slide-title">Alur <span class="accent">Pelanggan</span></h2>
+
+    <!-- Flow steps row 1 -->
+    <div style="margin-bottom:0.8rem;">
+      <p style="font-size:9px;font-weight:800;letter-spacing:0.2em;color:var(--gold);text-transform:uppercase;margin-bottom:0.7rem;">9 Langkah — dari Katalog hingga Kwitansi Digital</p>
+      <div class="flow-step">
+        <div class="flow-box" style="border-top:2px solid var(--gold);">
+          <span class="num">STEP 01</span>
+          <span>Buka Katalog</span>
+          <small>GET /</small>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box" style="border-top:2px solid var(--gold);">
+          <span class="num">STEP 02</span>
+          <span>Lihat Detail Unit</span>
+          <small>GET /car/{id}</small>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box" style="border-top:2px solid var(--blue);">
+          <span class="num">STEP 03</span>
+          <span>Isi Form Booking</span>
+          <small>nama, HP, NIK, tgl, jam</small>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box" style="border-top:2px solid var(--emerald);">
+          <span class="num">STEP 04</span>
+          <span>Proses Atomik</span>
+          <small>POST /booking</small>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box" style="border-top:2px solid var(--violet);">
+          <span class="num">STEP 05</span>
+          <span>Verifikasi OTP</span>
+          <small>POST /track/otp</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flow steps row 2 -->
+    <div style="margin-bottom:1.2rem;">
+      <div class="flow-step">
+        <div class="flow-box" style="border-top:2px solid var(--amber);">
+          <span class="num">STEP 06</span>
+          <span>Upload Bukti Transfer</span>
+          <small>POST /upload-proof</small>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box" style="border-top:2px solid var(--blue);">
+          <span class="num">STEP 07</span>
+          <span>Pantau Status</span>
+          <small>GET /track</small>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box" style="border-top:2px solid var(--emerald);">
+          <span class="num">STEP 08</span>
+          <span>Cetak Invoice</span>
+          <small>GET /invoice/{id}</small>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box" style="border-top:2px solid var(--red);opacity:0.7;">
+          <span class="num">STEP 09*</span>
+          <span>Batalkan Mandiri</span>
+          <small>*opsional, Unpaid+Pending</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key detail boxes -->
+    <div class="grid-2" style="gap:1rem;">
+      <div style="padding:1rem;background:var(--dark3);border:1px solid var(--dark4);">
+        <p style="font-size:9px;font-weight:800;letter-spacing:0.2em;color:var(--emerald);text-transform:uppercase;margin-bottom:8px;">Step 04 — Pemrosesan Booking Atomik</p>
+        <div style="display:flex;flex-direction:column;gap:5px;">
+          <div style="display:flex;gap:8px;align-items:center;"><span style="color:var(--gold);font-size:10px;">①</span><span style="font-size:10px;color:var(--zinc300);">Upsert pelanggan berdasarkan nomor HP</span></div>
+          <div style="display:flex;gap:8px;align-items:center;"><span style="color:var(--gold);font-size:10px;">②</span><span style="font-size:10px;color:var(--zinc300);">Buat invoice SD/YYYY/NNNN + kalkulasi PPN 11%</span></div>
+          <div style="display:flex;gap:8px;align-items:center;"><span style="color:var(--gold);font-size:10px;">③</span><span style="font-size:10px;color:var(--zinc300);">Kunci unit: Available → Invoiced (Booked di UI)</span></div>
+          <div style="display:flex;gap:8px;align-items:center;"><span style="color:var(--red);font-size:10px;">✗</span><span style="font-size:10px;color:var(--zinc400);">Jika salah satu gagal → seluruh transaksi di-rollback</span></div>
+        </div>
+      </div>
+      <div style="padding:1rem;background:var(--dark3);border:1px solid var(--dark4);">
+        <p style="font-size:9px;font-weight:800;letter-spacing:0.2em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;">Step 05–06 — OTP &amp; Upload Bukti</p>
+        <div style="display:flex;flex-direction:column;gap:5px;">
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--blue);font-size:10px;margin-top:1px;">▸</span><span style="font-size:10px;color:var(--zinc300);">OTP 4 digit dikirim via simulasi (dev) / saluran eksternal (prod)</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--blue);font-size:10px;margin-top:1px;">▸</span><span style="font-size:10px;color:var(--zinc300);">Verifikasi Hash::check() — nilai plaintext tidak pernah tersimpan</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--blue);font-size:10px;margin-top:1px;">▸</span><span style="font-size:10px;color:var(--zinc300);">Upload: JPEG/PNG/WebP maks 2MB · SVG diblokir (cegah XSS)</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--blue);font-size:10px;margin-top:1px;">▸</span><span style="font-size:10px;color:var(--zinc300);">Re-upload → file lama dihapus via DeleteOldImageJob async</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 8 — WORKFLOW ADMIN / KASIR
+═══════════════════════════════════════════════════════ -->
+<div class="slide" id="slide-8">
+  <div class="slide-content">
+    <div class="label-tag">Bab 3.2 &mdash; Workflow Admin/Kasir</div>
+    <h2 class="slide-title">Alur <span class="accent">Administrator / Kasir</span></h2>
+
+    <!-- Main flow -->
+    <div style="margin-bottom:1rem;">
+      <p style="font-size:9px;font-weight:800;letter-spacing:0.2em;color:var(--gold);text-transform:uppercase;margin-bottom:0.7rem;">7 Langkah — dari Login hingga Serah Terima Unit</p>
+      <div class="flow-step">
+        <div class="flow-box" style="border-top:2px solid var(--red);">
+          <span class="num">01</span>
+          <span>Login Tersembunyi</span>
+          <small>Ctrl+Shift+A</small>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box" style="border-top:2px solid var(--gold);">
+          <span class="num">02</span>
+          <span>Dashboard KPI</span>
+          <small>4 metrik real-time</small>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box" style="border-top:2px solid var(--blue);">
+          <span class="num">03</span>
+          <span>Kelola Transaksi</span>
+          <small>/admin/invoices</small>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box" style="border-top:2px solid var(--amber);">
+          <span class="num">04</span>
+          <span>Verifikasi Bukti</span>
+          <small>Lihat gambar transfer</small>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box" style="border-top:2px solid var(--emerald);">
+          <span class="num">05</span>
+          <span>Approve / Reject</span>
+          <small>AJAX — tanpa reload</small>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box" style="border-top:2px solid var(--blue);">
+          <span class="num">06</span>
+          <span>Notif WA Prefilled</span>
+          <small>Link otomatis terbuka</small>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box" style="border-top:2px solid var(--violet);">
+          <span class="num">07</span>
+          <span>Konfirmasi Handover</span>
+          <small>Data terkunci permanen</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3 key action cards -->
+    <div class="grid-3" style="gap:1rem;">
+      <div style="padding:1rem;background:var(--dark3);border:1px solid var(--dark4);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <div style="width:4px;height:28px;background:var(--emerald);flex-shrink:0;"></div>
+          <p style="font-size:11px;font-weight:800;color:var(--white);">Aksi di Dropdown (Kontekstual)</p>
+        </div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:5px;">
+          <li style="font-size:10px;color:var(--zinc300);display:flex;gap:6px;"><span style="color:var(--emerald);">✓</span> Setujui &amp; Sahkan Pembayaran</li>
+          <li style="font-size:10px;color:var(--zinc300);display:flex;gap:6px;"><span style="color:var(--red);">✗</span> Tolak Bukti (wajib alasan ≥10 karakter)</li>
+          <li style="font-size:10px;color:var(--zinc300);display:flex;gap:6px;"><span style="color:var(--violet);">✎</span> Amend Jadwal (tanggal + jam)</li>
+          <li style="font-size:10px;color:var(--zinc300);display:flex;gap:6px;"><span style="color:var(--blue);">✎</span> Edit Data Pelanggan</li>
+          <li style="font-size:10px;color:var(--zinc300);display:flex;gap:6px;"><span style="color:var(--gold);">⎙</span> Cetak Invoice / Kwitansi</li>
+          <li style="font-size:10px;color:var(--zinc300);display:flex;gap:6px;"><span style="color:var(--red);">⊗</span> Batalkan (wajib alasan)</li>
+        </ul>
+      </div>
+
+      <div style="padding:1rem;background:var(--dark3);border:1px solid var(--dark4);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <div style="width:4px;height:28px;background:var(--gold);flex-shrink:0;"></div>
+          <p style="font-size:11px;font-weight:800;color:var(--white);">Dashboard 4 KPI Real-time</p>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          <div style="padding:8px;background:var(--dark);border:1px solid var(--dark4);text-align:center;">
+            <p style="font-size:14px;font-weight:900;color:var(--gold);font-family:monospace;">N</p>
+            <p style="font-size:9px;color:var(--zinc600);text-transform:uppercase;letter-spacing:0.1em;">Total Unit</p>
+          </div>
+          <div style="padding:8px;background:var(--dark);border:1px solid var(--dark4);text-align:center;">
+            <p style="font-size:14px;font-weight:900;color:var(--zinc600);font-family:monospace;">N</p>
+            <p style="font-size:9px;color:var(--zinc600);text-transform:uppercase;letter-spacing:0.1em;">Unit Sold</p>
+          </div>
+          <div style="padding:8px;background:var(--dark);border:1px solid var(--dark4);text-align:center;">
+            <p style="font-size:14px;font-weight:900;color:var(--amber);font-family:monospace;">N</p>
+            <p style="font-size:9px;color:var(--zinc600);text-transform:uppercase;letter-spacing:0.1em;">Pending Verif</p>
+          </div>
+          <div style="padding:8px;background:var(--dark);border:1px solid var(--dark4);text-align:center;">
+            <p style="font-size:14px;font-weight:900;color:var(--emerald);font-family:monospace;">IDR</p>
+            <p style="font-size:9px;color:var(--zinc600);text-transform:uppercase;letter-spacing:0.1em;">Total Revenue</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:1rem;background:var(--dark3);border:1px solid var(--dark4);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <div style="width:4px;height:28px;background:var(--violet);flex-shrink:0;"></div>
+          <p style="font-size:11px;font-weight:800;color:var(--white);">Siklus Status Invoice</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="padding:2px 8px;background:var(--amber);color:var(--dark);font-size:9px;font-weight:800;border-radius:999px;flex-shrink:0;">Unpaid</span>
+            <span style="font-size:9px;color:var(--zinc600);">→ Upload bukti</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="padding:2px 8px;background:var(--blue);color:var(--white);font-size:9px;font-weight:800;border-radius:999px;flex-shrink:0;">Pending Val.</span>
+            <span style="font-size:9px;color:var(--zinc600);">→ Kasir verifikasi</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="padding:2px 8px;background:var(--violet);color:var(--white);font-size:9px;font-weight:800;border-radius:999px;flex-shrink:0;">Down Payment</span>
+            <span style="font-size:9px;color:var(--zinc600);">→ Upload pelunasan</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="padding:2px 8px;background:var(--emerald);color:var(--dark);font-size:9px;font-weight:800;border-radius:999px;flex-shrink:0;">Paid ★</span>
+            <span style="font-size:9px;color:var(--zinc600);">→ Handover → Data terkunci</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="padding:2px 8px;background:var(--zinc600);color:var(--white);font-size:9px;font-weight:800;border-radius:999px;flex-shrink:0;">Cancelled</span>
+            <span style="font-size:9px;color:var(--zinc600);">→ Unit kembali Available</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 9 — DEMO INTERFACE: SISI PELANGGAN
+═══════════════════════════════════════════════════════ -->
+<div class="slide" id="slide-9">
+  <div class="slide-content">
+    <div class="label-tag">Bab 5.4 &mdash; Implementasi Website</div>
+    <h2 class="slide-title">Antarmuka <span class="accent">Sisi Pelanggan</span></h2>
+
+    <div class="grid-2" style="gap:1.5rem;align-items:start;">
+
+      <!-- Left column: Katalog + Detail -->
+      <div style="display:flex;flex-direction:column;gap:1rem;">
+        <!-- Mockup: Halaman Katalog -->
+        <div class="screen-mockup">
+          <div class="screen-bar">
+            <div class="screen-dot" style="background:#ef4444;"></div>
+            <div class="screen-dot" style="background:#f59e0b;"></div>
+            <div class="screen-dot" style="background:#10b981;"></div>
+            <span style="font-size:10px;color:var(--zinc600);margin-left:8px;font-family:monospace;">localhost:8000/</span>
+          </div>
+          <div class="screen-body" style="background:var(--dark2);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <div style="font-size:13px;font-weight:900;color:var(--gold);letter-spacing:-1px;">SHOW<span style="color:var(--white);">DRIVE</span></div>
+              <div style="display:flex;gap:8px;">
+                <span style="font-size:8px;color:var(--zinc600);font-weight:700;">INVENTORY</span>
+                <span style="font-size:8px;color:var(--zinc600);font-weight:700;">CEK STATUS</span>
+                <span style="font-size:8px;color:var(--zinc600);font-weight:700;">TENTANG</span>
+              </div>
+            </div>
+            <div style="background:var(--dark3);padding:6px 10px;margin-bottom:10px;border:1px solid var(--dark4);">
+              <span style="font-size:9px;color:var(--zinc600);">🔍 Cari merek, model, atau VIN...</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
+              <div style="background:var(--dark3);border:1px solid var(--dark4);padding:6px;">
+                <div style="height:36px;background:var(--dark4);margin-bottom:5px;display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--zinc600);">📷 Foto</div>
+                <p style="font-size:8px;font-weight:800;color:var(--white);">Porsche 911 GT3 RS</p>
+                <p style="font-size:7px;color:var(--zinc600);">2024 · Shark Blue</p>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+                  <span style="font-size:7px;color:var(--gold);font-weight:700;">IDR 4.5M</span>
+                  <span style="font-size:6px;background:var(--emerald);color:var(--dark);padding:1px 4px;font-weight:800;">AVAILABLE</span>
+                </div>
+              </div>
+              <div style="background:var(--dark3);border:1px solid var(--dark4);padding:6px;">
+                <div style="height:36px;background:var(--dark4);margin-bottom:5px;display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--zinc600);">📷 Foto</div>
+                <p style="font-size:8px;font-weight:800;color:var(--white);">Chevrolet Corvette C8</p>
+                <p style="font-size:7px;color:var(--zinc600);">2023 · Arctic White</p>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+                  <span style="font-size:7px;color:var(--gold);font-weight:700;">IDR 2.5M</span>
+                  <span style="font-size:6px;background:var(--amber);color:var(--dark);padding:1px 4px;font-weight:800;">BOOKED</span>
+                </div>
+              </div>
+              <div style="background:var(--dark3);border:1px solid var(--dark4);padding:6px;">
+                <div style="height:36px;background:var(--dark4);margin-bottom:5px;display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--zinc600);">📷 Foto</div>
+                <p style="font-size:8px;font-weight:800;color:var(--white);">Ferrari 488 Pista</p>
+                <p style="font-size:7px;color:var(--zinc600);">2023 · Rosso Corsa</p>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+                  <span style="font-size:7px;color:var(--gold);font-weight:700;">IDR 8.9M</span>
+                  <span style="font-size:6px;background:var(--zinc600);color:var(--white);padding:1px 4px;font-weight:800;">SOLD</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:8px 12px;background:var(--dark3);border:1px solid var(--dark4);border-left:3px solid var(--gold);">
+          <p style="font-size:10px;font-weight:800;color:var(--white);margin-bottom:3px;">Halaman Beranda / Katalog (GET /)</p>
+          <p style="font-size:9px;color:var(--zinc400);">Grid unit kendaraan · Badge status berwarna · Full-text search merek/model/VIN · Paginasi 12 unit/halaman</p>
+        </div>
+      </div>
+
+      <!-- Right column: Booking + Track -->
+      <div style="display:flex;flex-direction:column;gap:1rem;">
+        <!-- Mockup: Form Booking -->
+        <div class="screen-mockup">
+          <div class="screen-bar">
+            <div class="screen-dot" style="background:#ef4444;"></div>
+            <div class="screen-dot" style="background:#f59e0b;"></div>
+            <div class="screen-dot" style="background:#10b981;"></div>
+            <span style="font-size:10px;color:var(--zinc600);margin-left:8px;font-family:monospace;">RESERVASI JADWAL TEMU</span>
+          </div>
+          <div class="screen-body" style="background:var(--dark2);">
+            <p style="font-size:9px;font-weight:800;color:var(--zinc400);margin-bottom:8px;">Unit: Porsche 911 GT3 RS · 2024</p>
+            <div style="display:flex;flex-direction:column;gap:5px;">
+              <div style="background:var(--dark3);border:1px solid var(--dark4);padding:5px 8px;font-size:8px;color:var(--zinc400);">Nama Lengkap Pemohon *</div>
+              <div style="background:var(--dark3);border:1px solid var(--dark4);padding:5px 8px;font-size:8px;color:var(--zinc400);">Nomor Kontak WhatsApp *</div>
+              <div style="display:flex;gap:5px;">
+                <div style="flex:1;background:var(--dark3);border:1px solid var(--gold);padding:5px 8px;font-size:8px;color:var(--zinc300);">📅 Tanggal Inspeksi *</div>
+                <div style="flex:1;background:var(--dark3);border:1px solid var(--gold);padding:5px 8px;font-size:8px;color:var(--zinc300);">🕐 Jam (08–17) *</div>
+              </div>
+              <div style="background:var(--dark3);border:1px solid var(--dark4);padding:5px 8px;font-size:8px;color:var(--zinc400);">Pilihan Metode Pembayaran ▼</div>
+              <div style="background:var(--dark3);padding:5px 8px;border:1px solid var(--dark4);">
+                <p style="font-size:7px;color:var(--zinc600);">💰 Subtotal: IDR 4.500.000.000</p>
+                <p style="font-size:7px;color:var(--zinc600);">+ PPN 11%: IDR 495.000.000</p>
+                <p style="font-size:8px;font-weight:800;color:var(--gold);">Total: IDR 4.995.000.000</p>
+              </div>
+              <div style="background:var(--gold);padding:6px;text-align:center;font-size:8px;font-weight:800;color:var(--dark);">✈ KIRIM PERMINTAAN TEMU</div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:8px 12px;background:var(--dark3);border:1px solid var(--dark4);border-left:3px solid var(--blue);">
+          <p style="font-size:10px;font-weight:800;color:var(--white);margin-bottom:3px;">Form Booking + OTP + Track (POST /booking)</p>
+          <p style="font-size:9px;color:var(--zinc400);">Input tanggal &amp; jam inspeksi · Kalkulasi PPN otomatis · Verifikasi OTP · Upload bukti transfer · Cetak invoice digital</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 10 — DEMO INTERFACE: SISI ADMIN
+═══════════════════════════════════════════════════════ -->
+<div class="slide" id="slide-10">
+  <div class="slide-content">
+    <div class="label-tag">Bab 5.4 &mdash; Implementasi Website</div>
+    <h2 class="slide-title">Antarmuka <span class="accent">Sisi Administrator</span></h2>
+
+    <div class="grid-2" style="gap:1.5rem;align-items:start;">
+      <!-- Left: Dashboard mockup -->
+      <div style="display:flex;flex-direction:column;gap:1rem;">
+        <div class="screen-mockup">
+          <div class="screen-bar">
+            <div class="screen-dot" style="background:#ef4444;"></div>
+            <div class="screen-dot" style="background:#f59e0b;"></div>
+            <div class="screen-dot" style="background:#10b981;"></div>
+            <span style="font-size:10px;color:var(--zinc600);margin-left:8px;font-family:monospace;">/admin/dashboard</span>
+          </div>
+          <div class="screen-body" style="background:var(--dark2);display:flex;gap:8px;">
+            <!-- Sidebar -->
+            <div style="width:90px;background:var(--dark);border-right:1px solid var(--dark4);padding:8px 6px;flex-shrink:0;">
+              <div style="font-size:9px;font-weight:900;color:var(--gold);margin-bottom:10px;letter-spacing:-0.5px;">SD</div>
+              <div style="display:flex;flex-direction:column;gap:5px;">
+                <div style="font-size:7px;color:var(--gold);background:rgba(212,175,55,0.1);padding:3px 5px;font-weight:700;">📊 DASHBOARD</div>
+                <div style="font-size:7px;color:var(--zinc600);padding:3px 5px;">🚗 INVENTARIS</div>
+                <div style="font-size:7px;color:var(--zinc600);padding:3px 5px;">✓ TRANSAKSI</div>
+                <div style="font-size:7px;color:var(--zinc600);padding:3px 5px;">📈 LAPORAN</div>
+                <div style="font-size:7px;color:var(--zinc600);padding:3px 5px;">🏭 GUDANG</div>
+                <div style="font-size:7px;color:var(--zinc600);padding:3px 5px;">👤 KASIR</div>
+              </div>
+            </div>
+            <!-- Content -->
+            <div style="flex:1;">
+              <p style="font-size:8px;font-weight:800;color:var(--white);margin-bottom:6px;">SHOWDRIVE CONTROL PANEL</p>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:8px;">
+                <div style="background:var(--dark3);border:1px solid var(--dark4);padding:5px;text-align:center;">
+                  <p style="font-size:11px;font-weight:900;color:var(--gold);font-family:monospace;">3</p>
+                  <p style="font-size:6px;color:var(--zinc600);text-transform:uppercase;">Total Unit</p>
+                </div>
+                <div style="background:var(--dark3);border:1px solid var(--dark4);padding:5px;text-align:center;">
+                  <p style="font-size:11px;font-weight:900;color:var(--zinc600);font-family:monospace;">0</p>
+                  <p style="font-size:6px;color:var(--zinc600);text-transform:uppercase;">Unit Sold</p>
+                </div>
+                <div style="background:var(--dark3);border:1px solid var(--amber);padding:5px;text-align:center;">
+                  <p style="font-size:11px;font-weight:900;color:var(--amber);font-family:monospace;">2</p>
+                  <p style="font-size:6px;color:var(--zinc600);text-transform:uppercase;">Pending</p>
+                </div>
+                <div style="background:var(--dark3);border:1px solid var(--emerald);padding:5px;text-align:center;">
+                  <p style="font-size:9px;font-weight:900;color:var(--emerald);font-family:monospace;">44M</p>
+                  <p style="font-size:6px;color:var(--zinc600);text-transform:uppercase;">Revenue</p>
+                </div>
+              </div>
+              <div style="background:var(--dark3);border:1px solid var(--dark4);padding:5px;">
+                <p style="font-size:7px;font-weight:800;color:var(--zinc400);margin-bottom:4px;">TRANSAKSI TERBARU</p>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid var(--dark4);">
+                  <span style="font-size:7px;color:var(--zinc300);">Aris Ashidiqi</span>
+                  <span style="font-size:7px;color:var(--zinc400);">Porsche 911 GT3 RS</span>
+                  <span style="font-size:6px;background:var(--amber);color:var(--dark);padding:1px 4px;font-weight:800;">PENDING</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;">
+                  <span style="font-size:7px;color:var(--zinc300);">Fathoni Jabbar</span>
+                  <span style="font-size:7px;color:var(--zinc400);">Corvette C8</span>
+                  <span style="font-size:6px;background:var(--emerald);color:var(--dark);padding:1px 4px;font-weight:800;">PAID</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:8px 12px;background:var(--dark3);border:1px solid var(--dark4);border-left:3px solid var(--gold);">
+          <p style="font-size:10px;font-weight:800;color:var(--white);margin-bottom:3px;">Dashboard Admin — 4 KPI Real-time</p>
+          <p style="font-size:9px;color:var(--zinc400);">Total Unit · Unit Sold · Pending Verification · Total Revenue · Tabel transaksi terbaru</p>
+        </div>
+      </div>
+
+      <!-- Right: Validasi Transaksi mockup -->
+      <div style="display:flex;flex-direction:column;gap:1rem;">
+        <div class="screen-mockup">
+          <div class="screen-bar">
+            <div class="screen-dot" style="background:#ef4444;"></div>
+            <div class="screen-dot" style="background:#f59e0b;"></div>
+            <div class="screen-dot" style="background:#10b981;"></div>
+            <span style="font-size:10px;color:var(--zinc600);margin-left:8px;font-family:monospace;">/admin/invoices</span>
+          </div>
+          <div class="screen-body" style="background:var(--dark2);">
+            <p style="font-size:8px;font-weight:800;color:var(--white);margin-bottom:6px;">VALIDASI TRANSAKSI</p>
+            <div style="display:flex;gap:4px;margin-bottom:6px;">
+              <span style="font-size:7px;background:var(--gold);color:var(--dark);padding:2px 6px;font-weight:800;">SEMUA</span>
+              <span style="font-size:7px;background:var(--dark3);color:var(--zinc600);padding:2px 6px;border:1px solid var(--dark4);">PENDING</span>
+              <span style="font-size:7px;background:var(--dark3);color:var(--zinc600);padding:2px 6px;border:1px solid var(--dark4);">DOWN PAYMENT</span>
+              <span style="font-size:7px;background:var(--dark3);color:var(--zinc600);padding:2px 6px;border:1px solid var(--dark4);">LUNAS</span>
+            </div>
+            <table style="width:100%;border-collapse:collapse;font-size:7px;">
+              <tr style="background:var(--dark3);">
+                <th style="padding:3px 4px;color:var(--zinc600);text-align:left;font-weight:700;">PELANGGAN</th>
+                <th style="padding:3px 4px;color:var(--zinc600);text-align:left;font-weight:700;">UNIT</th>
+                <th style="padding:3px 4px;color:var(--zinc600);text-align:left;font-weight:700;">STATUS</th>
+                <th style="padding:3px 4px;color:var(--zinc600);text-align:left;font-weight:700;">JADWAL</th>
+                <th style="padding:3px 4px;color:var(--zinc600);text-align:right;font-weight:700;">AKSI</th>
+              </tr>
+              <tr style="border-bottom:1px solid var(--dark4);">
+                <td style="padding:4px;color:var(--white);">Aris Ashidiqi</td>
+                <td style="padding:4px;color:var(--zinc400);">Porsche GT3 RS</td>
+                <td style="padding:4px;"><span style="background:var(--amber);color:var(--dark);padding:1px 4px;font-weight:800;">PENDING VAL.</span></td>
+                <td style="padding:4px;color:var(--zinc400);">25 Jul 10:00</td>
+                <td style="padding:4px;text-align:right;"><span style="background:var(--dark3);border:1px solid var(--dark4);color:var(--gold);padding:2px 6px;font-weight:700;">KELOLA ▼</span></td>
+              </tr>
+              <tr>
+                <td style="padding:4px;color:var(--white);">Fathoni Jabbar</td>
+                <td style="padding:4px;color:var(--zinc400);">Ferrari 488</td>
+                <td style="padding:4px;"><span style="background:var(--zinc600);color:var(--white);padding:1px 4px;font-weight:800;">CANCELLED</span></td>
+                <td style="padding:4px;color:var(--zinc400);">22 Jul 14:30</td>
+                <td style="padding:4px;text-align:right;"><span style="background:var(--dark3);border:1px solid var(--dark4);color:var(--gold);padding:2px 6px;font-weight:700;">KELOLA ▼</span></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <div style="padding:8px 12px;background:var(--dark3);border:1px solid var(--dark4);border-left:3px solid var(--emerald);">
+          <p style="font-size:10px;font-weight:800;color:var(--white);margin-bottom:3px;">Validasi Transaksi — AJAX Zero Reload</p>
+          <p style="font-size:9px;color:var(--zinc400);">Dropdown aksi kontekstual · Jadwal tampil tanggal + jam · Approve/reject/amend/handover tanpa refresh · Notifikasi WA prefilled otomatis</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 11 — HASIL & KETERCAPAIAN TUJUAN
+═══════════════════════════════════════════════════════ -->
+<div class="slide" id="slide-11">
+  <div class="slide-content">
+    <div class="label-tag">Bab 6.1 &mdash; Kesimpulan</div>
+    <h2 class="slide-title">Hasil <span class="accent">&amp; Ketercapaian Tujuan</span></h2>
+
+    <div class="grid-2" style="gap:2rem;align-items:start;">
+      <!-- Left: Checklist tujuan -->
+      <div>
+        <p style="font-size:9px;font-weight:800;letter-spacing:0.2em;color:var(--gold);text-transform:uppercase;margin-bottom:1rem;">6 Tujuan — Semua Tercapai ✅</p>
+        <div style="display:flex;flex-direction:column;gap:0.6rem;">
+
+          <div style="display:flex;gap:10px;align-items:flex-start;padding:0.8rem;background:var(--dark3);border:1px solid var(--dark4);border-left:3px solid var(--emerald);">
+            <span style="font-size:1rem;flex-shrink:0;">✅</span>
+            <div>
+              <p style="font-size:11px;font-weight:800;color:var(--white);">Digitalisasi Inventaris Kendaraan</p>
+              <p style="font-size:9px;color:var(--zinc400);">CRUD lengkap + proteksi ON DELETE RESTRICT di level database.</p>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;align-items:flex-start;padding:0.8rem;background:var(--dark3);border:1px solid var(--dark4);border-left:3px solid var(--emerald);">
+            <span style="font-size:1rem;flex-shrink:0;">✅</span>
+            <div>
+              <p style="font-size:11px;font-weight:800;color:var(--white);">Pemesanan Mandiri + PPN + Jadwal Inspeksi</p>
+              <p style="font-size:9px;color:var(--zinc400);">Self-service form dengan PPN 11% otomatis, pilihan tanggal &amp; jam inspeksi (08:00–17:00).</p>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;align-items:flex-start;padding:0.8rem;background:var(--dark3);border:1px solid var(--dark4);border-left:3px solid var(--emerald);">
+            <span style="font-size:1rem;flex-shrink:0;">✅</span>
+            <div>
+              <p style="font-size:11px;font-weight:800;color:var(--white);">Keamanan Akses via OTP</p>
+              <p style="font-size:9px;color:var(--zinc400);">OTP Bcrypt 4-digit, expire 5 menit, maks 3× percobaan, verifikasi Hash::check().</p>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;align-items:flex-start;padding:0.8rem;background:var(--dark3);border:1px solid var(--dark4);border-left:3px solid var(--emerald);">
+            <span style="font-size:1rem;flex-shrink:0;">✅</span>
+            <div>
+              <p style="font-size:11px;font-weight:800;color:var(--white);">Validasi Transaksi AJAX Real-time</p>
+              <p style="font-size:9px;color:var(--zinc400);">Approve/reject/amend/handover tanpa page reload, respons &lt;1 detik jaringan lokal.</p>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;align-items:flex-start;padding:0.8rem;background:var(--dark3);border:1px solid var(--dark4);border-left:3px solid var(--emerald);">
+            <span style="font-size:1rem;flex-shrink:0;">✅</span>
+            <div>
+              <p style="font-size:11px;font-weight:800;color:var(--white);">Konsistensi Data Transaksi (ACID)</p>
+              <p style="font-size:9px;color:var(--zinc400);">DB::transaction() + lockForUpdate() — tidak ada kondisi data setengah jadi.</p>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;align-items:flex-start;padding:0.8rem;background:var(--dark3);border:1px solid var(--dark4);border-left:3px solid var(--emerald);">
+            <span style="font-size:1rem;flex-shrink:0;">✅</span>
+            <div>
+              <p style="font-size:11px;font-weight:800;color:var(--white);">Laporan Keuangan + Ekspor CSV</p>
+              <p style="font-size:9px;color:var(--zinc400);">Dashboard 4 KPI real-time + ekspor CSV dengan filter bulan/tahun/status.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Metrik pencapaian -->
+      <div style="display:flex;flex-direction:column;gap:1rem;">
+        <p style="font-size:9px;font-weight:800;letter-spacing:0.2em;color:var(--gold);text-transform:uppercase;">Metrik Implementasi</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;">
+          <div class="kpi-box"><div class="num">6</div><div class="lbl">Tabel Relasional (3NF)</div></div>
+          <div class="kpi-box"><div class="num">4</div><div class="lbl">Lapisan Keamanan</div></div>
+          <div class="kpi-box"><div class="num">6</div><div class="lbl">Modal AJAX di Admin</div></div>
+          <div class="kpi-box"><div class="num">3</div><div class="lbl">Kebijakan ON DELETE</div></div>
+          <div class="kpi-box"><div class="num" style="font-size:1.6rem;">ACID</div><div class="lbl">Transaksi Atomik</div></div>
+          <div class="kpi-box"><div class="num" style="font-size:1.6rem;">0ms</div><div class="lbl">Page Reload saat Verifikasi</div></div>
+        </div>
+
+        <div style="padding:1rem;background:rgba(16,185,129,0.06);border:1px solid var(--emerald);">
+          <p style="font-size:9px;font-weight:800;letter-spacing:0.2em;color:var(--emerald);text-transform:uppercase;margin-bottom:8px;">Kualitas Kode</p>
+          <ul class="check-list">
+            <li><span class="icon" style="color:var(--emerald);">▸</span><span>Normalisasi 3NF — 6 tabel dengan Foreign Key terstruktur</span></li>
+            <li><span class="icon" style="color:var(--emerald);">▸</span><span>Form Request terpusat — validasi tidak tersebar di controller</span></li>
+            <li><span class="icon" style="color:var(--emerald);">▸</span><span>Background Job async — file lama dihapus tanpa blocking HTTP</span></li>
+            <li><span class="icon" style="color:var(--emerald);">▸</span><span>Query scope Eloquent — kode mudah diperluas tanpa refactor besar</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 12 — SARAN PENGEMBANGAN
+═══════════════════════════════════════════════════════ -->
+<div class="slide" id="slide-12">
+  <div class="slide-content">
+    <div class="label-tag">Bab 6.2 &mdash; Saran Pengembangan</div>
+    <h2 class="slide-title">Saran <span class="accent">Pengembangan</span></h2>
+
+    <div class="grid-2" style="gap:1.2rem;">
+
+      <div style="padding:1.1rem;background:var(--dark3);border:1px solid var(--dark4);border-top:3px solid var(--emerald);">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <span style="font-size:1.4rem;">💬</span>
+          <div>
+            <p style="font-size:11px;font-weight:800;color:var(--white);">Notifikasi Otomatis via WhatsApp API</p>
+            <span class="badge badge-emerald" style="margin-top:3px;">Prioritas Tinggi</span>
+          </div>
+        </div>
+        <p style="font-size:10px;color:var(--zinc400);line-height:1.6;">
+          Saat ini notifikasi WA menggunakan prefilled link yang diklik kasir secara manual.
+          Integrasikan <strong style="color:var(--white);">WhatsApp Business API</strong> (Fonnte / WaBlas)
+          agar notifikasi perubahan status terkirim otomatis tanpa intervensi kasir.
+        </p>
+      </div>
+
+      <div style="padding:1.1rem;background:var(--dark3);border:1px solid var(--dark4);border-top:3px solid var(--blue);">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <span style="font-size:1.4rem;">💳</span>
+          <div>
+            <p style="font-size:11px;font-weight:800;color:var(--white);">Integrasi Payment Gateway Otomatis</p>
+            <span class="badge badge-blue" style="margin-top:3px;">Prioritas Tinggi</span>
+          </div>
+        </div>
+        <p style="font-size:10px;color:var(--zinc400);line-height:1.6;">
+          Otomatisasi verifikasi pembayaran dengan <strong style="color:var(--white);">Midtrans / Xendit</strong>.
+          Status invoice diperbarui otomatis saat webhook konfirmasi pembayaran diterima —
+          mengeliminasi pemeriksaan bukti transfer manual oleh kasir.
+        </p>
+      </div>
+
+      <div style="padding:1.1rem;background:var(--dark3);border:1px solid var(--dark4);border-top:3px solid var(--amber);">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <span style="font-size:1.4rem;">🧪</span>
+          <div>
+            <p style="font-size:11px;font-weight:800;color:var(--white);">Automated Testing (PHPUnit)</p>
+            <span class="badge badge-amber" style="margin-top:3px;">Kualitas Kode</span>
+          </div>
+        </div>
+        <p style="font-size:10px;color:var(--zinc400);line-height:1.6;">
+          Tambahkan <strong style="color:var(--white);">Feature Test</strong> menggunakan PHPUnit (bawaan Laravel)
+          untuk skenario kritis: booking atomik, verifikasi OTP, dan penolakan hapus unit bertransaksi.
+          Meningkatkan regression safety saat pengembangan fitur baru.
+        </p>
+      </div>
+
+      <div style="padding:1.1rem;background:var(--dark3);border:1px solid var(--dark4);border-top:3px solid var(--violet);">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <span style="font-size:1.4rem;">🏢</span>
+          <div>
+            <p style="font-size:11px;font-weight:800;color:var(--white);">Dukungan Multi-Cabang Showroom</p>
+            <span class="badge badge-violet" style="margin-top:3px;">Skalabilitas</span>
+          </div>
+        </div>
+        <p style="font-size:10px;color:var(--zinc400);line-height:1.6;">
+          Arsitektur database ShowDrive sudah memisahkan entitas
+          <strong style="color:var(--white);">Company &amp; Warehouse</strong> —
+          fondasi multi-cabang sudah tersedia. Panel manajemen multi-cabang
+          dapat ditambahkan tanpa perombakan skema database yang signifikan.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- Bottom: minor suggestions row -->
+    <div style="display:flex;gap:0.8rem;margin-top:1rem;">
+      <div style="flex:1;padding:0.7rem;background:var(--dark3);border:1px solid var(--dark4);display:flex;gap:8px;align-items:flex-start;">
+        <span style="font-size:1rem;flex-shrink:0;">📱</span>
+        <div>
+          <p style="font-size:10px;font-weight:800;color:var(--white);">Optimasi Mobile-First</p>
+          <p style="font-size:9px;color:var(--zinc400);">Refaktor UI untuk pengalaman smartphone — mayoritas pengguna internet Indonesia via mobile.</p>
+        </div>
+      </div>
+      <div style="flex:1;padding:0.7rem;background:var(--dark3);border:1px solid var(--dark4);display:flex;gap:8px;align-items:flex-start;">
+        <span style="font-size:1rem;flex-shrink:0;">📦</span>
+        <div>
+          <p style="font-size:10px;font-weight:800;color:var(--white);">Multi-Unit per Transaksi</p>
+          <p style="font-size:9px;color:var(--zinc400);">Saat ini 1 unit per invoice. Dukung transaksi multi-unit untuk pembelian armada korporat.</p>
+        </div>
+      </div>
+      <div style="flex:1;padding:0.7rem;background:var(--dark3);border:1px solid var(--dark4);display:flex;gap:8px;align-items:flex-start;">
+        <span style="font-size:1rem;flex-shrink:0;">⚙️</span>
+        <div>
+          <p style="font-size:10px;font-weight:800;color:var(--white);">Redis Queue Production</p>
+          <p style="font-size:9px;color:var(--zinc400);">Konfigurasi Redis untuk queue driver agar penghapusan file lama tidak memblokir respons HTTP.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 13 — PENUTUP
+═══════════════════════════════════════════════════════ -->
+<div class="slide" id="slide-13">
+  <div class="slide-content" style="display:flex;gap:4rem;align-items:center;">
+
+    <!-- Left: Kesimpulan -->
+    <div style="flex:1.3;">
+      <div class="label-tag">Bab 6 &mdash; Penutup</div>
+      <h2 class="slide-title" style="margin-bottom:0.8rem;">Terima <span class="accent">Kasih</span></h2>
+      <div class="divider"></div>
+
+      <div style="margin-top:1.2rem;display:flex;flex-direction:column;gap:0.7rem;">
+        <div style="padding:0.9rem 1rem;background:var(--dark3);border:1px solid var(--dark4);border-left:3px solid var(--gold);">
+          <p style="font-size:10px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:0.15em;margin-bottom:4px;">Kesimpulan</p>
+          <p style="font-size:10px;color:var(--zinc400);line-height:1.7;">
+            ShowDrive berhasil mewujudkan <strong style="color:var(--white);">seluruh 6 tujuan pengembangan</strong> yang dirumuskan —
+            dari digitalisasi inventaris, alur pemesanan mandiri pelanggan, keamanan OTP berlapis,
+            validasi AJAX real-time, konsistensi data ACID, hingga laporan keuangan dengan ekspor CSV.
+          </p>
+        </div>
+        <div style="padding:0.9rem 1rem;background:var(--dark3);border:1px solid var(--dark4);border-left:3px solid var(--blue);">
+          <p style="font-size:10px;font-weight:800;color:var(--blue);text-transform:uppercase;letter-spacing:0.15em;margin-bottom:4px;">Kontribusi</p>
+          <p style="font-size:10px;color:var(--zinc400);line-height:1.7;">
+            Sistem ini membuktikan bahwa arsitektur <strong style="color:var(--white);">Three-Tier Laravel + MySQL</strong>
+            mampu menopang seluruh siklus bisnis showroom dari pemesanan hingga serah terima unit,
+            dengan keamanan dan konsistensi data yang terjamin di level basis data.
+          </p>
+        </div>
+        <div style="padding:0.9rem 1rem;background:rgba(212,175,55,0.06);border:1px solid var(--gold);">
+          <p style="font-size:10px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:0.15em;margin-bottom:4px;">Potensi ke Depan</p>
+          <p style="font-size:10px;color:var(--zinc400);line-height:1.7;">
+            Dengan penerapan saran pengembangan secara bertahap — integrasi WhatsApp API, payment gateway,
+            dan dukungan multi-cabang — ShowDrive berpotensi berkembang menjadi
+            <strong style="color:var(--white);">platform penjualan kendaraan premium yang komprehensif</strong> dan siap produksi.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Team + QA -->
+    <div style="flex:1;display:flex;flex-direction:column;gap:1.2rem;align-items:center;">
+      <!-- Logo -->
+      <div style="width:120px;height:120px;border:2px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--dark3);box-shadow:0 0 40px rgba(212,175,55,0.2);">
+        <div style="text-align:center;">
+          <div style="font-size:2rem;font-weight:900;color:var(--gold);letter-spacing:-2px;">SD</div>
+          <div style="font-size:8px;font-weight:800;color:var(--zinc600);letter-spacing:0.3em;">SHOWDRIVE</div>
+        </div>
+      </div>
+
+      <!-- Team -->
+      <div style="width:100%;background:var(--dark3);border:1px solid var(--dark4);padding:1rem;">
+        <p style="font-size:9px;font-weight:800;letter-spacing:0.2em;color:var(--gold);text-transform:uppercase;text-align:center;margin-bottom:0.8rem;">Kelompok 18</p>
+        <div style="display:flex;flex-direction:column;gap:0.5rem;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:30px;height:30px;border-radius:50%;background:var(--dark4);border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;font-weight:900;color:var(--gold);font-size:11px;flex-shrink:0;">A</div>
+            <div>
+              <p style="font-size:11px;font-weight:800;color:var(--white);">Muhammad Aris Ashidiqi</p>
+              <p style="font-size:9px;color:var(--zinc600);font-family:monospace;">714250042</p>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:30px;height:30px;border-radius:50%;background:var(--dark4);border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;font-weight:900;color:var(--gold);font-size:11px;flex-shrink:0;">F</div>
+            <div>
+              <p style="font-size:11px;font-weight:800;color:var(--white);">Fathoni Abdul Jabbar</p>
+              <p style="font-size:9px;color:var(--zinc600);font-family:monospace;">714250039</p>
+            </div>
+          </div>
+        </div>
+        <div style="border-top:1px solid var(--dark4);margin-top:0.8rem;padding-top:0.8rem;">
+          <p style="font-size:9px;color:var(--zinc600);text-align:center;">D4 Teknik Informatika — ULBI</p>
+          <p style="font-size:9px;color:var(--zinc600);text-align:center;">Tahun Akademik 2025/2026</p>
+        </div>
+      </div>
+
+      <!-- QA prompt -->
+      <div style="width:100%;padding:0.9rem;background:linear-gradient(135deg,rgba(212,175,55,0.1),transparent);border:1px solid var(--gold);text-align:center;">
+        <p style="font-size:1.2rem;margin-bottom:6px;">🎯</p>
+        <p style="font-size:12px;font-weight:900;color:var(--white);margin-bottom:4px;">Siap untuk Demonstrasi</p>
+        <p style="font-size:10px;color:var(--zinc400);">&amp; Sesi Tanya Jawab</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div><!-- end .slideshow -->
+
+<!-- ═══════════════════════════════════════════════════════
+     NAVIGATION BAR
+═══════════════════════════════════════════════════════ -->
+<div class="nav-bar">
+  <button class="nav-btn" id="btnPrev" onclick="changeSlide(-1)">&#8592; Prev</button>
+  <div class="slide-num-dots" id="dotContainer"></div>
+  <div class="nav-counter"><span id="currentNum">1</span> / <span id="totalNum">13</span></div>
+  <div class="slide-num-dots" style="width:0;overflow:hidden;"></div>
+  <button class="nav-btn" id="btnNext" onclick="changeSlide(1)">Next &#8594;</button>
+</div>
+
+<script>
+const TOTAL = 13;
+let current = 1;
+
+/* ── Build dots ── */
+const dotContainer = document.getElementById('dotContainer');
+for (let i = 1; i <= TOTAL; i++) {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 1 ? ' active' : '');
+  d.title = 'Slide ' + i;
+  d.addEventListener('click', () => goTo(i));
+  dotContainer.appendChild(d);
+}
+
+function goTo(n) {
+  if (n < 1 || n > TOTAL) return;
+  document.getElementById('slide-' + current).classList.remove('active');
+  dotContainer.children[current - 1].classList.remove('active');
+  current = n;
+  document.getElementById('slide-' + current).classList.add('active');
+  dotContainer.children[current - 1].classList.add('active');
+  document.getElementById('currentNum').textContent = current;
+  document.getElementById('progressBar').style.width = ((current / TOTAL) * 100) + '%';
+  document.getElementById('btnPrev').style.opacity = current === 1 ? '0.3' : '1';
+  document.getElementById('btnNext').style.opacity = current === TOTAL ? '0.3' : '1';
+}
+
+function changeSlide(dir) { goTo(current + dir); }
+
+/* ── Keyboard navigation ── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ' || e.key === 'PageDown') {
+    e.preventDefault(); changeSlide(1);
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp') {
+    e.preventDefault(); changeSlide(-1);
+  } else if (e.key === 'Home') {
+    e.preventDefault(); goTo(1);
+  } else if (e.key === 'End') {
+    e.preventDefault(); goTo(TOTAL);
+  } else if (e.key >= '1' && e.key <= '9') {
+    goTo(parseInt(e.key));
+  }
+});
+
+/* ── Touch / swipe support ── */
+let touchStartX = 0;
+document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+document.addEventListener('touchend', e => {
+  const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+}, { passive: true });
+
+/* ── Init progress bar ── */
+goTo(1);
+</script>
+</body>
+</html>

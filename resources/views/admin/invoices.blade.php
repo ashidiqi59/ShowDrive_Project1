@@ -120,21 +120,35 @@
                                         {{ $bk->status }}
                                     </span>
                                     <span class="text-[9px] text-zinc-600 uppercase font-bold">{{ $bk->payment_type ?? '—' }}</span>
+                                    <span class="text-[9px] text-zinc-500 font-mono flex items-center gap-1">
+                                        <i class="fa-regular fa-calendar text-luxury-gold/70"></i>
+                                        {{ $bk->date?->translatedFormat('d M Y') ?? '—' }}
+                                        @if($bk->date && $bk->date->format('H:i') !== '00:00')
+                                            <i class="fa-regular fa-clock text-luxury-gold/70 ml-1"></i>
+                                            {{ $bk->date->format('H:i') }} WIB
+                                        @endif
+                                    </span>
                                     {{-- Catatan penolakan admin --}}
                                     @if($bk->rejection_note)
-                                        <span class="text-[9px] text-red-400 italic max-w-[180px] truncate"
-                                              title="{{ $bk->rejection_note }}">
+                                        <div class="text-[9px] text-red-400 max-w-[220px]">
                                             <i class="fa-solid fa-circle-xmark mr-0.5"></i>
-                                            <span class="font-bold not-italic">Admin:</span> {{ $bk->rejection_note }}
-                                        </span>
+                                            <span class="font-bold not-italic">Admin:</span>
+                                            <span class="italic note-text overflow-hidden" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">{{ $bk->rejection_note }}</span>
+                                            @if(strlen($bk->rejection_note) > 80)
+                                                <button onclick="toggleNote(this)" class="text-red-300 underline not-italic font-bold ml-0.5 hover:text-white transition-colors" data-expanded="0">Lihat semua</button>
+                                            @endif
+                                        </div>
                                     @endif
                                     {{-- Catatan pembatalan pelanggan --}}
                                     @if($bk->cancellation_note)
-                                        <span class="text-[9px] text-orange-400 italic max-w-[180px] truncate"
-                                              title="{{ $bk->cancellation_note }}">
+                                        <div class="text-[9px] text-orange-400 max-w-[220px]">
                                             <i class="fa-solid fa-ban mr-0.5"></i>
-                                            <span class="font-bold not-italic">Pelanggan:</span> {{ $bk->cancellation_note }}
-                                        </span>
+                                            <span class="font-bold not-italic">Pelanggan:</span>
+                                            <span class="italic note-text overflow-hidden" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">{{ $bk->cancellation_note }}</span>
+                                            @if(strlen($bk->cancellation_note) > 80)
+                                                <button onclick="toggleNote(this)" class="text-orange-300 underline not-italic font-bold ml-0.5 hover:text-white transition-colors" data-expanded="0">Lihat semua</button>
+                                            @endif
+                                        </div>
                                     @endif
                                 </div>
                             </td>
@@ -195,13 +209,13 @@
 
                                     {{-- Dropdown Pengelolaan --}}
                                     <div class="relative inline-block text-left select-none admin-action-dropdown" id="dropdown-parent-{{ $bk->id }}">
-                                        <button onclick="toggleActionDropdown({{ $bk->id }}, event)" 
+                                        <button onclick="toggleActionDropdown({{ $bk->id }}, event)"
                                                 class="bg-zinc-900 border border-zinc-800 hover:border-luxury-gold text-zinc-300 hover:text-white font-bold py-1 px-3 text-[9px] uppercase tracking-widest flex items-center gap-1.5 transition-colors">
                                             Kelola <i class="fa-solid fa-chevron-down text-[7px] transition-transform duration-350" id="dropdown-icon-{{ $bk->id }}"></i>
                                         </button>
-                                        <div id="dropdown-menu-{{ $bk->id }}" 
+                                        <div id="dropdown-menu-{{ $bk->id }}"
                                              class="hidden absolute right-0 mt-1.5 w-44 bg-zinc-950 border border-zinc-850 shadow-2xl z-40 text-left py-1 text-[9px] font-bold uppercase tracking-wider">
-                                            
+
                                             {{-- Setujui (Jika Pending Validation) --}}
                                             @if($bk->payment_status === 'Pending Validation')
                                                 <button onclick="ajaxApprove({{ $bk->id }}, this, '{{ addslashes($bk->customer?->name ?? '') }}', '{{ $bk->customer?->phone ?? '' }}', '{{ $bk->invoice_code }}', '{{ addslashes(($bk->item?->brand ?? '') . ' ' . ($bk->item?->model ?? '')) }}')"
@@ -252,7 +266,7 @@
                                                         class="w-full text-left px-4 py-2 hover:bg-zinc-900 text-sky-400 flex items-center gap-2 transition-colors">
                                                     <i class="fa-solid fa-user-pen text-[10px] w-4"></i> Edit Pelanggan
                                                 </button>
-                                                <button onclick="openAmendModal({{ $bk->id }}, '{{ $bk->date?->format('Y-m-d') ?? '' }}', '{{ $bk->payment_type }}')"
+                                                <button onclick="openAmendModal({{ $bk->id }}, '{{ $bk->date?->format('Y-m-d') ?? '' }}', '{{ $bk->date?->format('H:i') ?? '10:00' }}', '{{ $bk->payment_type }}')"
                                                         class="w-full text-left px-4 py-2 hover:bg-zinc-900 text-violet-400 flex items-center gap-2 transition-colors border-b border-zinc-900/60">
                                                     <i class="fa-solid fa-calendar-day text-[10px] w-4"></i> Amend Jadwal
                                                 </button>
@@ -402,6 +416,21 @@ function showToast(type, message) {
     window.dispatchEvent(new CustomEvent('show-toast', { detail: { type, message } }));
 }
 
+// Toggle expand/collapse catatan panjang di tabel
+function toggleNote(btn) {
+    const noteSpan = btn.previousElementSibling;
+    const isExpanded = btn.dataset.expanded === '1';
+    if (isExpanded) {
+        noteSpan.style.cssText = 'display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;';
+        btn.textContent = 'Lihat semua';
+        btn.dataset.expanded = '0';
+    } else {
+        noteSpan.style.cssText = 'display:block;overflow:visible;';
+        btn.textContent = 'Sembunyikan';
+        btn.dataset.expanded = '1';
+    }
+}
+
 function getCsrfToken() {
     const meta = document.querySelector('meta[name="csrf-token"]');
     if (!meta) { showToast('error', 'Token keamanan tidak ditemukan. Refresh halaman.'); return null; }
@@ -509,6 +538,10 @@ async function ajaxApprove(invoiceId, btn, customerName, customerPhone, invoiceC
                 setTimeout(() => card.remove(), 420);
             }
 
+            // Reload halaman setelah 2 detik agar dropdown aksi terupdate
+            // (dropdown berisi kondisi Blade yang hanya bisa diperbarui dari server)
+            setTimeout(() => window.location.reload(), 2000);
+
             // Buka WA prefilled setelah 1.2 detik
             const waMsg = encodeURIComponent(
                 `Yth. ${data.customer_name},\n\nKami informasikan bahwa pembayaran Anda untuk unit *${data.unit_name}* (Invoice: *${data.invoice_code}*) telah *DIVERIFIKASI* ✅\n\nJadwal inspeksi Anda juga telah *DISETUJUI* 🎉\n\nSilakan tunjukkan kwitansi digital Anda kepada staf kami saat kedatangan.\n\nTerima kasih telah memilih ShowDrive!`
@@ -592,6 +625,9 @@ async function submitReject() {
                 card.style.transition = 'opacity 0.4s ease'; card.style.opacity = '0';
                 setTimeout(() => card.remove(), 420);
             }
+
+            // Reload halaman setelah 2 detik agar dropdown aksi terupdate
+            setTimeout(() => window.location.reload(), 2000);
 
             // Buka WA prefilled notifikasi penolakan + info refund
             const waMsg = encodeURIComponent(
@@ -686,7 +722,7 @@ async function submitAdminCancelInvoice() {
 
 async function ajaxConfirmHandover(invoiceId, btn) {
     if (!confirm('Apakah Anda yakin ingin mengonfirmasi serah terima fisik unit kendaraan ini? Aksi ini akan mengunci data transaksi.')) return;
-    
+
     const csrfToken = getCsrfToken();
     if (!csrfToken) return;
 
@@ -731,27 +767,27 @@ document.addEventListener('DOMContentLoaded', function () {
 // =========================================================
 function toggleActionDropdown(invoiceId, event) {
     event.stopPropagation();
-    
+
     // Tutup semua dropdown lain yang terbuka terlebih dahulu
     const allMenus = document.querySelectorAll('[id^="dropdown-menu-"]');
     const allIcons = document.querySelectorAll('[id^="dropdown-icon-"]');
-    
+
     allMenus.forEach(menu => {
         if (menu.id !== `dropdown-menu-${invoiceId}`) {
             menu.classList.add('hidden');
         }
     });
-    
+
     allIcons.forEach(icon => {
         if (icon.id !== `dropdown-icon-${invoiceId}`) {
             icon.classList.remove('rotate-180');
         }
     });
-    
+
     // Toggle dropdown yang ditarget
     const currentMenu = document.getElementById(`dropdown-menu-${invoiceId}`);
     const currentIcon = document.getElementById(`dropdown-icon-${invoiceId}`);
-    
+
     if (currentMenu) {
         const isHidden = currentMenu.classList.contains('hidden');
         if (isHidden) {
@@ -836,9 +872,10 @@ async function submitEditCustomer() {
 // =========================================================
 let amendInvoiceId = null;
 
-function openAmendModal(invoiceId, currentDate, currentPaymentType) {
+function openAmendModal(invoiceId, currentDate, currentTime, currentPaymentType) {
     amendInvoiceId = invoiceId;
     document.getElementById('amend-date').value = currentDate;
+    document.getElementById('amend-time').value = currentTime || '10:00';
     document.getElementById('amend-payment-type').value = currentPaymentType;
     document.getElementById('amend-error').textContent = '';
     // Set min/max date
@@ -869,6 +906,7 @@ async function submitAmend() {
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
             body: JSON.stringify({
                 date:         document.getElementById('amend-date').value,
+                time:         document.getElementById('amend-time').value,
                 payment_type: document.getElementById('amend-payment-type').value,
             }),
         });
@@ -964,7 +1002,16 @@ async function submitAmend() {
             <div>
                 <label class="block text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Tanggal Inspeksi <span class="text-red-400">*</span></label>
                 <input id="amend-date" type="date"
-                    class="w-full bg-zinc-900 border border-zinc-700 text-white text-sm px-3 py-2 focus:outline-none focus:border-violet-500 transition-colors" />
+                    class="w-full bg-zinc-900 border border-zinc-700 text-white text-sm px-3 py-2 focus:outline-none focus:border-violet-500 transition-colors calendar-gold" />
+            </div>
+            <div>
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1.5">
+                    Jam Inspeksi <span class="text-red-400">*</span>
+                    <span class="text-zinc-600 normal-case font-normal ml-1">(08:00–17:00)</span>
+                </label>
+                <input id="amend-time" type="time"
+                    min="08:00" max="17:00"
+                    class="w-full bg-zinc-900 border border-zinc-700 text-white text-sm px-3 py-2 focus:outline-none focus:border-violet-500 transition-colors calendar-gold" />
             </div>
             <div>
                 <label class="block text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Tipe Pembayaran <span class="text-red-400">*</span></label>

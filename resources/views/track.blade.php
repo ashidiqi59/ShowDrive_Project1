@@ -53,7 +53,9 @@
                             <p class="text-red-500 text-[10px] mt-1">{{ $message }}</p>
                         @enderror
                     </div>
-                    <button type="submit" class="w-full bg-luxury-gold hover:bg-luxury-goldHover text-black font-bold py-3 text-xs tracking-wider transition-all uppercase">
+                    <button type="submit"
+                            data-loading-text="Mengirim OTP..."
+                            class="w-full bg-luxury-gold hover:bg-luxury-goldHover text-black font-bold py-3 text-xs tracking-wider transition-all uppercase">
                         MINTA KODE OTP
                     </button>
                 </form>
@@ -75,15 +77,18 @@
                             <p class="text-red-500 text-[10px] mt-1">{{ $message }}</p>
                         @enderror
                     </div>
-                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 text-xs tracking-wider transition-all uppercase">
+                    <button type="submit"
+                            data-loading-text="Memverifikasi..."
+                            class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 text-xs tracking-wider transition-all uppercase">
                         VERIFIKASI KODE
                     </button>
                 </form>
 
-                <!-- Tombol Kirim Ulang / Reset Form -->
                 <form action="{{ route('booking.track.reset') }}" method="POST" class="mt-2">
                     @csrf
-                    <button type="submit" class="w-full border border-zinc-800 hover:border-zinc-700 text-zinc-400 py-2 text-[10px] tracking-wider transition-all uppercase">
+                    <button type="submit"
+                            data-loading-text="Mereset..."
+                            class="w-full border border-zinc-800 hover:border-zinc-700 text-zinc-400 py-2 text-[10px] tracking-wider transition-all uppercase">
                         BATALKAN / GANTI NO. HP
                     </button>
                 </form>
@@ -105,7 +110,9 @@
 
                     <form action="{{ route('booking.track.reset') }}" method="POST">
                         @csrf
-                        <button type="submit" class="w-full bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-bold py-2.5 text-xs tracking-wider transition-all uppercase">
+                        <button type="submit"
+                                data-loading-text="Keluar..."
+                                class="w-full bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-bold py-2.5 text-xs tracking-wider transition-all uppercase">
                             KELUAR DASHBOARD
                         </button>
                     </form>
@@ -165,12 +172,54 @@
                             </div>
                             <div>
                                 <span class="text-zinc-500 block mb-0.5 uppercase text-[9px]">Jadwal Temu/Inspeksi:</span>
-                                <span class="font-bold text-zinc-200 block"><i class="fa-regular fa-calendar mr-1 text-luxury-gold"></i>{{ $booking->date }}</span>
+                                <span class="font-bold text-zinc-200 block">
+                                    <i class="fa-regular fa-calendar mr-1 text-luxury-gold"></i>
+                                    {{ $booking->date ? $booking->date->translatedFormat('d F Y') : '—' }}
+                                </span>
+                                @if($booking->date && $booking->date->format('H:i') !== '00:00')
+                                    <span class="text-zinc-400 block text-[10px] mt-0.5">
+                                        <i class="fa-regular fa-clock mr-1 text-luxury-gold/70"></i>
+                                        Pukul {{ $booking->date->format('H:i') }} WIB
+                                    </span>
+                                @endif
                                 <span class="text-zinc-500 block text-[10px] mt-1">Telah Ditransfer: <strong class="text-emerald-400 font-mono">IDR {{ number_format($booking->paid_amount, 0, ',', '.') }}</strong></span>
                             </div>
                         </div>
 
-                        @if($booking->payment_status !== 'Paid')
+                        @if($booking->payment_status === 'Cancelled' || $booking->status === 'Cancelled')
+                            {{-- ══ INVOICE DIBATALKAN (oleh admin atau pelanggan) ══ --}}
+                            <div class="border-t border-zinc-900 pt-4 mt-4 bg-red-950/10 p-4 border border-red-900/30 space-y-3">
+                                <h4 class="font-extrabold text-[10px] tracking-wider text-red-400 uppercase flex items-center gap-1.5">
+                                    <i class="fa-solid fa-ban text-xs"></i> Reservasi Dibatalkan
+                                </h4>
+                                <div class="bg-red-950/30 border border-red-900/40 p-3 text-[11px] text-red-400 space-y-1.5">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fa-solid fa-ban"></i>
+                                        <span class="font-bold">Reservasi ini telah dibatalkan.</span>
+                                    </div>
+                                    @if($booking->cancellation_note)
+                                        @php
+                                            $isAdminCancel = str_starts_with($booking->cancellation_note, 'Admin:');
+                                            $noteLabel     = $isAdminCancel ? 'Alasan Pembatalan (Admin):' : 'Alasan Pembatalan Anda:';
+                                            $noteText      = $isAdminCancel
+                                                ? trim(substr($booking->cancellation_note, 6))
+                                                : $booking->cancellation_note;
+                                        @endphp
+                                        <div class="bg-red-950/40 border border-red-900/30 p-2 rounded text-[10px] text-red-300">
+                                            <span class="font-bold block mb-0.5 uppercase tracking-wider text-[9px] text-red-500">
+                                                {{ $noteLabel }}
+                                            </span>
+                                            <span class="italic">{{ $noteText }}</span>
+                                        </div>
+                                        @if($isAdminCancel)
+                                            <p class="text-[10px] text-zinc-400">
+                                                Jika Anda merasa ada kesalahan, silakan hubungi pihak showroom untuk klarifikasi lebih lanjut.
+                                            </p>
+                                        @endif
+                                    @endif
+                                </div>
+                            </div>
+                        @elseif($booking->payment_status !== 'Paid')
                             <div class="border-t border-zinc-900 pt-4 mt-4 bg-zinc-900/10 p-4 border border-zinc-900 space-y-4">
                                 <h4 class="font-extrabold text-[10px] tracking-wider text-luxury-gold uppercase">KIRIM DOKUMEN BUKTI PEMBAYARAN MANUAL</h4>
 
@@ -271,7 +320,9 @@
                                             <label class="block text-zinc-500 font-bold mb-1.5 uppercase text-[10px]">Pilih File Bukti Transfer (Format JPG, PNG, WebP) <span class="text-red-400">*</span></label>
                                             <input type="file" name="payment_proof" class="w-full text-xs text-zinc-400 file:mr-3 file:py-1.5 file:px-3 file:border file:border-zinc-800 file:bg-zinc-900 file:text-zinc-300 file:text-xs focus:outline-none" required>
                                         </div>
-                                        <button type="submit" class="w-full bg-luxury-gold text-black font-bold py-2.5 text-xs uppercase tracking-wider transition-colors mt-2">
+                                        <button type="submit"
+                                                data-loading-text="Mengunggah..."
+                                                class="w-full bg-luxury-gold text-black font-bold py-2.5 text-xs uppercase tracking-wider transition-colors mt-2">
                                             UNGGAH BUKTI & KIRIM
                                         </button>
                                     </form>
@@ -292,19 +343,6 @@
                                         <i class="fa-solid fa-calendar-check"></i>
                                         <span>Pembayaran DP Berhasil Diverifikasi. Silakan lakukan inspeksi fisik kendaraan sesuai jadwal yang disetujui sebelum melakukan pelunasan sisa 80%.</span>
                                     </div>
-                                @elseif($booking->payment_status === 'Cancelled')
-                                    <div class="bg-red-950/30 border border-red-900/40 p-3 text-[11px] text-red-400 space-y-1.5">
-                                        <div class="flex items-center gap-2">
-                                            <i class="fa-solid fa-ban"></i>
-                                            <span class="font-bold">Reservasi ini telah dibatalkan.</span>
-                                        </div>
-                                        @if($booking->cancellation_note)
-                                            <div class="bg-red-950/40 border border-red-900/30 p-2 rounded text-[10px] text-red-300">
-                                                <span class="font-bold block mb-0.5 uppercase tracking-wider text-[9px] text-red-500">Alasan Pembatalan Anda:</span>
-                                                <span class="italic">{{ $booking->cancellation_note }}</span>
-                                            </div>
-                                        @endif
-                                    </div>
                                 @endif
                             </div>
                         @else
@@ -319,7 +357,7 @@
                                         <i class="fa-solid fa-lock text-luxury-gold mr-1.5"></i>
                                         Unit kendaraan <strong>{{ $trackItem->brand }} {{ $trackItem->model }}</strong> telah dibayar lunas sepenuhnya. Terima kasih telah mempercayakan transaksi Anda bersama kami.
                                     </div>
-                                    
+
                                     {{-- Status Serah Terima Fisik Mobil --}}
                                     @if($booking->handed_over_at)
                                         <div class="bg-zinc-900 border border-zinc-800 p-3 rounded flex items-start gap-3">
@@ -481,8 +519,8 @@ function submitCancelBooking() {
     }
 
     const btn = document.getElementById('cancel-submit-btn');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Membatalkan...';
+    // Kunci tombol agar tidak bisa diklik dua kali
+    lockFormButton(btn, 'Membatalkan...');
 
     // Set action URL dan isi hidden input, lalu submit
     const form = document.getElementById('cancel-booking-form');

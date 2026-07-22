@@ -2,6 +2,10 @@
 
 @section('title', 'ShowDrive - Sistem Manajemen Showroom Otomotif Premium')
 
+@section('og_description', 'Temukan kendaraan premium impian Anda di ShowDrive — platform kurasi supercar & luxury car dengan transparansi VIN dan pelaporan finansial yang akurat.')
+
+@section('og_image', isset($company) && $company?->logo_url ? asset('storage/'.$company->logo_url) : asset('images/og-default.jpg'))
+
 @section('content')
 <!-- Hero Banner Premium -->
 <section class="relative h-[65vh] bg-cover bg-center flex items-center" style="background-image: linear-gradient(rgba(9,9,11,0.1), rgba(9,9,11,1)), url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1920&q=80');">
@@ -51,7 +55,7 @@
             @endphp
             <div class="bg-zinc-950 border border-zinc-900 hover:border-zinc-700 transition-all duration-500 group overflow-hidden flex flex-col justify-between">
                 <div class="h-64 overflow-hidden relative bg-zinc-900">
-                    <img src="{{ $car->image }}" alt="{{ $car->model }}" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700">
+                    <img src="{{ $car->image }}" alt="{{ $car->brand }} {{ $car->model }}" loading="lazy" decoding="async" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700">
                     <span class="absolute top-4 left-4 {{ $badgeColor }} text-white font-bold text-[9px] px-3 py-1.5 uppercase tracking-wider rounded-none">{{ $car->status }}</span>
                 </div>
                 <div class="p-6">

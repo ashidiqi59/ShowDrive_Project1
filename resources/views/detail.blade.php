@@ -1,6 +1,10 @@
 @extends('layouts.app')
 
-@section('title', $car->brand . ' ' . $car->model . ' - ShowDrive')
+@section('title', $car->brand . ' ' . $car->model . ' ' . $car->year . ' — ShowDrive')
+
+@section('og_description', $car->brand . ' ' . $car->model . ' (' . $car->year . ') — Harga: IDR ' . number_format($car->price, 0, ',', '.') . ' · Warna: ' . $car->color . ' · Status: ' . $car->status . '. Lihat detail unit di ShowDrive.')
+
+@section('og_image', $car->image)
 
 @section('content')
 <div class="max-w-7xl mx-auto px-6 py-12 no-print">
@@ -100,6 +104,12 @@
                         <i class="fa-solid fa-calendar-check transition-transform group-hover:scale-110"></i>
                         JADWALKAN PERTEMUAN (INQUIRE)
                     </button>
+                    <a href="https://wa.me/?text={{ urlencode('Halo! Cek unit ini di ShowDrive: '.$car->brand.' '.$car->model.' ('.$car->year.') — '.route('car.detail', $car->id)) }}"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="w-full border border-green-600 text-green-400 hover:bg-green-600 hover:text-white font-extrabold py-4 text-xs tracking-[0.2em] transition-all duration-300 flex items-center justify-center gap-2">
+                        <i class="fa-brands fa-whatsapp text-base"></i> Bagikan via WhatsApp
+                    </a>
                 @elseif($car->status === 'Booked')
                     <button disabled class="w-full bg-zinc-800 text-zinc-500 font-extrabold py-4 text-xs tracking-[0.2em] cursor-not-allowed">
                         <i class="fa-solid fa-lock mr-2"></i>TERPESAN (BOOKED)
@@ -136,6 +146,7 @@
         name: '{{ addslashes($oldName) }}',
         phone: '{{ addslashes($oldPhone) }}',
         date: '{{ addslashes($oldDate) }}',
+        time: '{{ old('time', '10:00') }}',
         payment_type: '{{ old('payment_type', 'Down Payment') }}',
         nik: '{{ old('nik', '') }}',
         nameError: '',
@@ -152,7 +163,7 @@
             if (!this.date) return false;
             return this.date >= this.tomorrowStr && this.date <= this.maxDateStr;
         },
-        get formValid() { return this.nameValid && this.phoneValid && this.dateValid; },
+        get formValid() { return this.nameValid && this.phoneValid && this.dateValid && this.time >= '08:00' && this.time <= '17:00'; },
 
         validateName() {
             if (!this.name) { this.nameError = 'Nama lengkap wajib diisi.'; return; }
@@ -233,7 +244,7 @@
             @endif
 
             {{-- Booking Form --}}
-            <form action="{{ route('booking.store') }}" method="POST" class="space-y-4 text-xs" x-on:submit="loading = true">
+            <form action="{{ route('booking.store') }}" method="POST" class="space-y-4 text-xs" x-on:submit="loading = true" data-no-lock="true">
                 @csrf
                 <input type="hidden" name="car_id" value="{{ $car->id }}">
 
@@ -322,11 +333,35 @@
                         :min="tomorrowStr"
                         :max="maxDateStr"
                         :class="dateError ? 'border-red-500 bg-red-950/20' : (dateValid && date ? 'border-emerald-600 bg-emerald-950/10' : 'border-zinc-800')"
-                        class="w-full bg-zinc-900 border text-zinc-300 p-3 focus:outline-none transition-colors focus:border-luxury-gold"
+                        class="w-full bg-zinc-900 border text-zinc-300 p-3 focus:outline-none transition-colors focus:border-luxury-gold calendar-gold"
                         required>
                     <p x-show="dateError" class="text-red-400 text-[10px] mt-1 flex items-center gap-1">
                         <i class="fa-solid fa-circle-exclamation"></i>
                         <span x-text="dateError"></span>
+                    </p>
+                </div>
+
+                {{-- Jam --}}
+                <div>
+                    <label class="block text-zinc-500 font-bold uppercase tracking-wider mb-1.5">
+                        Pilih Jam Rencana Inspeksi <span class="text-red-400">*</span>
+                        <span class="text-zinc-600 normal-case font-normal ml-1">(Jam operasional: 08:00–17:00)</span>
+                    </label>
+                    <input
+                        type="time"
+                        name="time"
+                        x-model="time"
+                        min="08:00"
+                        max="17:00"
+                        :class="time && (time < '08:00' || time > '17:00') ? 'border-red-500 bg-red-950/20' : (time ? 'border-emerald-600 bg-emerald-950/10' : 'border-zinc-800')"
+                        class="w-full bg-zinc-900 border text-zinc-300 p-3 focus:outline-none transition-colors focus:border-luxury-gold calendar-gold"
+                        required>
+                    <p x-show="time && (time < '08:00' || time > '17:00')" class="text-red-400 text-[10px] mt-1 flex items-center gap-1">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        <span>Jam inspeksi harus antara 08:00 dan 17:00.</span>
+                    </p>
+                    <p x-show="time && time >= '08:00' && time <= '17:00'" class="text-emerald-400 text-[10px] mt-1 flex items-center gap-1">
+                        <i class="fa-solid fa-circle-check"></i> <span>Jam valid</span>
                     </p>
                 </div>
 

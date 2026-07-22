@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    {{-- Favicon dinamis dari database company --}}
+    @if(isset($company) && $company?->favicon_url)
+        <link rel="icon" type="image/png" href="{{ asset('storage/' . $company->favicon_url) }}">
+        <link rel="shortcut icon" href="{{ asset('storage/' . $company->favicon_url) }}">
+    @else
+        <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23D4AF37'/><text y='.9em' font-size='70' font-weight='900' font-family='sans-serif' fill='black' x='8'>SD</text></svg>">
+    @endif
     <title>@yield('title', 'Admin Dashboard') - ShowDrive Control Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -24,6 +31,17 @@
             }
         }
     </script>
+    {{-- Calendar & Time picker color fix for dark theme --}}
+    <style>
+        input[type="date"].calendar-gold::-webkit-calendar-picker-indicator,
+        input[type="time"].calendar-gold::-webkit-calendar-picker-indicator {
+            filter: invert(75%) sepia(60%) saturate(400%) hue-rotate(5deg) brightness(110%);
+            cursor: pointer;
+            opacity: 0.85;
+        }
+        input[type="date"].calendar-gold::-webkit-calendar-picker-indicator:hover,
+        input[type="time"].calendar-gold::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+    </style>
 </head>
 <body class="bg-luxury-darkBg text-zinc-100 min-h-screen font-sans selection:bg-luxury-gold selection:text-black">
     <div x-data="{ sidebarOpen: false }" class="flex min-h-screen relative">
@@ -48,8 +66,14 @@
             <div class="space-y-8">
                 <!-- Brand Logo Header -->
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 bg-luxury-gold text-black flex items-center justify-center font-black rounded">SD</div>
-                    <span class="text-lg font-black tracking-[0.2em] text-white">SHOW<span class="text-luxury-gold">DRIVE</span></span>
+                    @if(isset($company) && $company?->logo_url)
+                        <img src="{{ asset('storage/' . $company->logo_url) }}"
+                             alt="{{ $company->name ?? 'ShowDrive' }}"
+                             class="h-8 max-w-[140px] object-contain">
+                    @else
+                        <div class="w-8 h-8 bg-luxury-gold text-black flex items-center justify-center font-black rounded">SD</div>
+                        <span class="text-lg font-black tracking-[0.2em] text-white">SHOW<span class="text-luxury-gold">DRIVE</span></span>
+                    @endif
                 </div>
 
                 <!-- Cashier Profile Section -->
@@ -124,8 +148,14 @@
             <!-- Mobile Header Bar -->
             <div class="md:hidden flex items-center justify-between bg-zinc-950 border-b border-zinc-900 p-4 sticky top-0 z-40">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-7 h-7 bg-luxury-gold flex items-center justify-center font-black text-black text-xs shrink-0 rounded">SD</div>
-                    <span class="text-sm font-black tracking-wider text-white">SHOW<span class="text-luxury-gold">DRIVE</span></span>
+                    @if(isset($company) && $company?->logo_url)
+                        <img src="{{ asset('storage/' . $company->logo_url) }}"
+                             alt="{{ $company->name ?? 'ShowDrive' }}"
+                             class="h-7 max-w-[120px] object-contain">
+                    @else
+                        <div class="w-7 h-7 bg-luxury-gold flex items-center justify-center font-black text-black text-xs shrink-0 rounded">SD</div>
+                        <span class="text-sm font-black tracking-wider text-white">SHOW<span class="text-luxury-gold">DRIVE</span></span>
+                    @endif
                 </div>
                 <button @click="sidebarOpen = !sidebarOpen" class="text-zinc-400 hover:text-white p-2">
                     <i class="fa-solid fa-bars text-lg"></i>

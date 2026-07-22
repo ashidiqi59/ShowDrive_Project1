@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreCarRequest;
 use App\Http\Requests\Admin\UpdateCarRequest;
+use App\Jobs\DeleteOldImageJob;
 use App\Models\Item;
 use App\Models\ItemImage;
 use App\Models\Warehouse;
@@ -56,7 +57,10 @@ class ItemController extends Controller
 
         $this->uploadImages($request, $item);
 
-        return redirect()->back()->with('success', 'Unit mobil berhasil ditambahkan.');
+        // Redirect ke halaman 1 agar item baru langsung terlihat
+        // (bukan back() yang mengembalikan ke halaman pagination tengah)
+        return redirect()->route('admin.items', ['page' => 1])
+            ->with('success', 'Unit ' . $item->brand . ' ' . $item->model . ' berhasil ditambahkan.');
     }
 
     public function update(UpdateCarRequest $request, int $id): RedirectResponse
@@ -80,13 +84,24 @@ class ItemController extends Controller
         ]);
 
         if ($request->hasFile('images')) {
+            // Kumpulkan path lama SEBELUM record dihapus dari DB
             $oldPaths = $item->images()->pluck('image_path')->all();
-            Storage::disk('public')->delete($oldPaths);
+
+            // Hapus record DB-nya terlebih dahulu
             $item->images()->delete();
+
+            // Upload gambar baru
             $this->uploadImages($request, $item);
+
+            // Dispatch penghapusan file lama ke background job.
+            // Dilakukan setelah DB update berhasil agar rollback DB tidak meninggalkan
+            // kondisi di mana file sudah terhapus tapi data baru belum tersimpan.
+            foreach ($oldPaths as $oldPath) {
+                DeleteOldImageJob::dispatch($oldPath);
+            }
         }
 
-        return redirect()->back()->with('success', 'Unit mobil berhasil diperbarui.');
+        return redirect()->back()->with('success', 'Unit ' . $item->brand . ' ' . $item->model . ' berhasil diperbarui.');
     }
 
     public function destroy(int $id): RedirectResponse
@@ -94,8 +109,17 @@ class ItemController extends Controller
         $item = Item::findOrFail($id);
 
         try {
-            Storage::disk('public')->delete($item->images()->pluck('image_path')->all());
+            // Kumpulkan path gambar sebelum record item dihapus dari DB
+            $imagePaths = $item->images()->pluck('image_path')->all();
+
             $item->delete();
+
+            // Dispatch penghapusan file ke background job setelah soft/hard delete DB berhasil.
+            // Jika delete DB gagal (QueryException di bawah), job tidak akan pernah di-dispatch.
+            foreach ($imagePaths as $imagePath) {
+                DeleteOldImageJob::dispatch($imagePath);
+            }
+
             return redirect()->back()->with('success', 'Unit berhasil dihapus.');
         } catch (\Illuminate\Database\QueryException) {
             return redirect()->back()->with('error', 'Gagal hapus: Unit ini memiliki riwayat transaksi aktif.');
@@ -106,7 +130,7 @@ class ItemController extends Controller
     {
         $primarySet = false;
 
-        foreach ($request->file('images') as $file) {
+        foreach ($request->file('images', []) as $file) {
             $path = $file->store('cars', 'public');
             ItemImage::create(['item_id' => $item->id, 'image_path' => $path]);
 

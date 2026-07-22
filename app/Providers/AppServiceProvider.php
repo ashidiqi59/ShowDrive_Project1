@@ -6,6 +6,8 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\View;
+use App\Models\Company;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -48,5 +50,12 @@ class AppServiceProvider extends ServiceProvider
         if (app()->isProduction()) {
             URL::forceScheme('https');
         }
+
+        // ----------------------------------------------------------------
+        // SHARE $company KE SEMUA VIEW
+        // ----------------------------------------------------------------
+        // Logo, favicon, dan info showroom tersedia di semua template
+        // tanpa perlu inject manual dari setiap controller.
+        View::share('company', \App\Models\Company::first());
     }
 }

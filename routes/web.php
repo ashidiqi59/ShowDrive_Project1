@@ -74,6 +74,11 @@ Route::post('/booking/{id}/cancel', [PublicController::class, 'cancelBooking'])-
 Route::get('/invoice/{id}', [PublicController::class, 'invoice'])->name('booking.invoice')
     ->whereNumber('id');
 
+Route::get('/booking/success/{id}', [PublicController::class, 'bookingSuccess'])->name('booking.success')
+    ->whereNumber('id');
+
+Route::get('/tentang', [PublicController::class, 'about'])->name('about');
+
 // =====================================================================
 // ADMIN AUTH ROUTES
 // =====================================================================
@@ -141,5 +146,6 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::put('/payment-settings', [PaymentSettingsController::class, 'update'])->name('payment_settings.update');
 
     // Laporan Keuangan
-    Route::get('/laporan',   [ReportController::class, 'index'])->name('laporan');
+    Route::get('/laporan',        [ReportController::class, 'index'])->name('laporan');
+    Route::get('/laporan/export', [ReportController::class, 'exportCsv'])->name('laporan.export');
 });

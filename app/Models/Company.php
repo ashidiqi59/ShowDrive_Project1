@@ -10,7 +10,11 @@ class Company extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'tax_id', 'address', 'phone', 'bank_name', 'bank_account', 'bank_account_holder', 'qris_image'];
+    protected $fillable = [
+        'name', 'tax_id', 'address', 'phone',
+        'bank_name', 'bank_account', 'bank_account_holder', 'qris_image',
+        'logo_url', 'favicon_url',
+    ];
 
     public function warehouses(): HasMany
     {

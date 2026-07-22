@@ -394,11 +394,14 @@ class InvoiceController extends Controller
 
             $validator = Validator::make($request->all(), [
                 'date'         => ['required', 'date', 'after_or_equal:tomorrow', 'before_or_equal:+7 days'],
+                'time'         => ['required', 'date_format:H:i'],
                 'payment_type' => ['required', 'in:Down Payment,Paid'],
             ], [
                 'date.required'          => 'Tanggal inspeksi wajib diisi.',
                 'date.after_or_equal'    => 'Tanggal inspeksi paling cepat adalah besok.',
                 'date.before_or_equal'   => 'Tanggal inspeksi paling lambat adalah 7 hari ke depan.',
+                'time.required'          => 'Jam inspeksi wajib diisi.',
+                'time.date_format'       => 'Format jam tidak valid.',
                 'payment_type.required'  => 'Tipe pembayaran wajib dipilih.',
                 'payment_type.in'        => 'Tipe pembayaran tidak valid.',
             ]);
@@ -418,14 +421,14 @@ class InvoiceController extends Controller
                 $total     = $subtotal + $taxAmount;
 
                 $invoice->update([
-                    'date'         => $request->date,
+                    'date'         => $request->date . ' ' . $request->time . ':00',
                     'payment_type' => $request->payment_type,
                     'tax_amount'   => $taxAmount,
                     'total_amount' => $total,
                 ]);
 
                 return [
-                    'new_date'         => $invoice->fresh()->date->format('d M Y'),
+                    'new_date'         => $invoice->fresh()->date->translatedFormat('d F Y, H:i') . ' WIB',
                     'new_payment_type' => $request->payment_type,
                     'new_total_amount' => number_format($total, 0, ',', '.'),
                 ];

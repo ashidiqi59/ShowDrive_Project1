@@ -1,0 +1,3721 @@
+% ===================================================================
+% LAPORAN PROYEK 1 - SHOWDRIVE
+% Rancang Bangun Sistem Informasi Inventaris dan Transaksi
+% Penjualan Kendaraan Bermotor Berbasis Web
+%
+% Program Studi D4 Teknik Informatika
+% Universitas Logistik dan Bisnis Internasional (ULBI)
+% Kelompok 18 — Tahun Akademik 2025/2026
+%
+% COMPILE: XeLaTeX (Overleaf → Menu → Compiler → XeLaTeX)
+% ===================================================================
+
+\documentclass[11pt, a5paper]{article}
+
+% ---------------------------------------------------------------
+% LAYOUT — A5, margin sesuai panduan ULBI
+% ---------------------------------------------------------------
+\usepackage[a5paper, top=2.54cm, bottom=2.54cm,
+            left=3.17cm, right=3.17cm]{geometry}
+
+% ---------------------------------------------------------------
+% FONT (XeLaTeX — tersedia di semua distribusi Overleaf)
+% ---------------------------------------------------------------
+\usepackage{fontspec}
+\setmainfont{Latin Modern Roman}
+\setsansfont{Latin Modern Sans}
+\setmonofont[Scale=0.88]{Latin Modern Mono}
+
+% ---------------------------------------------------------------
+% BAHASA INDONESIA
+% ---------------------------------------------------------------
+\usepackage[bahasai]{babel}
+
+% ---------------------------------------------------------------
+% FORMATTING PACKAGES
+% ---------------------------------------------------------------
+\usepackage{setspace}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{mdframed}
+\usepackage{chngcntr}
+\usepackage{amsmath}
+\usepackage{amssymb}
+% hyperref harus dimuat terakhir di antara packages non-TikZ
+\usepackage[hidelinks]{hyperref}
+
+% ---------------------------------------------------------------
+% TIKZ
+% ---------------------------------------------------------------
+\usepackage{tikz}
+\usepackage{dirtree}
+\usetikzlibrary{
+  shapes.geometric,
+  shapes.misc,
+  arrows.meta,
+  positioning,
+  fit,
+  calc,
+  backgrounds
+}
+
+% \Tiny tidak ada di LaTeX standar — definisikan manual
+\makeatletter
+\newcommand{\Tiny}{\@setfontsize\Tiny{5}{6}}
+\makeatother
+
+% --- STYLE GLOBAL DIAGRAM ---
+% Node kotak biasa
+\tikzstyle{box} = [
+  rectangle, rounded corners=3pt,
+  minimum width=2.2cm, minimum height=0.7cm,
+  text centered, draw=black, fill=white,
+  font=\small
+]
+% Node kotak besar (layer/tier)
+\tikzstyle{bigbox} = [
+  rectangle, rounded corners=4pt,
+  minimum width=3.4cm, minimum height=1cm,
+  text centered, draw=black!70, fill=gray!10,
+  font=\small\bfseries
+]
+% Node flowchart proses
+\tikzstyle{proc} = [
+  rectangle, rounded corners=4pt,
+  minimum width=3.5cm, minimum height=0.75cm,
+  text centered, draw=black!80, fill=blue!8,
+  font=\footnotesize, text width=3.2cm
+]
+% Node flowchart keputusan
+\tikzstyle{dec} = [
+  diamond, aspect=2.2,
+  minimum width=3.2cm, minimum height=0.8cm,
+  text centered, draw=black!80, fill=yellow!15,
+  font=\footnotesize, text width=2.6cm
+]
+% Node start/end (oval)
+\tikzstyle{term} = [
+  ellipse, minimum width=2.6cm, minimum height=0.7cm,
+  text centered, draw=black!80, fill=black!10,
+  font=\footnotesize\bfseries
+]
+% Panah standar
+\tikzstyle{arr}  = [-{Stealth[length=5pt]}, thick]
+% Panah putus
+\tikzstyle{darr} = [-{Stealth[length=5pt]}, thick, dashed]
+% Panah dua arah
+\tikzstyle{barr} = [{Stealth[length=5pt]}-{Stealth[length=5pt]}, thick]
+% Node class diagram
+\tikzstyle{cls}  = [
+  rectangle, draw=black!80, fill=blue!5,
+  minimum width=2.8cm, font=\footnotesize,
+  text width=2.6cm, align=center
+]
+% Node ERD entitas
+\tikzstyle{ent}  = [
+  rectangle, rounded corners=2pt,
+  draw=black!80, fill=green!8,
+  minimum width=2.6cm, minimum height=0.7cm,
+  text centered, font=\footnotesize\bfseries
+]
+% Node wireframe elemen UI
+\tikzstyle{ui}   = [
+  rectangle, rounded corners=2pt,
+  draw=gray!70, fill=gray!10,
+  text centered, font=\scriptsize,
+  minimum height=0.55cm
+]
+\tikzstyle{uibtn}= [
+  rectangle, rounded corners=3pt,
+  draw=black!60, fill=black!80, text=white,
+  text centered, font=\scriptsize\bfseries,
+  minimum height=0.5cm
+]
+\tikzstyle{uicard}=[
+  rectangle, rounded corners=3pt,
+  draw=gray!60, fill=white,
+  font=\scriptsize,
+  text width=1.5cm, align=center,
+  minimum height=1.4cm
+]
+
+% ---------------------------------------------------------------
+% CAPTION — format "Gambar N. Judul" sesuai DOCX referensi
+% ---------------------------------------------------------------
+\usepackage[labelsep=period, figurename=Gambar,
+            tablename=Tabel, font=small, labelfont=bf]{caption}
+
+% ---------------------------------------------------------------
+% JARAK BARIS
+% ---------------------------------------------------------------
+\setstretch{1.15}
+
+% ---------------------------------------------------------------
+% NONAKTIFKAN PENOMORAN OTOMATIS (BAB X dikontrol manual)
+% ---------------------------------------------------------------
+\setcounter{secnumdepth}{0}
+
+% ---------------------------------------------------------------
+% FORMAT JUDUL BAB / SUB-BAB / SUB-SUB-BAB
+% ---------------------------------------------------------------
+\titleformat{\section}[block]
+  {\normalfont\Large\bfseries\centering}{}{}{}
+\titleformat{\subsection}[block]
+  {\normalfont\large\bfseries}{}{}{}
+\titleformat{\subsubsection}[block]
+  {\normalfont\normalsize\bfseries}{}{}{}
+
+\titlespacing*{\section}   {0pt}{2.8ex plus 0.5ex minus 0.2ex}{1.6ex}
+\titlespacing*{\subsection}{0pt}{2.0ex plus 0.3ex minus 0.2ex}{1.0ex}
+\titlespacing*{\subsubsection}{0pt}{1.4ex plus 0.2ex}{0.7ex}
+
+% ---------------------------------------------------------------
+% LIST STYLE
+% ---------------------------------------------------------------
+\setlist[itemize]{label=\textbullet, leftmargin=*, itemsep=2pt}
+\setlist[enumerate]{leftmargin=*, itemsep=2pt}
+
+% ---------------------------------------------------------------
+% NOMOR GAMBAR GLOBAL (tidak reset tiap section)
+% ---------------------------------------------------------------
+\counterwithout{figure}{section}
+
+% ---------------------------------------------------------------
+% DAFTAR ISI & GAMBAR
+% ---------------------------------------------------------------
+\renewcommand{\contentsname}{DAFTAR ISI}
+\renewcommand{\listfigurename}{DAFTAR GAMBAR}
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+
+% ---------------------------------------------------------------
+% KOTAK INFO — untuk catatan teknis penting (box highlight)
+% ---------------------------------------------------------------
+\newmdenv[
+  backgroundcolor=gray!8,
+  linecolor=gray!40,
+  linewidth=0.6pt,
+  innerleftmargin=10pt,
+  innerrightmargin=10pt,
+  innertopmargin=8pt,
+  innerbottommargin=8pt,
+  skipabove=8pt,
+  skipbelow=8pt
+]{infobox}
+
+% ---------------------------------------------------------------
+% HEADER & FOOTER
+% ---------------------------------------------------------------
+\pagestyle{plain}
+
+% ===================================================================
+\begin{document}
+% ===================================================================
+
+% ================================================================
+%  COVER / HALAMAN JUDUL
+% ================================================================
+\begin{titlepage}
+  \centering
+  \vspace*{0.4cm}
+
+  % Logo placeholder — ganti dengan \includegraphics{images/logo-ulbi}
+  \fbox{\parbox{2.8cm}{\centering\vspace{1.3cm}
+    {\small LOGO ULBI}\vspace{1.3cm}}}
+
+  \vspace{0.5cm}
+  {\large\bfseries UNIVERSITAS LOGISTIK DAN BISNIS INTERNASIONAL\par}
+  \vspace{0.1cm}
+  {\normalsize PROGRAM STUDI D4 TEKNIK INFORMATIKA\par}
+  \vspace{0.3cm}
+  \rule{\textwidth}{1pt}
+  \vspace{0.3cm}
+
+  {\Large\bfseries LAPORAN PROYEK 1\par}
+  \vspace{0.5cm}
+  {\large\bfseries
+    RANCANG BANGUN SISTEM INFORMASI INVENTARIS\\[4pt]
+    DAN TRANSAKSI PENJUALAN BERBASIS WEB\par}
+  \vspace{0.25cm}
+  {\small\itshape
+    ShowDrive: Sistem Informasi Manajemen Showroom Otomotif Premium\par}
+
+  \vspace{1.5cm}
+  {\small Disusun oleh:\par}
+  \vspace{0.4cm}
+  {\large\bfseries Kelompok 18\par}
+  \vspace{0.6cm}
+
+  \begin{tabular}{rl}
+    Fathoni Abdul Jabbar   & 714250039 \\[4pt]
+    Muhammad Aris Ashidiqi & 714250042 \\
+  \end{tabular}
+
+  \vfill
+  \rule{\textwidth}{0.4pt}
+  \vspace{0.3cm}
+  {\normalsize\bfseries BANDUNG, 2026\par}
+\end{titlepage}
+
+% ================================================================
+%  BAGIAN AWAL — penomoran romawi, mulai halaman ii (cover = i)
+% ================================================================
+\pagenumbering{roman}
+\setcounter{page}{2}
+
+% ================================================================
+%  KATA PENGANTAR
+% ================================================================
+\newpage
+\section*{KATA PENGANTAR}
+\addcontentsline{toc}{section}{KATA PENGANTAR}
+
+Puji dan syukur penulis panjatkan ke hadirat Tuhan Yang Maha Esa atas rahmat
+dan karunia-Nya sehingga Laporan Akhir Proyek 1 dengan judul \textit{``Rancang
+Bangun Sistem Informasi Inventaris dan Transaksi Penjualan Berbasis Web''}
+(ShowDrive) ini dapat diselesaikan dengan baik dan tepat waktu.
+
+Laporan ini disusun sebagai pemenuhan syarat kelulusan mata kuliah Proyek 1
+Program Studi D4 Teknik Informatika, Universitas Logistik dan Bisnis
+Internasional (ULBI). Di samping itu, laporan ini dirancang sekaligus sebagai
+\textbf{buku panduan teknis} yang komprehensif, sehingga pembaca — baik
+mahasiswa, pengembang, maupun pelaku usaha showroom — dapat memahami cara kerja
+sistem, filosofi desain, dan cara mengoperasikan aplikasi ShowDrive secara
+mandiri.
+
+Selama proses pengerjaan, penulis mengimplementasikan ilmu rekayasa perangkat
+lunak, pemrograman web berbasis \textit{framework} Laravel, serta prinsip
+perancangan basis data relasional untuk membangun sebuah platform manajemen
+showroom yang aman, efisien, dan dapat dipercaya.
+
+Penulis menyampaikan terima kasih yang sebesar-besarnya kepada:
+\begin{enumerate}
+  \item Dosen Pembimbing Kelompok 18 yang telah memberikan arahan, waktu, dan
+        ilmu selama proses perancangan hingga implementasi sistem.
+  \item Koordinator Mata Kuliah Proyek 1 yang telah memfasilitasi jalannya
+        perkuliahan proyek secara terstruktur.
+  \item Seluruh Dosen dan Staf Pengajar Program Studi D4 Teknik Informatika ULBI
+        yang telah membekali pondasi keilmuan yang bermanfaat.
+  \item Orang tua dan keluarga yang senantiasa memberikan dukungan moril dan
+        materil.
+  \item Seluruh rekan mahasiswa D4 Teknik Informatika angkatan 2025 yang saling
+        mendukung selama pengerjaan proyek.
+\end{enumerate}
+
+Penulis menyadari laporan ini masih dapat dikembangkan lebih lanjut. Kritik dan
+saran yang membangun sangat diharapkan demi kesempurnaan sistem di masa mendatang.
+
+\vspace{1cm}
+\begin{flushright}
+  Bandung, Juli 2026\\[1.2cm]
+  \textbf{Kelompok 18}
+\end{flushright}
+
+% ================================================================
+%  LEMBAR PERSETUJUAN SIDANG
+% ================================================================
+\newpage
+\begin{center}
+  {\large\bfseries LEMBAR PERNYATAAN PERSETUJUAN}\\[4pt]
+  {\large\bfseries DAN PERMOHONAN SIDANG PROYEK 1}
+\end{center}
+\addcontentsline{toc}{section}{LEMBAR PERSETUJUAN SIDANG}
+\vspace{0.6cm}
+
+Saya sebagai Pembimbing Kelompok 18 dengan Anggota:
+
+\vspace{0.5cm}
+\begin{center}
+\renewcommand{\arraystretch}{1.7}
+\begin{tabular}{|p{0.36\textwidth}|p{0.51\textwidth}|}
+\hline
+Nama Mahasiswa 1 & Fathoni Abdul Jabbar \\ \hline
+NPM              & 714250039 \\ \hline
+Nama Mahasiswa 2 & Muhammad Aris Ashidiqi \\ \hline
+NPM              & 714250042 \\ \hline
+Judul Proyek 1   & Rancang Bangun Sistem Informasi Inventaris dan
+                   Transaksi Penjualan Berbasis Web \\ \hline
+\end{tabular}
+\end{center}
+\vspace{0.5cm}
+
+Menyatakan bahwa mahasiswa tersebut telah menyelesaikan semua luaran dengan
+kemajuan: \dotfill\%. Bagian yang belum diselesaikan (Jika ada):
+
+\vspace{0.15cm}
+\noindent\dotfill
+
+\vspace{0.1cm}
+\noindent\dotfill
+
+\vspace{0.4cm}
+Adapun penulisan laporan Akhir Proyek 1 telah diselesaikan seluruhnya (100\%).
+Dengan demikian saya mengajukan mahasiswa tersebut untuk mengikuti sidang Proyek
+1. Apabila ternyata pernyataan saya tersebut tidak benar, maka saya menyetujui
+penundaan sidang termasuk pembatalan sidang Proyek 1 untuk mahasiswa bimbingan
+saya tersebut sesuai aturan yang berlaku.
+
+\vspace{0.5cm}
+Bandung, \hspace{3.5cm} 2026
+
+\vspace{0.9cm}
+\noindent
+\begin{minipage}[t]{0.48\textwidth}
+  \textbf{Mahasiswa 1}\\[2.2cm]
+  \underline{Fathoni Abdul Jabbar}\\
+  NPM: 714250039
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\textwidth}
+  \textbf{Dosen Pembimbing}\\[2.2cm]
+  \underline{\hspace{4.5cm}}\\
+  NIK:\hspace{0.5cm}
+\end{minipage}
+
+\vspace{0.9cm}
+\noindent
+\begin{minipage}[t]{0.48\textwidth}
+  \textbf{Mahasiswa 2}\\[2.2cm]
+  \underline{Muhammad Aris Ashidiqi}\\
+  NPM: 714250042
+\end{minipage}
+
+% ================================================================
+%  LEMBAR PENGESAHAN
+% ================================================================
+\newpage
+\begin{center}
+  {\large\bfseries LEMBAR PENGESAHAN}\\[6pt]
+  {\normalsize\bfseries RANCANG BANGUN SISTEM INFORMASI INVENTARIS}\\
+  {\normalsize\bfseries DAN TRANSAKSI PENJUALAN BERBASIS WEB}
+\end{center}
+\addcontentsline{toc}{section}{LEMBAR PENGESAHAN}
+\vspace{0.5cm}
+
+\begin{flushleft}
+  Fathoni Abdul Jabbar \hspace{1.5cm} \textit{714250039}\\[4pt]
+  Muhammad Aris Ashidiqi \hspace{0.8cm} \textit{714250042}
+\end{flushleft}
+
+\vspace{0.4cm}
+Dokumen Proyek 1 ini telah diperiksa, disetujui dan disidangkan\\
+Di Bandung, \dotfill
+
+\vspace{0.9cm}
+Oleh:
+
+\vspace{0.5cm}
+\noindent
+\begin{minipage}[t]{0.48\textwidth}
+  Penguji Pendamping,\\[2.2cm]
+  \underline{\hspace{4.5cm}}\\NIK:
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\textwidth}
+  Penguji Utama,\\[2.2cm]
+  \underline{\hspace{4.5cm}}\\NIK:
+\end{minipage}
+
+\vspace{0.9cm}
+\noindent
+\begin{minipage}[t]{0.48\textwidth}
+  Pembimbing,\\[2.2cm]
+  \underline{\hspace{4.5cm}}\\NIK:
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\textwidth}
+  Koordinator Proyek 1,\\[2.2cm]
+  \underline{\hspace{4.5cm}}\\NIK:
+\end{minipage}
+
+\vspace{0.9cm}
+\noindent
+Menyetujui,\\
+Ketua Program Studi D-IV Teknik Informatika,\\[2.2cm]
+\underline{\hspace{5cm}}\\NIK:
+
+% ================================================================
+%  ABSTRAK
+% ================================================================
+\newpage
+\section*{ABSTRAK}
+\addcontentsline{toc}{section}{ABSTRAK}
+
+\noindent\textbf{Rancang Bangun Sistem Informasi Inventaris dan Transaksi
+Penjualan Berbasis Web (ShowDrive)}\\[5pt]
+\noindent\textit{Fathoni Abdul Jabbar (714250039) \& Muhammad Aris Ashidiqi
+(714250042)}\\
+\noindent\textit{Program Studi D4 Teknik Informatika, ULBI, 2026}
+
+\vspace{0.5cm}
+
+Pengelolaan inventaris kendaraan dan transaksi penjualan di showroom otomotif
+konvensional masih banyak dilakukan secara manual, menggunakan lembar
+\textit{spreadsheet} dan komunikasi tatap muka, sehingga rentan terhadap
+ketidakakuratan data, duplikasi transaksi, dan rendahnya transparansi bagi
+pelanggan. Penelitian ini merancang dan mengimplementasikan sistem informasi
+manajemen showroom berbasis web bernama \textbf{ShowDrive} sebagai solusi
+komprehensif atas permasalahan tersebut.
+
+Sistem dibangun menggunakan \textit{framework} Laravel 12 (PHP 8.2) sebagai
+\textit{backend} dengan basis data relasional MySQL 8.0 yang dinormalisasi ke
+dalam 6 entitas utama. Fitur unggulan sistem mencakup: (1)~verifikasi identitas
+pelanggan berbasis OTP 4 digit dengan sesi kedaluwarsa 5 menit dan batas 3
+percobaan; (2)~dukungan dua skema pembayaran, yaitu \textit{Down Payment} (DP)
+dengan persentase yang dikonfigurasi per unit dan pembayaran lunas; (3)~kalkulasi
+Pajak Pertambahan Nilai (PPN) 11\% secara otomatis; (4)~mekanisme transaksi
+atomik (\texttt{DB::transaction()}) yang menjamin konsistensi data lintas tabel;
+serta (5)~integritas referensial berlapis dengan \textit{constraint ON DELETE}
+berbeda untuk setiap relasi.
+
+Hasil implementasi menunjukkan sistem berhasil memenuhi seluruh tujuan
+pengembangan, melayani dua kelompok pengguna dalam satu platform terpadu dengan
+jalur keamanan akses administrasi yang tersembunyi (\textit{security by
+obscurity}).
+
+\vspace{0.4cm}
+\noindent\textbf{Kata Kunci:} Sistem Informasi Showroom, Laravel, Transaksi
+Atomik, OTP, Down Payment, PPN, Integritas Referensial, \textit{Security by
+Obscurity}.
+
+% ================================================================
+%  DAFTAR ISI
+% ================================================================
+\newpage
+\tableofcontents
+
+% ================================================================
+%  DAFTAR GAMBAR
+% ================================================================
+\newpage
+\listoffigures
+\addcontentsline{toc}{section}{DAFTAR GAMBAR}
+
+% ================================================================
+%  PENOMORAN ARAB MULAI BAB ISI
+% ================================================================
+\newpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+% ================================================================
+%  BAB 1  PENDAHULUAN
+% ================================================================
+\section*{BAB 1 PENDAHULUAN}
+\addcontentsline{toc}{section}{BAB 1 PENDAHULUAN}
+
+% ----------------------------------------------------------------
+\subsection*{1.1. Latar Belakang}
+% ----------------------------------------------------------------
+
+Industri otomotif merupakan salah satu sektor dengan volume transaksi tertinggi
+dan nilai aset per transaksi yang sangat signifikan. Sebuah unit kendaraan
+premium dapat bernilai miliaran rupiah, sehingga setiap kesalahan pencatatan
+atau ketidakakuratan data inventaris berdampak langsung pada integritas keuangan
+bisnis. Ironisnya, sebagian besar showroom kendaraan bermotor di Indonesia —
+terutama skala menengah — masih mengandalkan pencatatan inventaris manual
+menggunakan lembar kerja \textit{spreadsheet} atau bahkan catatan fisik, serta
+proses pemesanan yang berlangsung sepenuhnya melalui komunikasi telepon atau
+pertemuan langsung.
+
+Setidaknya ada empat permasalahan utama yang secara konsisten ditemui dalam
+model operasional konvensional tersebut. Pertama, \textbf{ketidakakuratan data
+inventaris}: status ketersediaan unit kendaraan tidak selalu diperbarui secara
+\textit{real-time}, sehingga pelanggan dapat melakukan pemesanan untuk unit yang
+sebenarnya sudah terjual. Kedua, \textbf{minimnya transparansi transaksi}:
+pelanggan tidak memiliki cara mandiri untuk memverifikasi apakah pembayaran yang
+telah mereka lakukan sudah diterima dan diproses oleh pihak showroom, sehingga
+harus menghubungi staf secara aktif. Ketiga, \textbf{proses verifikasi yang
+lambat}: kasir harus memeriksa bukti transfer secara manual satu per satu dan
+memperbarui status di lembar kerja terpisah, sebuah proses yang rawan kesalahan
+dan memakan waktu saat volume transaksi tinggi. Keempat, \textbf{risiko duplikasi
+dan kehilangan data}: tanpa sistem basis data yang ternormalisasi, riwayat
+transaksi rentan terduplikasi atau hilang, terutama saat terjadi pergantian
+perangkat atau staf yang mengelola data.
+
+Menjawab keempat permasalahan tersebut, penelitian ini merancang dan
+mengimplementasikan sistem informasi manajemen showroom kendaraan bermotor
+berbasis web bernama \textbf{ShowDrive}. Sistem ini dibangun di atas
+\textit{framework} Laravel 12 dengan PHP 8.2 sebagai \textit{backend}, dan
+MySQL 8.0 sebagai basis data relasional yang dinormalisasi ke dalam enam entitas
+utama. ShowDrive bukan sekadar aplikasi katalog, melainkan sebuah platform
+transaksi terintegrasi yang mencakup seluruh siklus hidup pemesanan kendaraan
+dari sisi pelanggan maupun sisi administrasi internal showroom.
+
+\begin{infobox}
+\textbf{Catatan Implementasi:} Sistem ShowDrive dirancang dan diuji pada
+lingkungan \textit{server} lokal berbasis XAMPP dengan data sampel berupa unit
+kendaraan premium (Porsche 911 GT3 RS, Chevrolet Corvette C8, dan Ferrari 488
+Pista Coupe) guna mensimulasikan kondisi operasional showroom otomotif nyata.
+\end{infobox}
+
+% ----------------------------------------------------------------
+\subsection*{1.2. Nama Aplikasi dan Dasar Ide}
+% ----------------------------------------------------------------
+
+Aplikasi yang dikembangkan dalam penelitian ini diberi nama \textbf{ShowDrive}.
+Nama ini merupakan penggabungan dari dua kata dalam bahasa Inggris: \textit{Show}
+(menampilkan atau memamerkan) dan \textit{Drive} (berkendara). Secara konseptual,
+nama ini mencerminkan dua peran utama sistem: menampilkan katalog kendaraan secara
+digital kepada publik, sekaligus memfasilitasi seluruh proses transaksi yang
+berujung pada keputusan berkendara atau membeli kendaraan impian pelanggan.
+
+Dasar ide pengembangan ShowDrive bermula dari pengamatan bahwa proses transaksi
+showroom konvensional memiliki terlalu banyak titik kegagalan (\textit{failure
+points}) yang seharusnya dapat dieliminasi dengan teknologi. Ide intinya adalah
+memindahkan seluruh alur transaksi — dari penemuan unit kendaraan di katalog,
+pengajuan pemesanan, pengunggahan bukti transfer, hingga penerbitan kwitansi
+digital — ke dalam satu platform web yang dapat diakses kapan saja dan dari mana
+saja, tanpa memerlukan kehadiran fisik pelanggan di showroom hingga tahap serah
+terima unit.
+
+Terdapat beberapa inovasi teknis yang menjadi ciri khas ShowDrive dan
+membedakannya dari sistem manajemen showroom konvensional:
+
+\begin{enumerate}[label=\alph*.]
+  \item \textbf{Verifikasi Identitas Berbasis OTP:} Alih-alih sistem login
+        berbasis akun dan kata sandi yang mengharuskan pelanggan mendaftar,
+        ShowDrive menggunakan verifikasi OTP (\textit{One-Time Password}) 4 digit
+        yang dikaitkan langsung dengan nomor HP pelanggan. OTP memiliki masa
+        kedaluwarsa 5 menit dan dibatasi maksimal 3 kali percobaan verifikasi per
+        sesi, kemudian di-\textit{hash} dengan Bcrypt sebelum disimpan di sesi
+        untuk mencegah pembandingan nilai \textit{plaintext}.
+
+  \item \textbf{Dukungan Skema Down Payment (DP):} Setiap unit kendaraan dapat
+        dikonfigurasi dengan persentase DP tersendiri (misalnya 20\% atau 25\%).
+        Pelanggan dapat memilih membayar penuh (\textit{Full Payment}) atau
+        mencicil dengan uang muka terlebih dahulu. Sistem secara otomatis
+        menghitung nominal DP berdasarkan harga unit dan persentase yang
+        dikonfigurasi, sehingga tidak ada potensi kesalahan kalkulasi manual.
+
+  \item \textbf{Kalkulasi PPN 11\% Otomatis:} Sesuai dengan regulasi perpajakan
+        Indonesia, sistem secara otomatis menghitung dan mencatat Pajak
+        Pertambahan Nilai (PPN) sebesar 11\% dari harga unit di setiap faktur
+        yang diterbitkan. Nilai subtotal, nominal pajak, dan total akhir
+        disimpan secara terpisah di basis data untuk kemudahan audit keuangan.
+
+  \item \textbf{Perlindungan Integritas Data Tingkat Basis Data:} Sistem secara
+        aktif mencegah penghapusan aset kendaraan yang masih terikat transaksi
+        aktif menggunakan \textit{constraint ON DELETE RESTRICT} pada tingkat
+        basis data MySQL, bukan hanya validasi di lapisan aplikasi.
+
+  \item \textbf{Operasi Kasir Berbasis AJAX:} Seluruh aksi verifikasi, penolakan,
+        pembatalan, amend jadwal, dan konfirmasi serah terima unit dilakukan
+        secara asinkron tanpa \textit{page refresh}, dengan respons visual
+        \textit{real-time} pada antarmuka kasir.
+\end{enumerate}
+
+% ----------------------------------------------------------------
+\subsection*{1.3. Tujuan Pengembangan}
+% ----------------------------------------------------------------
+
+Pengembangan sistem ShowDrive bertujuan untuk menghasilkan sebuah aplikasi web
+yang mampu:
+
+\begin{enumerate}[label=\alph*.]
+  \item \textbf{Mendigitalisasi Proses Pengelolaan Inventaris Kendaraan:}
+        Menyediakan antarmuka yang memudahkan admin/kasir dalam menambahkan,
+        memperbarui, dan menghapus data unit kendaraan beserta galeri foto
+        secara terpusat, terstruktur, dan dilindungi dari penghapusan tidak sah
+        melalui \textit{constraint} basis data.
+
+  \item \textbf{Menyederhanakan Alur Pemesanan bagi Pelanggan:} Membangun
+        pengalaman pemesanan yang intuitif dan sepenuhnya mandiri (\textit{self
+        service}) — mulai dari penelusuran katalog, pengisian formulir pemesanan
+        dengan validasi NIK opsional, kalkulasi harga otomatis dengan PPN,
+        hingga pengunggahan bukti transfer — tanpa memerlukan registrasi akun
+        terlebih dahulu.
+
+  \item \textbf{Mengamankan Akses Pelacakan Transaksi:} Mengimplementasikan
+        sistem OTP berbasis nomor HP untuk memverifikasi identitas pelanggan
+        sebelum menampilkan riwayat transaksi, menggantikan sistem login
+        konvensional yang mengharuskan pelanggan mengingat kata sandi.
+
+  \item \textbf{Mempercepat Proses Validasi Transaksi oleh Kasir:}
+        Mengimplementasikan fitur verifikasi pembayaran, penolakan dengan catatan,
+        amend jadwal inspeksi, dan konfirmasi serah terima unit berbasis AJAX
+        pada \textit{dashboard} administrasi sehingga kasir dapat memproses
+        seluruh siklus transaksi dalam satu antarmuka terpadu secara
+        \textit{real-time}.
+
+  \item \textbf{Menjamin Keandalan dan Konsistensi Data Transaksi:} Menerapkan
+        mekanisme transaksi basis data atomik (prinsip ACID) untuk memastikan
+        bahwa operasi yang melibatkan beberapa tabel sekaligus berhasil
+        sepenuhnya atau dibatalkan sepenuhnya, tanpa ada kondisi data yang
+        setengah jadi.
+
+  \item \textbf{Menyediakan Laporan Keuangan dan Metrik Operasional
+        \textit{Real-Time}:} Menampilkan metrik performa showroom secara dinamis
+        pada \textit{dashboard} admin, mencakup total unit inventaris, jumlah
+        unit terjual, jumlah transaksi menunggu verifikasi, dan total pendapatan
+        keseluruhan.
+\end{enumerate}
+
+% ----------------------------------------------------------------
+\subsection*{1.4. Ruang Lingkup}
+% ----------------------------------------------------------------
+
+Untuk memastikan pengembangan sistem berjalan terarah, ruang lingkup proyek
+ShowDrive dibatasi secara eksplisit sebagai berikut.
+
+\subsubsection*{a. Aktor Pengguna}
+
+Sistem ini dibatasi untuk 2 (dua) aktor utama dengan hak akses yang diatur
+secara ketat:
+\begin{itemize}
+  \item \textbf{Pelanggan Publik} — mengakses website tanpa akun, diidentifikasi
+        hanya melalui nomor HP yang diverifikasi dengan OTP.
+  \item \textbf{Administrator/Kasir} — staf internal showroom yang masuk melalui
+        jalur autentikasi aman dengan \textit{username} dan \textit{password}.
+\end{itemize}
+
+\subsubsection*{b. Fitur yang Tercakup}
+
+\begin{itemize}
+  \item Katalog kendaraan publik dengan fitur pencarian (\textit{full-text
+        search} berdasarkan merek, model, dan VIN).
+  \item Formulir pemesanan dengan validasi NIK opsional dan kalkulasi PPN 11\%
+        otomatis.
+  \item Dua skema pembayaran: \textit{Down Payment} (DP) dan pembayaran penuh.
+  \item Verifikasi identitas pelanggan berbasis OTP sebelum akses riwayat
+        transaksi.
+  \item Pengunggahan bukti transfer (\textit{file} JPEG/PNG/WebP, maks.\ 2~MB;
+        SVG diblokir untuk mencegah XSS).
+  \item \textit{Dashboard} kasir dengan verifikasi pembayaran, penolakan, amend
+        jadwal, dan konfirmasi serah terima unit via AJAX.
+  \item Penerbitan invoice digital dengan format kode \texttt{SD/YYYY/NNNN}.
+  \item Manajemen inventaris (CRUD kendaraan, galeri gambar, gudang, kasir,
+        profil perusahaan, pengaturan rekening/QRIS).
+  \item Laporan keuangan ringkas pada \textit{dashboard} admin.
+\end{itemize}
+
+\subsubsection*{c. Fitur di Luar Ruang Lingkup}
+
+\begin{itemize}
+  \item Integrasi \textit{payment gateway} otomatis (Midtrans, Xendit, dll.).
+  \item Pengiriman notifikasi SMS atau WhatsApp secara otomatis melalui API
+        pihak ketiga berbayar. (Fitur notifikasi WhatsApp disediakan sebagai
+        \textit{prefilled message} yang dibuka secara manual oleh kasir.)
+  \item Manajemen logistik pengiriman fisik kendaraan ke alamat pelanggan.
+  \item Ekspor laporan keuangan ke format PDF atau Excel secara otomatis.
+\end{itemize}
+
+\subsubsection*{d. Platform dan Teknologi}
+
+Sistem dibangun menggunakan Laravel 12 dengan PHP 8.2 (\textit{backend}), Blade
+Template Engine dan Tailwind CSS (\textit{frontend}), serta MySQL 8.0 sebagai
+basis data. Pengembangan dilakukan pada lingkungan server lokal XAMPP berbasis
+Windows.
+
+\newpage
+
+% ================================================================
+%  BAB 2  DESKRIPSI SISTEM
+% ================================================================
+\section*{BAB 2 DESKRIPSI SISTEM}
+\addcontentsline{toc}{section}{BAB 2 DESKRIPSI SISTEM}
+
+% ----------------------------------------------------------------
+\subsection*{2.1. Gambaran Umum Aplikasi}
+% ----------------------------------------------------------------
+
+ShowDrive adalah platform manajemen showroom otomotif berbasis web yang
+mengintegrasikan seluruh proses bisnis penjualan kendaraan — mulai dari
+penayangan katalog unit, pemesanan oleh pelanggan, pengelolaan pembayaran,
+hingga serah terima fisik kendaraan — ke dalam satu sistem informasi terpusat.
+Sistem ini beroperasi pada basis data MySQL 8.0 dengan enam tabel relasional yang
+saling terhubung, menjamin konsistensi dan integritas data di seluruh siklus
+transaksi.
+
+Secara arsitektur, ShowDrive melayani dua kelompok pengguna dengan antarmuka yang
+terpisah namun berbagi basis data yang sama:
+
+\begin{enumerate}
+  \item \textbf{Antarmuka Publik (Pelanggan):} Dapat diakses oleh siapa saja
+        tanpa perlu mendaftar akun. Pelanggan menelusuri katalog kendaraan,
+        memilih unit yang diminati, mengisi formulir pemesanan, mengunggah bukti
+        transfer, dan memantau status transaksi — semua dilakukan secara mandiri
+        melalui \textit{browser} standar. Akses ke riwayat transaksi diamankan
+        dengan verifikasi OTP berbasis nomor HP.
+
+  \item \textbf{Antarmuka Administrasi (Kasir/Admin):} Dapat diakses hanya oleh
+        staf internal showroom yang memiliki kredensial login. Jalur URL login
+        sengaja disembunyikan dan hanya dapat ditemukan melalui
+        \textit{keyboard shortcut} tersembunyi. Admin mengelola seluruh
+        inventaris, memverifikasi transaksi, dan memantau metrik keuangan
+        melalui \textit{dashboard} terintegrasi.
+\end{enumerate}
+
+\textit{Dashboard} admin menampilkan empat indikator KPI (\textit{Key Performance
+Indicator}) yang diperbarui secara \textit{real-time}:
+
+\begin{itemize}
+  \item \textbf{Total Unit} --- jumlah keseluruhan unit kendaraan yang terdaftar
+        dalam inventaris, tanpa memandang status ketersediaannya.
+  \item \textbf{Unit Sold} --- jumlah unit yang statusnya telah berubah menjadi
+        \texttt{Sold}, menandakan transaksi selesai dan unit telah dikonfirmasi
+        serah terima.
+  \item \textbf{Pending Verification} --- jumlah invoice yang memiliki bukti
+        pembayaran terunggah dan menunggu persetujuan kasir.
+  \item \textbf{Total Revenue} --- akumulasi nilai \texttt{total\_amount} dari
+        seluruh invoice yang berstatus \texttt{Paid}, mencerminkan total
+        pendapatan terkonfirmasi showroom.
+\end{itemize}
+
+% ----------------------------------------------------------------
+\subsection*{2.2. Stakeholder dan User}
+% ----------------------------------------------------------------
+
+Pengguna yang berinteraksi dengan sistem ShowDrive terbagi menjadi dua kategori
+dengan hak akses yang terpisah secara tegas:
+
+\subsubsection*{1. Pelanggan (Customer)}
+
+\textbf{Deskripsi:} Calon pembeli kendaraan dari kalangan umum yang mengakses
+website ShowDrive melalui \textit{browser} tanpa memerlukan proses pendaftaran
+akun. Identitas pelanggan dikenali sistem melalui nomor HP yang diverifikasi
+dengan OTP setiap kali ingin mengakses riwayat transaksi.
+
+\textbf{Hak Akses:}
+\begin{itemize}
+  \item Menelusuri katalog kendaraan dan melakukan pencarian berdasarkan merek,
+        model, atau nomor VIN.
+  \item Melihat halaman detail kendaraan beserta galeri foto dan spesifikasi
+        teknis lengkap.
+  \item Mengisi formulir pemesanan kendaraan dengan data diri (nama, nomor HP,
+        NIK opsional, pilihan tipe pembayaran, dan tanggal inspeksi).
+  \item Menerima dan menyimpan invoice digital dengan kode unik format
+        \texttt{SD/YYYY/NNNN}.
+  \item Meminta kode OTP dan melakukan verifikasi untuk mengakses
+        \textit{dashboard} pelacakan transaksi pribadi.
+  \item Mengunggah bukti transfer pembayaran (JPEG/PNG/WebP, maks.\ 2~MB).
+  \item Membatalkan pemesanan secara mandiri selama status masih
+        \texttt{Unpaid + Pending} disertai alasan pembatalan (min.\ 10 karakter).
+  \item Mencetak kwitansi/invoice digital dari halaman pelacakan.
+\end{itemize}
+
+\subsubsection*{2. Administrator/Kasir (Admin)}
+
+\textbf{Deskripsi:} Staf operasional internal showroom yang telah terdaftar
+dalam sistem dan memiliki kredensial login. Kasir bertanggung jawab atas
+verifikasi transaksi, pengelolaan inventaris, dan pemantauan kondisi bisnis
+showroom secara keseluruhan.
+
+\textbf{Hak Akses:}
+\begin{itemize}
+  \item Masuk ke panel administrasi melalui jalur URL tersembunyi yang diakses
+        via \textit{keyboard shortcut} \texttt{Ctrl+Shift+A}.
+  \item Memantau \textit{dashboard} metrik keuangan \textit{real-time}.
+  \item Mengelola data kendaraan (CRUD: tambah, lihat, ubah, hapus) beserta
+        galeri foto multi-gambar.
+  \item Memverifikasi atau menolak bukti pembayaran yang diunggah pelanggan,
+        disertai catatan penolakan yang dikirim sebagai notifikasi WhatsApp
+        prefilled ke pelanggan.
+  \item Melakukan \textit{amend} (perubahan tanggal inspeksi dan tipe pembayaran)
+        pada reservasi yang belum dibayar.
+  \item Mengonfirmasi serah terima fisik unit kendaraan setelah transaksi lunas,
+        yang mengunci data transaksi secara permanen (\texttt{handed\_over\_at}).
+  \item Membatalkan reservasi dari sisi admin dengan alasan wajib.
+  \item Mengelola data gudang, akun kasir, profil perusahaan, dan pengaturan
+        rekening bank/QRIS toko.
+  \item Mengakses laporan keuangan ringkas.
+\end{itemize}
+
+% ----------------------------------------------------------------
+\subsection*{2.3. Kebutuhan Fungsional}
+% ----------------------------------------------------------------
+
+Kebutuhan fungsional mendefinisikan layanan spesifik yang wajib disediakan oleh
+sistem ShowDrive. Setiap fitur dirinci berdasarkan hak akses penggunanya.
+
+\subsubsection*{A. Fitur pada Sisi Pelanggan}
+
+\begin{enumerate}[label=\arabic*.]
+  \item \textbf{Katalog Kendaraan dengan Pencarian:} Sistem menampilkan daftar
+        unit kendaraan secara dinamis dengan informasi merek, model, tahun, harga
+        (sebelum PPN), warna, dan status ketersediaan. Fitur pencarian
+        \textit{full-text} mendukung kueri berdasarkan merek, model, dan nomor
+        VIN (\textit{Vehicle Identification Number}).
+
+  \item \textbf{Detail Kendaraan dan Galeri:} Halaman detail menampilkan
+        spesifikasi teknis lengkap (mesin, transmisi, VIN, gudang penyimpanan)
+        beserta galeri foto multi-gambar yang dapat dilihat satu per satu.
+
+  \item \textbf{Formulir Pemesanan dengan Kalkulasi PPN:} Sistem menyediakan
+        formulir pemesanan dengan validasi otomatis. Saat pelanggan memilih tipe
+        pembayaran (DP atau lunas), sistem secara transparan menampilkan rincian:
+        harga unit (subtotal), PPN 11\%, dan total yang harus dibayar. Untuk DP,
+        sistem juga menampilkan nominal DP minimum berdasarkan persentase yang
+        dikonfigurasi admin per unit.
+
+  \item \textbf{Verifikasi Identitas Berbasis OTP:} Sebelum dapat mengakses
+        riwayat transaksi, pelanggan harus memasukkan nomor HP dan memverifikasi
+        kode OTP 4 digit yang di-\textit{generate} sistem. OTP berlaku selama
+        5 menit, dibatasi 3 percobaan per sesi, dan di-\textit{hash} dengan
+        Bcrypt sebelum disimpan di \textit{session} server.
+
+  \item \textbf{Pengunggahan Bukti Pembayaran:} Sistem menerima unggahan gambar
+        bukti transfer (JPEG, PNG, WebP; maks.\ 2~MB). Format SVG secara eksplisit
+        diblokir untuk mencegah potensi serangan \textit{Cross-Site Scripting}
+        (XSS) melalui file SVG berbahaya. Jika pelanggan mengunggah ulang bukti
+        (misalnya karena ditolak admin), file lama dihapus secara aman melalui
+        \textit{background job} setelah transaksi basis data berhasil.
+
+  \item \textbf{Pelacakan Status dan Cetak Invoice:} Dari \textit{dashboard}
+        pelacakan, pelanggan dapat memantau status pembayaran
+        (\texttt{Unpaid} / \texttt{Pending Validation} / \texttt{Down Payment}
+        / \texttt{Paid} / \texttt{Cancelled}) dan status pemesanan
+        (\texttt{Pending} / \texttt{Approved} / \texttt{Rejected} /
+        \texttt{Cancelled}), serta mencetak invoice digital.
+
+  \item \textbf{Pembatalan Mandiri:} Pelanggan dapat membatalkan pemesanan
+        sendiri selama status \texttt{payment\_status = Unpaid} dan
+        \texttt{status = Pending}, dengan syarat memasukkan alasan pembatalan
+        minimal 10 karakter. Status unit kendaraan otomatis dikembalikan ke
+        \texttt{Available}.
+\end{enumerate}
+
+\subsubsection*{B. Fitur pada Sisi Administrator/Kasir}
+
+\begin{enumerate}[label=\arabic*.]
+  \item \textbf{Autentikasi Admin Berlapis:} Sistem menyediakan gerbang login
+        dengan jalur URL tersembunyi (\texttt{/pintu-akses-masuk-showdrive}) yang
+        hanya dapat ditemukan melalui \textit{shortcut} keyboard. \textit{Rate
+        limiter} membatasi percobaan login maksimal 5 kali per menit per alamat
+        IP untuk mencegah serangan \textit{brute force}.
+
+  \item \textbf{Dashboard Metrik Real-Time:} \textit{Dashboard} menampilkan 4
+        KPI utama yang diperbarui dinamis, serta tabel ringkasan transaksi
+        terbaru.
+
+  \item \textbf{Manajemen Kendaraan (CRUD):} Admin dapat menambah unit kendaraan
+        baru dengan data lengkap (merek, model, VIN, tahun, harga, persentase DP,
+        mesin, transmisi, warna, gudang, foto utama), mengedit, menghapus (dengan
+        proteksi \texttt{ON DELETE RESTRICT} jika unit masih terikat invoice),
+        serta mengelola galeri foto tambahan per unit.
+
+  \item \textbf{Verifikasi Pembayaran via AJAX:} Kasir dapat menyetujui atau
+        menolak bukti pembayaran secara asinkron. Persetujuan secara otomatis
+        mengubah \texttt{payment\_status} invoice, mencatat \texttt{cashier\_id}
+        yang menyetujui, dan memperbarui status unit kendaraan. Penolakan
+        mengharuskan kasir mengisi catatan alasan minimal 10 karakter. Setelah
+        aksi berhasil, sistem menyiapkan \textit{link} WhatsApp prefilled dengan
+        pesan notifikasi yang dipersonalisasi untuk dikirim kasir ke pelanggan
+        secara manual.
+
+  \item \textbf{Amend Reservasi:} Kasir dapat mengubah tanggal inspeksi
+        (terbatas dalam rentang +1 hingga +7 hari dari hari ini) dan tipe
+        pembayaran (DP atau lunas) pada reservasi yang masih berstatus belum
+        bayar.
+
+  \item \textbf{Konfirmasi Serah Terima Unit (\textit{Handover}):} Setelah
+        pembayaran lunas terverifikasi, kasir mengonfirmasi serah terima fisik
+        unit kendaraan. Sistem mencatat \texttt{handed\_over\_at} (waktu serah
+        terima) dan mengunci data transaksi dari modifikasi lebih lanjut,
+        menjamin keutuhan rekaman historis.
+
+  \item \textbf{Edit Data Pelanggan:} Kasir dapat mengoreksi nama dan NIK
+        pelanggan pada invoice yang belum di-\textit{handover} dan belum
+        dibatalkan, untuk menangani kesalahan penginputan oleh pelanggan.
+
+  \item \textbf{Cetak Invoice Dinamis:} Sistem menyediakan dua jenis invoice
+        yang dapat dicetak: invoice DP (menampilkan nominal uang muka) dan
+        kwitansi lunas (menampilkan total pembayaran lengkap dengan PPN).
+\end{enumerate}
+
+% ----------------------------------------------------------------
+\subsection*{2.4. Kebutuhan Non-Fungsional}
+% ----------------------------------------------------------------
+
+Kebutuhan non-fungsional mendefinisikan batasan kualitas, performa, dan keamanan
+yang harus dipenuhi sistem ShowDrive agar dapat dioperasikan secara optimal dalam
+lingkungan produksi.
+
+\begin{enumerate}[label=\alph*.]
+  \item \textbf{Kinerja (\textit{Performance}):} Halaman katalog menggunakan
+        proyeksi kolom selektif (\texttt{select()} pada \texttt{Query Builder})
+        untuk menghindari pengambilan data yang tidak diperlukan ke memori. Proses
+        verifikasi pembayaran via AJAX didesain merespons dalam waktu kurang dari
+        1 detik pada kondisi jaringan lokal yang stabil.
+
+  \item \textbf{Kemudahan Penggunaan (\textit{Usability}):} Antarmuka publik
+        dirancang agar dapat digunakan tanpa panduan, dengan alur transaksi
+        linear yang jelas. Antarmuka admin menggunakan dropdown aksi per baris
+        (\textit{action dropdown}) yang menutup otomatis saat area luar di-klik,
+        mengurangi kepadatan visual pada halaman daftar transaksi.
+
+  \item \textbf{Keamanan (\textit{Security}):} Sistem mengimplementasikan empat
+        lapisan keamanan yang bekerja secara berlapis:
+        \begin{itemize}
+          \item \textit{Security by obscurity}: URL login admin disembunyikan dari
+                publik.
+          \item \textit{Rate limiting}: pembatasan permintaan OTP (5x/10 menit),
+                percobaan login (5x/menit), dan pembuatan booking (10x/menit) per
+                alamat IP.
+          \item \textit{Session-based OTP}: OTP di-\textit{hash} Bcrypt sebelum
+                disimpan dan diverifikasi menggunakan \texttt{Hash::check()},
+                mencegah pembandingan nilai \textit{plaintext} meski sesi
+                diinspeksi.
+          \item \textit{Database-level integrity}: \textit{constraint}
+                \texttt{ON DELETE} pada tingkat basis data sebagai jaring pengaman
+                terakhir, independen dari lapisan validasi aplikasi.
+        \end{itemize}
+
+  \item \textbf{Keandalan (\textit{Reliability}):} Seluruh operasi multi-tabel
+        (pembuatan booking, upload bukti, verifikasi pembayaran, pembatalan)
+        dibungkus dalam \texttt{DB::transaction()}, memastikan tidak ada kondisi
+        data yang inkonsisten akibat kegagalan di tengah operasi. File bukti
+        pembayaran lama hanya dihapus melalui \textit{background job} setelah
+        transaksi basis data berhasil di-\textit{commit}.
+
+  \item \textbf{Skalabilitas:} Normalisasi basis data ke dalam 6 tabel dengan
+        \textit{Foreign Key} terstruktur memastikan sistem dapat dikembangkan
+        dengan fitur baru (multi-cabang, \textit{payment gateway}, notifikasi
+        otomatis) tanpa perombakan skema yang mendasar.
+\end{enumerate}
+
+% ----------------------------------------------------------------
+\subsection*{2.5. Keunggulan Sistem}
+% ----------------------------------------------------------------
+
+Bagian ini menjabarkan keunggulan teknis dan bisnis ShowDrive secara mendalam,
+dirancang sebagai referensi bagi pembaca yang ingin memahami fondasi arsitektur
+sistem sebelum masuk ke tahap perancangan dan implementasi.
+
+\subsubsection*{a. Mekanisme Transaksi Atomik (Prinsip ACID)}
+
+Tantangan terbesar dalam sistem transaksi multi-tabel adalah menjamin bahwa
+semua operasi yang saling bergantung berhasil secara keseluruhan, atau tidak ada
+yang berhasil sama sekali. Pada ShowDrive, proses pemesanan kendaraan secara
+bersamaan memengaruhi tiga tabel: \texttt{customers} (upsert data pelanggan),
+\texttt{invoices} (buat rekaman transaksi baru dengan kalkulasi PPN), dan
+\texttt{items} (ubah status dari \texttt{Available} menjadi \texttt{Invoiced}).
+
+Sistem mengimplementasikan \texttt{DB::transaction()} untuk membungkus ketiga
+operasi tersebut. Jika salah satu operasi gagal (misalnya karena NIK yang
+dimasukkan sudah terdaftar di akun lain dan memicu
+\texttt{UniqueConstraintViolationException}), seluruh transaksi di-\textit{rollback}
+otomatis dan tidak ada perubahan parsial yang tersimpan di basis data. Pendekatan
+ini mengimplementasikan prinsip \textit{Atomicity} dari ACID
+(Silberschatz et al., 2020) sebagai fondasi keandalan sistem.
+
+\begin{infobox}
+\textbf{Implikasi Bisnis:} Tidak akan pernah terjadi kondisi di mana invoice
+sudah terbuat namun status unit masih \texttt{Available} (sehingga bisa dipesan
+dua kali), atau status unit berubah menjadi \texttt{Invoiced} namun tidak ada
+invoice yang terbuat di sistem.
+\end{infobox}
+
+\subsubsection*{b. Integritas Referensial Berlapis dengan Tiga Kebijakan
+\textit{ON DELETE}}
+
+Berbeda dari sistem yang hanya mengandalkan validasi di lapisan aplikasi,
+ShowDrive menerapkan integritas referensial langsung di tingkat basis data MySQL
+melalui tiga kebijakan \textit{constraint ON DELETE} yang berbeda, disesuaikan
+dengan logika bisnis masing-masing relasi:
+
+\begin{itemize}
+  \item \textbf{\texttt{ON DELETE RESTRICT}} pada relasi \texttt{items}
+        $\rightarrow$ \texttt{invoices}: Basis data akan \textit{menolak} operasi
+        \texttt{DELETE} pada tabel \texttt{items} jika unit kendaraan tersebut
+        masih memiliki satu atau lebih rekaman invoice. Ini adalah proteksi
+        keandalan paling kritis — menjamin bahwa tidak ada aset kendaraan bernilai
+        miliaran rupiah yang terhapus secara tidak sengaja oleh kasir selama masih
+        ada transaksi aktif yang mengacu padanya.
+
+  \item \textbf{\texttt{ON DELETE CASCADE}} pada relasi \texttt{customers}
+        $\rightarrow$ \texttt{invoices}: Jika data pelanggan dihapus dari sistem,
+        seluruh riwayat invoice milik pelanggan tersebut juga ikut dihapus secara
+        atomik. Kebijakan ini mendukung kebutuhan pengelolaan data pelanggan yang
+        sudah tidak aktif tanpa meninggalkan data \textit{orphan} (rekaman tanpa
+        induk) di tabel invoices.
+
+  \item \textbf{\texttt{ON DELETE SET NULL}} pada relasi \texttt{cashiers}
+        $\rightarrow$ \texttt{invoices}: Jika akun kasir dihapus dari sistem,
+        kolom \texttt{cashier\_id} pada invoice yang pernah diverifikasi oleh
+        kasir tersebut diset menjadi \texttt{NULL}. Data historis transaksi tetap
+        utuh dan terjaga, tidak ikut terhapus meski kasir yang bersangkutan
+        sudah tidak aktif.
+\end{itemize}
+
+\subsubsection*{c. Sistem OTP Berlapis untuk Perlindungan Data Transaksi}
+
+Sistem pelacakan transaksi menggunakan OTP sebagai pengganti sistem login
+konvensional, memberikan keseimbangan antara keamanan dan kemudahan penggunaan.
+Alur kerja OTP yang diimplementasikan:
+
+\begin{enumerate}[label=\arabic*.]
+  \item Pelanggan memasukkan nomor HP; sistem memvalidasi format dan memastikan
+        nomor HP terdaftar beserta riwayat invoicenya.
+  \item Sistem men-\textit{generate} OTP acak 4 digit
+        (\texttt{random\_int(1000, 9999)}), meng-\textit{hash}-nya dengan Bcrypt
+        (\texttt{bcrypt((string) \$otp)}), dan menyimpannya di \textit{session}
+        server beserta \textit{timestamp} kedaluwarsa 5 menit.
+  \item OTP kemudian ditampilkan sebagai simulasi (mode pengembangan) atau
+        dikirim via saluran eksternal (mode produksi).
+  \item Verifikasi menggunakan \texttt{Hash::check()} — bukan perbandingan
+        \textit{string} langsung — sehingga nilai OTP yang sebenarnya tidak
+        pernah dapat diekstrak dari \textit{session} meski sesi diinspeksi.
+  \item Setelah 3 kali percobaan gagal, OTP hangus dan sesi dihapus.
+        \textit{Rate limiter} pada level \textit{routing} menambah lapisan
+        perlindungan terhadap serangan multi-sesi.
+\end{enumerate}
+
+\subsubsection*{d. Kode Invoice Sequential yang Aman dari \textit{Race Condition}}
+
+Format kode invoice ShowDrive (\texttt{SD/2026/0001}, \texttt{SD/2026/0002},
+dst.) menggunakan algoritma \textit{sequential numbering} yang dirancang aman
+dari \textit{race condition} — kondisi di mana dua pengguna melakukan booking
+bersamaan dan berpotensi mendapatkan nomor yang sama.
+
+Keamanan ini dicapai melalui kombinasi \texttt{DB::transaction()} di lapisan
+luar dan \texttt{lockForUpdate()} saat mengambil nomor invoice terakhir. Dengan
+\textit{row-level lock} ini, request pertama yang mendapatkan \textit{lock} akan
+menyelesaikan operasinya dan meng-\textit{commit} nomor baru ke basis data
+sebelum request kedua dapat membaca nilai nomor terakhir, sehingga duplikasi
+nomor invoice secara teknis tidak mungkin terjadi.
+
+\newpage
+
+% ================================================================
+%  BAB 3  PERANCANGAN SISTEM
+% ================================================================
+\section*{BAB 3 PERANCANGAN SISTEM}
+\addcontentsline{toc}{section}{BAB 3 PERANCANGAN SISTEM}
+
+% ----------------------------------------------------------------
+\subsection*{3.1. Arsitektur Sistem}
+% ----------------------------------------------------------------
+
+Aplikasi ShowDrive dibangun menggunakan arsitektur tiga lapis
+(\textit{three-tier architecture}) yang memisahkan tanggung jawab antara
+tampilan, logika bisnis, dan penyimpanan data secara modular. Pemisahan ini
+memastikan bahwa perubahan pada satu lapisan tidak memengaruhi lapisan lainnya,
+sehingga sistem lebih mudah dikembangkan, diuji, dan dipelihara.
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[node distance=0.45cm and 0.5cm]
+
+    %% ---- LAYER BOXES ----
+    \node[bigbox, fill=blue!10, minimum width=7.5cm, minimum height=1.1cm]
+      (fe) {PRESENTATION LAYER\\[2pt]{\footnotesize\normalfont Frontend}};
+
+    \node[bigbox, fill=green!10, minimum width=7.5cm, minimum height=1.1cm,
+          below=0.7cm of fe]
+      (be) {APPLICATION LAYER\\[2pt]{\footnotesize\normalfont Backend}};
+
+    \node[bigbox, fill=orange!10, minimum width=7.5cm, minimum height=1.1cm,
+          below=0.7cm of be]
+      (db) {DATABASE LAYER\\[2pt]{\footnotesize\normalfont Penyimpanan Data}};
+
+    %% ---- TEKNOLOGI dalam setiap layer ----
+    % Frontend
+    \node[box, fill=blue!20, below=0.1cm of fe.north,
+          yshift=-0.45cm, xshift=-1.6cm, minimum width=1.8cm]
+      (blade) {Blade\\Template};
+    \node[box, fill=blue!20, right=0.25cm of blade, minimum width=1.8cm]
+      (tailwind) {Tailwind\\CSS};
+    \node[box, fill=blue!20, right=0.25cm of tailwind, minimum width=1.8cm]
+      (js) {JavaScript\\AJAX};
+
+    % Backend
+    \node[box, fill=green!20, below=0.1cm of be.north,
+          yshift=-0.45cm, xshift=-1.6cm, minimum width=1.8cm]
+      (laravel) {Laravel 12\\PHP 8.2};
+    \node[box, fill=green!20, right=0.25cm of laravel, minimum width=1.8cm]
+      (ctrl) {Controller\\+ Middleware};
+    \node[box, fill=green!20, right=0.25cm of ctrl, minimum width=1.8cm]
+      (orm) {Eloquent\\ORM};
+
+    % Database
+    \node[box, fill=orange!20, below=0.1cm of db.north,
+          yshift=-0.45cm, xshift=-1.6cm, minimum width=1.8cm]
+      (mysql) {MySQL 8.0\\RDBMS};
+    \node[box, fill=orange!20, right=0.25cm of mysql, minimum width=1.8cm]
+      (schema) {6 Tabel\\Relasional};
+    \node[box, fill=orange!20, right=0.25cm of schema, minimum width=1.8cm]
+      (fk) {Foreign Key\\Constraints};
+
+    %% ---- PANAH ANTAR LAYER ----
+    \draw[barr] ([yshift=-0.1cm]fe.south) -- ([yshift=0.1cm]be.north)
+      node[midway, right=0.2cm, font=\scriptsize] {HTTP Request/Response};
+    \draw[barr] ([yshift=-0.1cm]be.south) -- ([yshift=0.1cm]db.north)
+      node[midway, right=0.2cm, font=\scriptsize] {SQL / Eloquent ORM};
+
+    %% ---- AKTOR DI KIRI ----
+    \node[box, fill=gray!15, left=0.9cm of fe, minimum width=1.4cm,
+          minimum height=0.65cm, text width=1.3cm, font=\scriptsize]
+      (customer) {Pelanggan\\(Browser)};
+    \node[box, fill=gray!15, left=0.9cm of be, minimum width=1.4cm,
+          minimum height=0.65cm, text width=1.3cm, font=\scriptsize]
+      (admin) {Admin /\\Kasir};
+
+    \draw[arr] (customer.east) -- (fe.west);
+    \draw[arr] (admin.east)    -- (be.west);
+
+  \end{tikzpicture}
+  \caption{Arsitektur Sistem ShowDrive (\textit{Three-Tier Architecture})}
+  \label{fig:arsitektur}
+\end{figure}
+
+Ketiga lapisan arsitektur ShowDrive bekerja sebagai berikut:
+
+\begin{enumerate}[label=\arabic*.]
+  \item \textbf{Lapisan Presentasi / \textit{Frontend} (View):} Merupakan lapisan
+        antarmuka yang berinteraksi langsung dengan pengguna. Dibangun menggunakan
+        Blade Template Engine Laravel (\texttt{.blade.php}) sebagai mesin
+        \textit{rendering} HTML dinamis, Tailwind CSS untuk desain visual responsif
+        dengan tema \textit{Premium Dark Mode}, serta JavaScript murni (tanpa
+        \textit{framework} tambahan) untuk operasi asinkron (AJAX/Fetch API) seperti
+        verifikasi pembayaran, amend reservasi, dan konfirmasi serah terima unit
+        tanpa \textit{page reload}.
+
+  \item \textbf{Lapisan Aplikasi / \textit{Backend} (Controller \& Logic):}
+        Dibangun menggunakan Laravel 12 dengan PHP 8.2. Lapisan ini menangani
+        seluruh logika bisnis melalui \textit{Controller}, memvalidasi input
+        pengguna melalui \textit{Form Request} (mis.\ \texttt{StoreBookingRequest}),
+        memproses kalkulasi finansial (PPN, DP), mengelola \textit{session} OTP,
+        dan mengeksekusi operasi basis data melalui Eloquent ORM. \textit{Middleware}
+        digunakan untuk membatasi akses halaman admin hanya pada pengguna
+        terautentikasi, dan \textit{Rate Limiter} melindungi \textit{endpoint}
+        kritis dari penyalahgunaan.
+
+  \item \textbf{Lapisan Basis Data (Model \& Database):} Menggunakan MySQL 8.0
+        sebagai RDBMS dengan skema enam tabel relasional yang telah dinormalisasi.
+        Eloquent ORM Laravel mengelola interaksi antara objek PHP dan tabel basis
+        data, sementara mekanisme \textit{migration} menjamin konsistensi skema
+        di semua lingkungan pengembangan.
+\end{enumerate}
+
+% ----------------------------------------------------------------
+\subsection*{3.2. Workflow Sistem}
+% ----------------------------------------------------------------
+
+Alur kerja ShowDrive terbagi menjadi dua jalur utama berdasarkan peran pengguna.
+Kedua jalur ini saling berinteraksi melalui satu basis data yang sama.
+
+\subsubsection*{A. Workflow Pelanggan (\textit{Customer Workflow})}
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[node distance=0.38cm and 1.2cm]
+
+    % --- KOLOM KIRI: node ---
+    \node[term] (start) {MULAI};
+
+    \node[proc, below=of start]
+      (katalog) {1. Buka Halaman Katalog\\(\texttt{GET /})};
+
+    \node[proc, below=of katalog]
+      (detail) {2. Lihat Detail Kendaraan\\(\texttt{GET /car/\{id\}})};
+
+    \node[proc, below=of detail]
+      (form) {3. Isi Formulir Pemesanan\\(nama, HP, NIK, tipe bayar)};
+
+    \node[proc, below=of form]
+      (atomik) {4. Sistem Proses Atomik\\(\texttt{DB::transaction()})};
+
+    \node[proc, below=of atomik]
+      (otp) {5. Minta \& Verifikasi OTP\\(\texttt{POST /track/otp})};
+
+    \node[dec, below=of otp]
+      (otpok) {OTP Valid?};
+
+    \node[proc, below=of otpok]
+      (upload) {6. Unggah Bukti Transfer\\(\texttt{POST /.../upload-proof})};
+
+    \node[proc, below=of upload]
+      (lacak) {7. Pantau Status Invoice\\(\texttt{GET /track})};
+
+    \node[proc, below=of lacak]
+      (cetak) {8. Cetak Invoice / Kwitansi\\(\texttt{GET /invoice/\{id\}})};
+
+    \node[term, below=of cetak] (end) {SELESAI};
+
+    % --- KETERANGAN SAMPINGAN ---
+    \node[box, fill=yellow!20, right=1.4cm of atomik,
+          text width=2.5cm, minimum height=1.1cm, font=\scriptsize]
+      (atombox) {Upsert customers\\Buat invoices\\Update items $\to$ Invoiced};
+
+    \node[box, fill=red!15, right=1.4cm of otpok,
+          text width=2.2cm, minimum height=0.65cm, font=\scriptsize]
+      (otpfail) {Sisa percobaan\\berkurang (maks 3)};
+
+    \node[box, fill=gray!15, right=1.4cm of upload,
+          text width=2.2cm, minimum height=0.8cm, font=\scriptsize]
+      (statusbox) {Status $\to$\\Pending Validation};
+
+    % --- PANAH UTAMA ---
+    \foreach \a/\b in {start/katalog, katalog/detail, detail/form,
+                       form/atomik, atomik/otp, otp/otpok,
+                       upload/lacak, lacak/cetak, cetak/end}
+      \draw[arr] (\a) -- (\b);
+
+    \draw[arr] (otpok.south) -- node[right,font=\scriptsize]{Ya} (upload.north);
+    \draw[arr] (otpok.east)  -| node[above,font=\scriptsize]{Tidak}
+               ([xshift=0.3cm]otpfail.north) -- (otpfail.north);
+    \draw[darr] (otpfail.west) -- ++(-0.5,0) |- (otp.east);
+    \draw[darr] (atomik.east) -- (atombox.west);
+    \draw[darr] (upload.east) -- (statusbox.west);
+
+  \end{tikzpicture}
+  \caption{Workflow Pelanggan ShowDrive}
+  \label{fig:workflow-pelanggan}
+\end{figure}
+
+Berikut adalah narasi lengkap alur pelanggan dari awal hingga selesai:
+
+\begin{enumerate}[label=\arabic*.]
+  \item \textbf{Penelusuran Katalog:} Pelanggan membuka halaman beranda
+        (\texttt{GET /}) yang menampilkan daftar unit kendaraan berstatus
+        \texttt{Available} dalam tampilan grid. Pelanggan dapat menggunakan fitur
+        pencarian \textit{real-time} untuk memfilter unit berdasarkan merek, model,
+        atau nomor VIN.
+
+  \item \textbf{Detail Kendaraan:} Pelanggan mengklik unit yang diminati dan
+        diarahkan ke halaman detail (\texttt{GET /car/\{id\}}) yang menampilkan
+        spesifikasi teknis lengkap, lokasi gudang penyimpanan, serta galeri foto
+        tambahan.
+
+  \item \textbf{Pengisian Formulir Pemesanan:} Pelanggan mengisi formulir
+        pemesanan dengan data: nama lengkap, nomor HP aktif, NIK (opsional),
+        tanggal inspeksi yang diinginkan, dan tipe pembayaran (DP atau lunas).
+        Sistem secara otomatis menampilkan rincian kalkulasi harga termasuk PPN
+        11\% sebelum formulir dikirim.
+
+  \item \textbf{Pemrosesan Booking Atomik:} Saat pelanggan menekan tombol
+        \textit{submit}, sistem (\texttt{POST /booking}) memproses tiga operasi
+        secara atomik dalam satu transaksi basis data:
+        \begin{itemize}
+          \item \textbf{Upsert pelanggan:} Mencari data pelanggan berdasarkan
+                nomor HP. Jika belum ada, data baru dibuat. Jika sudah ada dan
+                NIK belum terisi, NIK diperbarui.
+          \item \textbf{Buat invoice:} Rekaman transaksi baru dibuat dengan
+                kode unik \texttt{SD/YYYY/NNNN}, kalkulasi subtotal, PPN 11\%,
+                dan total akhir; status awal \texttt{payment\_status = Unpaid},
+                \texttt{status = Pending}.
+          \item \textbf{Kunci unit:} Status unit di tabel \texttt{items} diubah
+                dari \texttt{Available} menjadi \texttt{Invoiced} (tampil sebagai
+                \texttt{Booked} di antarmuka publik).
+        \end{itemize}
+
+  \item \textbf{Verifikasi OTP untuk Akses Riwayat:} Untuk mengakses
+        \textit{dashboard} pelacakan, pelanggan memasukkan nomor HP lalu meminta
+        OTP (\texttt{POST /track/otp}). Setelah menerima OTP, pelanggan
+        memasukkanya untuk diverifikasi (\texttt{POST /track/verify}). Sesi
+        terverifikasi disimpan di \textit{session} server.
+
+  \item \textbf{Unggah Bukti Pembayaran:} Dari \textit{dashboard} pelacakan
+        (\texttt{GET /track}), pelanggan mengunggah foto bukti transfer
+        (\texttt{POST /booking/\{id\}/upload-proof}). Status invoice otomatis
+        berubah menjadi \texttt{Pending Validation}. Jika pelanggan mengunggah
+        ulang (mengganti bukti), file lama dihapus aman via
+        \texttt{DeleteOldImageJob}.
+
+  \item \textbf{Pemantauan Status:} Pelanggan memantau perubahan status pembayaran
+        dan status pemesanan dari halaman yang sama. Status akan berubah sesuai
+        aksi kasir (disetujui, ditolak, atau dibatalkan).
+
+  \item \textbf{Cetak Invoice:} Setelah pembayaran terverifikasi, pelanggan
+        dapat mencetak kwitansi digital melalui \texttt{GET /invoice/\{id\}} yang
+        menampilkan detail lengkap transaksi dalam format siap cetak.
+
+  \item \textbf{Pembatalan Mandiri (Opsional):} Selama status masih
+        \texttt{Unpaid + Pending}, pelanggan dapat membatalkan pemesanan sendiri
+        (\texttt{POST /booking/\{id\}/cancel}) dengan alasan yang wajib diisi.
+        Status unit otomatis dikembalikan ke \texttt{Available}.
+\end{enumerate}
+
+\subsubsection*{B. Workflow Administrator/Kasir (\textit{Admin Workflow})}
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[node distance=0.38cm and 1.2cm]
+
+    % --- KOLOM KIRI: node ---
+    \node[term] (start) {MULAI};
+
+    \node[proc, below=of start]
+      (login) {1. Login via Shortcut\\(\texttt{Ctrl+Shift+A})};
+
+    \node[proc, below=of login]
+      (dash) {2. Pantau Dashboard\\4 KPI Real-Time};
+
+    \node[proc, below=of dash]
+      (list) {3. Buka Halaman\\Validasi Transaksi};
+
+    \node[dec, below=of list]
+      (hasbukti) {Ada Bukti\\Transfer?};
+
+    \node[proc, below=of hasbukti]
+      (tinjau) {4. Tinjau Gambar\\Bukti Pembayaran};
+
+    \node[dec, below=of tinjau]
+      (valid) {Bukti\\Valid?};
+
+    \node[proc, below=of valid]
+      (approve) {5. Klik Sahkan Lunas\\(AJAX approve)};
+
+    \node[proc, below=of approve]
+      (notif) {6. Kirim Notif WA\\(prefilled link)};
+
+    \node[proc, below=of notif]
+      (handover) {7. Konfirmasi\\Serah Terima Unit};
+
+    \node[term, below=of handover] (end) {DATA TERKUNCI};
+
+    % --- KETERANGAN SAMPINGAN ---
+    \node[box, fill=red!15, right=1.3cm of valid,
+          text width=2.2cm, minimum height=0.8cm, font=\scriptsize]
+      (tolak) {Isi catatan\\penolakan (min 10\\karakter) $\to$ Tolak};
+
+    \node[box, fill=green!15, right=1.3cm of approve,
+          text width=2.4cm, minimum height=1.0cm, font=\scriptsize]
+      (effect) {invoice $\to$ Paid\\cashier\_id dicatat\\items $\to$ Sold};
+
+    \node[box, fill=gray!15, right=1.3cm of handover,
+          text width=2.4cm, minimum height=0.8cm, font=\scriptsize]
+      (lock) {handed\_over\_at\\dicatat. Semua\\aksi terkunci.};
+
+    \node[box, fill=yellow!20, right=1.3cm of list,
+          text width=2.4cm, minimum height=0.8cm, font=\scriptsize]
+      (amend) {Opsional: Amend\\tanggal inspeksi\\/ tipe bayar};
+
+    % --- PANAH UTAMA ---
+    \foreach \a/\b in {start/login, login/dash, dash/list,
+                       list/hasbukti, tinjau/valid,
+                       approve/notif, notif/handover, handover/end}
+      \draw[arr] (\a) -- (\b);
+
+    \draw[arr] (hasbukti.south) -- node[right,font=\scriptsize]{Ya} (tinjau.north);
+    \draw[darr] (hasbukti.west) -- ++(-0.6,0)
+      node[left,font=\scriptsize]{Tidak\\(tunggu)};
+
+    \draw[arr] (valid.south) -- node[right,font=\scriptsize]{Ya} (approve.north);
+    \draw[arr] (valid.east)  -| node[above,font=\scriptsize]{Tidak}
+               ([xshift=0.3cm]tolak.north) -- (tolak.north);
+    \draw[darr] (tolak.south) -- ++(0,-0.3) -|
+               ([xshift=1.3cm]list.east) -- (list.east);
+
+    \draw[darr] (approve.east) -- (effect.west);
+    \draw[darr] (handover.east) -- (lock.west);
+    \draw[darr] (list.east) -- (amend.west);
+
+  \end{tikzpicture}
+  \caption{Workflow Admin/Kasir ShowDrive}
+  \label{fig:workflow-admin}
+\end{figure}
+
+\begin{enumerate}[label=\arabic*.]
+  \item \textbf{Autentikasi Admin:} Kasir menekan \texttt{Ctrl+Shift+A} di
+        halaman manapun untuk diarahkan ke \texttt{/pintu-masuk}, yang kemudian
+        me-\textit{redirect} ke halaman login tersembunyi
+        \texttt{/pintu-akses-masuk-showdrive}. Kasir memasukkan \textit{username}
+        dan \textit{password}; sistem memverifikasi dengan \textit{rate limiter}
+        5 percobaan per menit per IP.
+
+  \item \textbf{Pemantauan Dashboard:} Setelah login, kasir diarahkan ke
+        \texttt{/admin/dashboard} yang menampilkan 4 KPI utama dan tabel
+        ringkasan transaksi terbaru secara \textit{real-time}.
+
+  \item \textbf{Pengelolaan Transaksi:} Kasir membuka halaman
+        \texttt{/admin/invoices} yang menampilkan semua invoice dengan filter
+        status (\textit{Pending}, \textit{Down Payment}, \textit{Lunas},
+        \textit{Dibatalkan}). Setiap baris memiliki \textit{action dropdown}
+        dengan opsi aksi kontekstual.
+
+  \item \textbf{Verifikasi atau Penolakan Pembayaran:} Kasir meninjau gambar
+        bukti transfer yang diunggah pelanggan (klik \textit{``Lihat''} untuk
+        membuka gambar di tab baru). Jika valid, kasir memilih \textit{``Setujui
+        \& Sahkan''} (AJAX \texttt{POST /admin/booking/\{id\}/approve-ajax}).
+        Jika tidak valid, kasir memilih \textit{``Tolak Bukti''} dan mengisi
+        catatan alasan penolakan.
+
+  \item \textbf{Notifikasi WhatsApp Prefilled:} Setelah verifikasi atau
+        penolakan berhasil, sistem secara otomatis membuka \textit{link}
+        WhatsApp prefilled dengan pesan notifikasi yang dipersonalisasi (nama
+        pelanggan, nama unit, kode invoice, dan — khusus penolakan — alasan
+        penolakan) untuk dikirim kasir ke pelanggan.
+
+  \item \textbf{Amend Reservasi (Opsional):} Untuk reservasi yang belum dibayar,
+        kasir dapat mengubah tanggal inspeksi atau tipe pembayaran melalui modal
+        \textit{amend} (AJAX \texttt{POST /admin/booking/\{id\}/amend-ajax}).
+
+  \item \textbf{Konfirmasi Serah Terima (\textit{Handover}):} Setelah invoice
+        berstatus \texttt{Paid}, kasir mengonfirmasi serah terima fisik unit
+        (AJAX \texttt{POST /admin/booking/\{id\}/handover-ajax}). Sistem mencatat
+        waktu serah terima di kolom \texttt{handed\_over\_at} dan mengunci seluruh
+        data transaksi dari modifikasi lebih lanjut (\textit{``Data Terkunci''}).
+\end{enumerate}
+
+% ----------------------------------------------------------------
+\subsection*{3.3. Siklus Hidup Status Transaksi}
+% ----------------------------------------------------------------
+
+Pemahaman atas siklus hidup status transaksi sangat penting bagi pembaca yang
+ingin memahami logika bisnis ShowDrive secara menyeluruh. Setiap invoice memiliki
+\textbf{dua dimensi status} yang bergerak secara independen namun saling
+berkaitan: \texttt{payment\_status} dan \texttt{status} (inspeksi/pemesanan).
+
+Tabel \ref{tab:lifecycle} merangkum seluruh kemungkinan transisi status beserta
+kondisi pemicunya:
+
+\begin{table}[H]
+  \centering
+  \small
+  \renewcommand{\arraystretch}{1.4}
+  \caption{Siklus Hidup Status Invoice ShowDrive}
+  \label{tab:lifecycle}
+  \begin{tabularx}{\textwidth}{|l|l|X|}
+    \hline
+    \textbf{payment\_status} & \textbf{status} & \textbf{Kondisi / Pemicu} \\
+    \hline
+    \texttt{Unpaid}          & \texttt{Pending}   & Status awal saat booking dibuat. \\
+    \hline
+    \texttt{Pending Validation} & \texttt{Pending} & Pelanggan mengunggah bukti transfer. \\
+    \hline
+    \texttt{Down Payment}    & \texttt{Approved}  & Kasir menyetujui bukti DP. Unit tetap
+                                                     \texttt{Invoiced}. \\
+    \hline
+    \texttt{Pending Validation} & \texttt{Approved} & Pelanggan mengunggah bukti pelunasan
+                                                      (setelah DP disetujui). \\
+    \hline
+    \texttt{Paid}            & \texttt{Approved}  & Kasir menyetujui bukti pelunasan. Unit
+                                                     berubah menjadi \texttt{Sold}. \\
+    \hline
+    \texttt{Unpaid}          & \texttt{Rejected}  & Kasir menolak bukti bayar. Unit kembali
+                                                     ke \texttt{Available}. \\
+    \hline
+    \texttt{Cancelled}       & \texttt{Cancelled} & Dibatalkan oleh pelanggan atau admin.
+                                                     Unit kembali ke \texttt{Available}. \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Status unit kendaraan di tabel \texttt{items} juga memiliki siklus sendiri yang
+bergerak seiring status invoice:
+
+\begin{center}
+\texttt{Available} $\xrightarrow{\text{booking dibuat}}$
+\texttt{Invoiced} $\xrightarrow{\text{pelunasan disetujui}}$
+\texttt{Sold}
+\end{center}
+
+\vspace{0.3cm}
+Jika invoice dibatalkan atau bukti ditolak dari kondisi \texttt{Invoiced}, unit
+kembali ke \texttt{Available}. Status \texttt{Sold} bersifat permanen setelah
+\textit{handover} dikonfirmasi.
+
+% ----------------------------------------------------------------
+\subsection*{3.4. Class Diagram}
+% ----------------------------------------------------------------
+
+Class Diagram berikut menggambarkan struktur kelas model Eloquent yang
+digunakan dalam \textit{framework} Laravel untuk mengatur logika bisnis dan
+relasi antar entitas ShowDrive:
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[node distance=0.5cm and 0.6cm]
+
+    % ---- Definisi style kelas UML lokal ----
+    \tikzstyle{clshead}=[rectangle, draw=black!80, fill=blue!15,
+      minimum width=2.8cm, minimum height=0.55cm,
+      font=\scriptsize\bfseries, text centered]
+    \tikzstyle{clsbody}=[rectangle, draw=black!80, fill=blue!4,
+      minimum width=2.8cm, font=\scriptsize,
+      text width=2.7cm, align=left, inner sep=3pt]
+
+    % ============ CLASS COMPANY ============
+    \node[clshead] (ch) at (0,0) {Company};
+    \node[clsbody, below=0cm of ch] (cb)
+      {id, name, tax\_id\\phone, address\\bank\_name, qris\_image};
+
+    % ============ CLASS WAREHOUSE ============
+    \node[clshead, right=1.2cm of ch] (wh) {Warehouse};
+    \node[clsbody, below=0cm of wh] (wb)
+      {id, company\_id (FK)\\name, location};
+
+    % ============ CLASS CASHIER ============
+    \node[clshead, right=1.2cm of wh] (kh) {Cashier};
+    \node[clsbody, below=0cm of kh] (kb)
+      {id, company\_id (FK)\\name, username\\password (bcrypt)};
+
+    % ============ CLASS ITEM ============
+    \node[clshead, below=2.4cm of wh] (ih) {Item};
+    \node[clsbody, below=0cm of ih] (ib)
+      {id, warehouse\_id (FK)\\brand, model, vin\\year, price, dp\_pct\\status, image\_url};
+
+    % ============ CLASS CUSTOMER ============
+    \node[clshead, left=1.2cm of ih] (cuh) {Customer};
+    \node[clsbody, below=0cm of cuh] (cub)
+      {id, name\\phone (UNIQUE)\\nik (UNIQUE, NULL)};
+
+    % ============ CLASS INVOICE ============
+    \node[clshead, right=1.2cm of ih] (invh) {Invoice};
+    \node[clsbody, below=0cm of invh] (invb)
+      {id, invoice\_code\\customer\_id (FK)\\item\_id (FK)\\cashier\_id (FK, NULL)\\total\_amount, tax\\payment\_status\\status, handed\_over\_at};
+
+    % ============ CLASS ITEMIMAGE ============
+    \node[clshead, below=2.2cm of ih] (imgh) {ItemImage};
+    \node[clsbody, below=0cm of imgh] (imgb)
+      {id, item\_id (FK)\\image\_path};
+
+    % ---- RELASI ----
+    % Company 1:N Warehouse
+    \draw[arr] (cb.south) -- ++(0,-0.3)
+      -| node[above, font=\scriptsize, pos=0.25]{1:N} (wh.south);
+
+    % Company 1:N Cashier
+    \draw[arr] (cb.south) -- ++(0,-0.3)
+      -| node[above, font=\scriptsize, pos=0.85]{1:N} (kh.south);
+
+    % Warehouse 1:N Item
+    \draw[arr] (wb.south) -- node[right, font=\scriptsize]{1:N} (ih.north);
+
+    % Customer 1:N Invoice
+    \draw[arr] (cub.east) -- node[above, font=\scriptsize]{1:N} (invh.west);
+
+    % Item 1:N Invoice
+    \draw[arr] (ib.east) -- node[above, font=\scriptsize]{1:N} (invb.west|-ib);
+
+    % Cashier 1:N Invoice
+    \draw[darr] (kb.south) -- ++(0,-0.3)
+      -| node[right, font=\scriptsize, pos=0.7]{1:N} (invh.north);
+
+    % Item 1:N ItemImage
+    \draw[arr] (ib.south) -- node[right, font=\scriptsize]{1:N} (imgh.north);
+
+  \end{tikzpicture}
+  \caption{Class Diagram Sistem ShowDrive}
+  \label{fig:class-diagram}
+\end{figure}
+
+Penjelasan setiap kelas model dan atribut kuncinya:
+
+\begin{enumerate}[label=\arabic*.]
+  \item \textbf{Class \texttt{Company}:} Menyimpan profil perusahaan showroom
+        (nama, NPWP, telepon, alamat, nama bank, nomor rekening, nama pemegang
+        rekening, gambar QRIS). Berelasi 1:N dengan \texttt{Warehouse} dan
+        \texttt{Cashier}.
+
+  \item \textbf{Class \texttt{Warehouse}:} Menyimpan data lokasi gudang
+        penyimpanan fisik unit kendaraan (nama, lokasi). Berelasi N:1 dengan
+        \texttt{Company} dan 1:N dengan \texttt{Item}.
+
+  \item \textbf{Class \texttt{Cashier}:} Merepresentasikan akun staf kasir
+        yang dapat login ke panel administrasi. Menggunakan pewarisan
+        \texttt{Authenticatable} Laravel untuk sistem autentikasi. Berelasi
+        N:1 dengan \texttt{Company} dan 1:N dengan \texttt{Invoice}.
+
+  \item \textbf{Class \texttt{Customer}:} Menyimpan data identitas pelanggan
+        (nama, nomor HP, NIK opsional). Nomor HP bersifat unik dan menjadi
+        kunci identifikasi pelanggan di seluruh sistem. Berelasi 1:N dengan
+        \texttt{Invoice}.
+
+  \item \textbf{Class \texttt{Item}:} Merepresentasikan unit kendaraan dalam
+        katalog (merek, model, VIN unik, tahun, harga, persentase DP, mesin,
+        transmisi, warna, gambar utama, status). Memiliki \textit{accessor}
+        \texttt{getStatusAttribute()} yang memetakan nilai DB \texttt{Invoiced}
+        menjadi \texttt{Booked} untuk tampilan antarmuka publik, dan
+        \textit{accessor} \texttt{getImageAttribute()} dengan \textit{fallback}
+        ke gambar \textit{placeholder} jika foto belum diunggah. Berelasi N:1
+        dengan \texttt{Warehouse} dan 1:N dengan \texttt{Invoice} dan
+        \texttt{ItemImage}.
+
+  \item \textbf{Class \texttt{Invoice}:} Pusat pencatatan transaksi yang
+        menghubungkan \texttt{Customer}, \texttt{Item}, dan \texttt{Cashier}.
+        Atribut kunci: \texttt{invoice\_code} (format \texttt{SD/YYYY/NNNN}),
+        \texttt{subtotal}, \texttt{tax\_rate} (11.00), \texttt{tax\_amount},
+        \texttt{total\_amount}, \texttt{paid\_amount}, \texttt{payment\_type}
+        (DP/None), \texttt{payment\_status}, \texttt{status},
+        \texttt{authentic\_receipt} (path bukti transfer),
+        \texttt{rejection\_note}, \texttt{cancellation\_note}, dan
+        \texttt{handed\_over\_at}.
+
+  \item \textbf{Class \texttt{ItemImage}:} Menyimpan path foto-foto galeri
+        tambahan per unit kendaraan. Berelasi N:1 dengan \texttt{Item}.
+\end{enumerate}
+
+% ----------------------------------------------------------------
+\subsection*{3.5. Entity Relationship Diagram (ERD)}
+% ----------------------------------------------------------------
+
+Skema relasi basis data ShowDrive terdiri atas 6 entitas utama yang dirancang
+memenuhi standar normalisasi \textit{Third Normal Form} (3NF) untuk menjamin
+integritas referensial data:
+
+\begin{figure}[H]
+  \centering
+  \resizebox{0.96\textwidth}{!}{%
+  \begin{tikzpicture}[node distance=0.7cm and 1.6cm]
+
+    % ---- style lokal ERD ----
+    \tikzstyle{etbl}=[rectangle, draw=black!80, fill=green!12,
+      rounded corners=3pt, minimum width=2.4cm, minimum height=0.65cm,
+      font=\small\bfseries, text centered]
+    \tikzstyle{attr}=[rectangle, draw=gray!60, fill=white,
+      minimum width=2.4cm, font=\scriptsize,
+      text width=2.35cm, align=left, inner sep=3pt]
+    \tikzstyle{fklabel}=[font=\scriptsize\itshape, fill=white,
+      inner sep=1pt]
+
+    % ============ COMPANIES ============
+    \node[etbl] (comp) at (0,0) {companies};
+    \node[attr, below=0cm of comp] (compb)
+      {PK id\\name, tax\_id\\phone, address\\bank\_name, qris\_image};
+
+    % ============ WAREHOUSES ============
+    \node[etbl, right=2.0cm of comp] (ware) {warehouses};
+    \node[attr, below=0cm of ware] (wareb)
+      {PK id\\FK company\_id\\name, location};
+
+    % ============ CASHIERS ============
+    \node[etbl, right=2.0cm of ware] (cash) {cashiers};
+    \node[attr, below=0cm of cash] (cashb)
+      {PK id\\FK company\_id\\name, username\\password};
+
+    % ============ ITEMS ============
+    \node[etbl, below=3.2cm of ware] (item) {items};
+    \node[attr, below=0cm of item] (itemb)
+      {PK id\\FK warehouse\_id\\brand, model\\vin (UQ)\\year, price\\dp\_percentage\\status, image\_url};
+
+    % ============ CUSTOMERS ============
+    \node[etbl, below=3.2cm of comp] (cust) {customers};
+    \node[attr, below=0cm of cust] (custb)
+      {PK id\\name\\phone (UQ)\\nik (UQ, NULL)};
+
+    % ============ INVOICES ============
+    \node[etbl, below=3.2cm of cash] (inv) {invoices};
+    \node[attr, below=0cm of inv] (invb)
+      {PK id\\invoice\_code (UQ)\\FK customer\_id\\\quad ON DELETE CASCADE\\FK item\_id\\\quad ON DELETE RESTRICT\\FK cashier\_id (NULL)\\\quad ON DELETE SET NULL\\subtotal, tax\_rate\\tax\_amount, total\\payment\_status, status\\handed\_over\_at};
+
+    % ============ ITEM IMAGES ============
+    \node[etbl, below=1.8cm of item] (img) {item\_images};
+    \node[attr, below=0cm of img] (imgb)
+      {PK id\\FK item\_id\\\quad ON DELETE CASCADE\\image\_path};
+
+    % ---- RELASI (garis + kardinalitas) ----
+
+    % companies → warehouses (1:N)
+    \draw[arr] (compb.east|-wareb.west) -- node[above,fklabel]{1:N}
+               (wareb.west);
+
+    % companies → cashiers (1:N)
+    \draw[arr] (comp.east|-cash.west) ++(-0.05,0)
+      to[out=0, in=180]
+      node[above,fklabel]{1:N} (cash.west);
+
+    % warehouses → items (1:N)
+    \draw[arr] (wareb.south) -- node[right,fklabel]{1:N} (item.north);
+
+    % customers → invoices (1:N)
+    \draw[arr] (custb.east) -- node[above,fklabel]{1:N}
+               (inv.west|-custb);
+
+    % items → invoices (1:N)
+    \draw[arr] (itemb.east) -- node[above,fklabel]{1:N}
+               (inv.west|-itemb);
+
+    % cashiers → invoices (1:N)
+    \draw[darr] (cashb.south) -- node[right,fklabel]{1:N} (inv.north);
+
+    % items → item_images (1:N)
+    \draw[arr] (itemb.south) -- node[right,fklabel]{1:N} (img.north);
+
+  \end{tikzpicture}%
+  }
+  \caption{Entity Relationship Diagram Sistem ShowDrive}
+  \label{fig:erd}
+\end{figure}
+
+Penjelasan struktur tabel dan kardinalitas relasi:
+
+\begin{enumerate}[label=\arabic*.]
+  \item \textbf{Tabel \texttt{companies}:} Menyimpan satu baris data profil
+        perusahaan showroom. Atribut: \texttt{id}, \texttt{name},
+        \texttt{tax\_id}, \texttt{phone}, \texttt{address},
+        \texttt{bank\_name}, \texttt{bank\_account},
+        \texttt{bank\_account\_holder}, \texttt{qris\_image}.
+
+  \item \textbf{Tabel \texttt{warehouses}:} Menyimpan lokasi fisik gudang.
+        Atribut: \texttt{id}, \texttt{company\_id} (FK), \texttt{name},
+        \texttt{location}. Relasi \textbf{N:1} dengan \texttt{companies}
+        (\texttt{ON DELETE CASCADE}).
+
+  \item \textbf{Tabel \texttt{cashiers}:} Akun staf kasir. Atribut:
+        \texttt{id}, \texttt{company\_id} (FK), \texttt{name},
+        \texttt{username}, \texttt{password} (bcrypt). Relasi \textbf{N:1}
+        dengan \texttt{companies} (\texttt{ON DELETE CASCADE}).
+
+  \item \textbf{Tabel \texttt{items}:} Katalog kendaraan. Atribut: \texttt{id},
+        \texttt{warehouse\_id} (FK), \texttt{brand}, \texttt{model},
+        \texttt{vin} (UNIQUE), \texttt{year}, \texttt{price} (DECIMAL),
+        \texttt{dp\_percentage} (INT), \texttt{status} (ENUM: Available /
+        Invoiced / Sold), \texttt{engine}, \texttt{transmission},
+        \texttt{color}, \texttt{image\_url}. Relasi \textbf{N:1} dengan
+        \texttt{warehouses}.
+
+  \item \textbf{Tabel \texttt{customers}:} Identitas pelanggan. Atribut:
+        \texttt{id}, \texttt{name}, \texttt{phone} (UNIQUE), \texttt{nik}
+        (UNIQUE, NULLABLE). Nomor HP sebagai kunci identifikasi utama
+        pelanggan di seluruh sistem.
+
+  \item \textbf{Tabel \texttt{invoices}:} Inti pencatatan transaksi. Atribut:
+        \texttt{id}, \texttt{invoice\_code} (UNIQUE), \texttt{customer\_id}
+        (FK → ON DELETE CASCADE), \texttt{item\_id}
+        (FK → ON DELETE RESTRICT), \texttt{cashier\_id}
+        (FK, NULLABLE → ON DELETE SET NULL), \texttt{date},
+        \texttt{subtotal}, \texttt{tax\_rate}, \texttt{tax\_amount},
+        \texttt{total\_amount}, \texttt{paid\_amount}, \texttt{payment\_type},
+        \texttt{payment\_status}, \texttt{status}, \texttt{authentic\_receipt},
+        \texttt{rejection\_note}, \texttt{cancellation\_note},
+        \texttt{handed\_over\_at}.
+
+  \item \textbf{Tabel \texttt{item\_images}:} Galeri foto tambahan per unit.
+        Atribut: \texttt{id}, \texttt{item\_id} (FK → ON DELETE CASCADE),
+        \texttt{image\_path}.
+\end{enumerate}
+
+\begin{infobox}
+\textbf{Mengapa tiga kebijakan \texttt{ON DELETE} berbeda?} Pilihan kebijakan
+per relasi mencerminkan logika bisnis yang berbeda: (1)~\texttt{RESTRICT} pada
+item melindungi aset finansial dari penghapusan tidak sengaja; (2)~\texttt{CASCADE}
+pada customer memastikan tidak ada data \textit{orphan} saat pembersihan data;
+(3)~\texttt{SET NULL} pada cashier menjaga histori transaksi meski personel
+berganti. Kombinasi ketiganya adalah desain integritas referensial yang
+sesungguhnya, bukan sekadar pilihan \textit{default}.
+\end{infobox}
+
+\newpage
+
+% ================================================================
+%  BAB 4  DESAIN ANTARMUKA
+% ================================================================
+\section*{BAB 4 DESAIN ANTARMUKA}
+\addcontentsline{toc}{section}{BAB 4 DESAIN ANTARMUKA}
+
+% ----------------------------------------------------------------
+\subsection*{4.1. Konsep Desain}
+% ----------------------------------------------------------------
+
+Desain antarmuka ShowDrive dibangun di atas dua prinsip yang saling melengkapi:
+\textbf{kemudahan penggunaan} bagi pelanggan yang mengakses sistem tanpa
+panduan, dan \textbf{efisiensi kerja} bagi kasir yang mengoperasikan sistem
+dalam tekanan operasional harian.
+
+Untuk mewujudkan kedua prinsip tersebut, tim pengembang menerapkan pendekatan
+desain sebagai berikut:
+
+\begin{enumerate}[label=\arabic*.]
+  \item \textbf{Tema Visual \textit{Luxury Tech}:} Antarmuka menggunakan skema
+        warna \textit{Premium Dark Mode} — latar belakang hitam pekat
+        (\texttt{zinc-950}) dengan aksen tembaga keemasan (\textit{Luxury Gold})
+        sebagai warna aksen utama, dan putih bersih untuk teks konten. Pilihan
+        tema ini secara visual selaras dengan segmen pasar otomotif premium yang
+        menjadi target showroom, sekaligus mengurangi kelelahan mata kasir yang
+        bekerja di depan layar berjam-jam.
+
+  \item \textbf{Kejelasan Status melalui Kode Warna:} Setiap status transaksi
+        divisualisasikan dengan warna badge yang konsisten dan intuitif:
+        \textit{amber}/kuning untuk status menunggu (\textit{Pending}),
+        \textit{blue} untuk Down Payment terverifikasi, \textit{emerald}/hijau
+        untuk Lunas/Approved, dan \textit{red}/merah untuk Ditolak/Dibatalkan.
+        Kasir dapat mengenali urgensi setiap transaksi hanya dengan melihat warna
+        badge tanpa perlu membaca teksnya.
+
+  \item \textbf{Interaksi Asinkron Tanpa Gangguan (\textit{Zero Reload UX}):}
+        Seluruh aksi kasir (verifikasi, penolakan, amend, handover, edit
+        pelanggan) dieksekusi via AJAX. Badge status, teks, dan tombol pada
+        baris tabel diperbarui secara \textit{real-time} setelah respons server
+        diterima, tanpa mengganggu posisi scroll atau konteks kerja kasir di
+        halaman lain.
+
+  \item \textbf{Konsistensi Komponen:} Seluruh modal (\textit{modal dialog}),
+        tombol, tabel, dan badge menggunakan komponen yang sama secara konsisten
+        di seluruh halaman. Kasir yang sudah familiar dengan satu modal (misal
+        modal penolakan) akan langsung paham cara menggunakan modal lainnya
+        (amend, edit pelanggan, pembatalan admin) tanpa perlu dipandu ulang.
+\end{enumerate}
+
+% ----------------------------------------------------------------
+\subsection*{4.2. Mockup / Wireframe}
+% ----------------------------------------------------------------
+
+Penyusunan \textit{mockup} pada ShowDrive mengacu pada alur pengguna
+(\textit{user flow}) yang telah didefinisikan pada Bab 3. Setiap wireframe
+dirancang untuk menampilkan informasi yang paling relevan pada konteks penggunaan
+masing-masing, menghindari kelebihan informasi (\textit{information overload}).
+
+\begin{figure}[H]
+  \centering
+  % ---- Wireframe: Katalog Kendaraan ----
+  \begin{tikzpicture}[x=0.8cm, y=0.55cm]
+    % Browser chrome
+    \draw[gray!60, thick] (0,0) rectangle (9,7.5);
+    \fill[gray!20] (0,6.8) rectangle (9,7.5);
+    \node[font=\scriptsize, gray] at (4.5,7.15) {showdrive.app / katalog};
+    % Navbar
+    \fill[black!85] (0,6.1) rectangle (9,6.8);
+    \node[font=\scriptsize\bfseries, white] at (1.5,6.45) {SHOWDRIVE};
+    \node[font=\scriptsize, white] at (6.5,6.45) {Katalog | Lacak | Login};
+    % Search bar
+    \draw[gray!50] (0.4,5.6) rectangle (8.6,6.0);
+    \node[font=\scriptsize, gray] at (4.5,5.8) {Cari merek, model, VIN\ldots};
+    % Card grid 3x2
+    \foreach \col/\cx in {0/1.1, 1/4.0, 2/6.9} {
+      \foreach \row/\ry in {0/4.5, 1/2.2} {
+        \draw[gray!40, fill=gray!8, rounded corners=2pt]
+          (\cx-0.85,\ry-0.9) rectangle (\cx+0.85,\ry+0.85);
+        \fill[gray!25] (\cx-0.85,\ry+0.35) rectangle (\cx+0.85,\ry+0.85);
+        \node[font=\Tiny, gray] at (\cx,\ry+0.6) {[foto]};
+        \node[font=\Tiny, align=center] at (\cx,\ry+0.1) {Porsche 911};
+        \node[font=\Tiny, gray] at (\cx,\ry-0.2) {Rp 5.2 M};
+        \fill[green!40, rounded corners=1pt]
+          (\cx-0.55,\ry-0.65) rectangle (\cx+0.55,\ry-0.4);
+        \node[font=\Tiny\bfseries] at (\cx,\ry-0.52) {Available};
+      }
+    }
+    % Pagination
+    \foreach \p/\px in {1/3.9, 2/4.5, 3/5.1}
+      \draw[gray!50] (\px-0.22,0.2) rectangle (\px+0.22,0.6)
+        node[midway, font=\Tiny]{\p};
+  \end{tikzpicture}
+  \caption{Wireframe Halaman Katalog Kendaraan (Sisi Pelanggan)}
+  \label{fig:wire-katalog}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  % ---- Wireframe: Formulir Pemesanan ----
+  \begin{tikzpicture}[x=0.8cm, y=0.55cm]
+    \draw[gray!60, thick] (0,0) rectangle (9,7.5);
+    \fill[gray!20] (0,6.8) rectangle (9,7.5);
+    \node[font=\scriptsize, gray] at (4.5,7.15) {showdrive.app /booking/\{id\}};
+    \fill[black!85] (0,6.1) rectangle (9,6.8);
+    \node[font=\scriptsize\bfseries, white] at (4.5,6.45) {Formulir Pemesanan Unit};
+    % Ringkasan unit
+    \fill[gray!12, rounded corners=2pt] (0.3,4.9) rectangle (8.7,6.0);
+    \node[font=\scriptsize\bfseries] at (4.5,5.7) {Porsche 911 GT3 RS — 2024};
+    \node[font=\scriptsize, gray] at (4.5,5.35) {VIN: WP0ZZZ99ZTS100001 | Gudang A};
+    % Form fields
+    \foreach \lbl/\y in {Nama Lengkap/4.35, Nomor HP/3.7, NIK (Opsional)/3.05} {
+      \node[font=\scriptsize, anchor=west] at (0.4,\y+0.22) {\lbl};
+      \draw[gray!50] (0.4,\y-0.1) rectangle (8.6,\y+0.2);
+    }
+    % Tipe pembayaran
+    \node[font=\scriptsize, anchor=west] at (0.4,2.65) {Tipe Pembayaran};
+    \fill[blue!15, rounded corners=2pt] (0.4,2.05) rectangle (4.1,2.55);
+    \node[font=\scriptsize] at (2.25,2.3) {Down Payment (25\%)};
+    \draw[gray!50, rounded corners=2pt] (4.3,2.05) rectangle (8.6,2.55);
+    \node[font=\scriptsize] at (6.45,2.3) {Lunas (Full Payment)};
+    % Kalkulasi harga
+    \fill[gray!10, rounded corners=2pt] (0.4,0.35) rectangle (8.6,1.85);
+    \node[font=\scriptsize] at (3.0,1.6) {Subtotal};
+    \node[font=\scriptsize\bfseries] at (7.0,1.6) {Rp 5.200.000.000};
+    \node[font=\scriptsize] at (3.0,1.2) {PPN 11\%};
+    \node[font=\scriptsize\bfseries] at (7.0,1.2) {Rp 572.000.000};
+    \node[font=\scriptsize\bfseries] at (3.0,0.75) {Total};
+    \node[font=\scriptsize\bfseries, blue!70] at (7.0,0.75) {Rp 5.772.000.000};
+    % Tombol submit
+    \fill[black!80, rounded corners=3pt] (2.8,-0.55) rectangle (6.2,0.15);
+    \node[font=\scriptsize\bfseries, white] at (4.5,-0.2) {Ajukan Pemesanan};
+  \end{tikzpicture}
+  \caption{Wireframe Halaman Formulir Pemesanan (Sisi Pelanggan)}
+  \label{fig:wire-pesan}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  % ---- Wireframe: OTP + Lacak Status ----
+  \begin{tikzpicture}[x=0.8cm, y=0.55cm]
+    \draw[gray!60, thick] (0,0) rectangle (9,8.0);
+    \fill[gray!20] (0,7.3) rectangle (9,8.0);
+    \node[font=\scriptsize, gray] at (4.5,7.65) {showdrive.app /track};
+    \fill[black!85] (0,6.6) rectangle (9,7.3);
+    \node[font=\scriptsize\bfseries, white] at (4.5,6.95) {Lacak Status Transaksi};
+    % Panel OTP
+    \fill[blue!6, rounded corners=3pt] (0.4,5.0) rectangle (8.6,6.4);
+    \node[font=\scriptsize\bfseries] at (4.5,6.15) {Verifikasi Identitas};
+    \draw[gray!50] (0.6,5.55) rectangle (5.8,5.9);
+    \node[font=\scriptsize, gray] at (3.2,5.72) {Masukkan nomor HP\ldots};
+    \fill[black!80, rounded corners=2pt] (6.0,5.55) rectangle (8.4,5.9);
+    \node[font=\scriptsize\bfseries, white] at (7.2,5.72) {Minta OTP};
+    \draw[gray!50] (0.6,5.1) rectangle (4.0,5.45);
+    \node[font=\scriptsize, gray] at (2.3,5.27) {Kode OTP 4 digit};
+    \fill[blue!70, rounded corners=2pt] (4.2,5.1) rectangle (6.4,5.45);
+    \node[font=\scriptsize\bfseries, white] at (5.3,5.27) {Verifikasi};
+    \node[font=\scriptsize, red!60] at (7.5,5.27) {Sisa: 3x | 4:45};
+    % Tabel invoice
+    \fill[gray!15] (0.4,4.3) rectangle (8.6,4.8);
+    \node[font=\scriptsize\bfseries] at (1.5,4.55) {Kode Invoice};
+    \node[font=\scriptsize\bfseries] at (3.8,4.55) {Unit};
+    \node[font=\scriptsize\bfseries] at (6.0,4.55) {Status};
+    \node[font=\scriptsize\bfseries] at (8.0,4.55) {Aksi};
+    \foreach \inv/\unit/\stat/\clr/\y in
+      {INV-0001/Porsche 911/Pending Val./yellow!60/3.8,
+       INV-0002/Ferrari 488/Paid/green!40/3.2,
+       INV-0003/Corvette C8/Unpaid/red!30/2.6} {
+      \draw[gray!25] (0.4,\y-0.25) rectangle (8.6,\y+0.25);
+      \node[font=\Tiny] at (1.5,\y) {\inv};
+      \node[font=\Tiny] at (3.8,\y) {\unit};
+      \fill[\clr, rounded corners=1pt] (5.2,\y-0.18) rectangle (6.8,\y+0.18);
+      \node[font=\Tiny\bfseries] at (6.0,\y) {\stat};
+      \fill[black!70, rounded corners=1pt] (7.5,\y-0.18) rectangle (8.5,\y+0.18);
+      \node[font=\Tiny, white] at (8.0,\y) {Lihat};
+    }
+    % Tombol cetak
+    \fill[green!60, rounded corners=3pt] (3.0,1.8) rectangle (6.0,2.3);
+    \node[font=\scriptsize\bfseries] at (4.5,2.05) {Cetak Invoice};
+  \end{tikzpicture}
+  \caption{Wireframe Halaman OTP dan Lacak Status Transaksi (Sisi Pelanggan)}
+  \label{fig:wire-lacak}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  % ---- Wireframe: Unggah Bukti Pembayaran ----
+  \begin{tikzpicture}[x=0.8cm, y=0.55cm]
+    \draw[gray!60, thick] (0,0) rectangle (9,7.5);
+    \fill[gray!20] (0,6.8) rectangle (9,7.5);
+    \node[font=\scriptsize, gray] at (4.5,7.15) {showdrive.app /upload/\{id\}};
+    \fill[black!85] (0,6.1) rectangle (9,6.8);
+    \node[font=\scriptsize\bfseries, white] at (4.5,6.45) {Unggah Bukti Pembayaran};
+    %% Panel kiri — detail invoice
+    \fill[blue!6, rounded corners=2pt] (0.3,0.3) rectangle (4.4,5.9);
+    \node[font=\scriptsize\bfseries] at (2.35,5.65) {Detail Invoice};
+    \foreach \lbl/\val/\y in
+      {Kode/SD-2026-0001/5.25,
+       Pelanggan/Aris Ashidiqi/4.85,
+       Unit/Porsche 911 GT3/4.45,
+       Tanggal/17 Juli 2026/4.05} {
+      \node[font=\Tiny, gray, anchor=west] at (0.45,\y) {\lbl};
+      \node[font=\Tiny, anchor=east] at (4.25,\y) {\val};
+    }
+    \draw[gray!40] (0.45,3.7) -- (4.25,3.7);
+    \node[font=\scriptsize] at (1.4,3.3) {Subtotal};
+    \node[font=\scriptsize\bfseries] at (3.8,3.3) {Rp 5.2 M};
+    \node[font=\scriptsize] at (1.4,2.9) {PPN 11\%};
+    \node[font=\scriptsize\bfseries] at (3.8,2.9) {Rp 572 Jt};
+    \node[font=\scriptsize\bfseries] at (1.4,2.45) {Total};
+    \node[font=\scriptsize\bfseries, blue!70] at (3.8,2.45) {Rp 5.77 M};
+    \draw[gray!40] (0.45,2.1) -- (4.25,2.1);
+    \node[font=\Tiny\bfseries, orange!80!black] at (2.35,1.7)
+      {DP Min: Rp 1.44 M (25\%)};
+    %% Panel kanan — info bank + upload
+    \fill[gray!8, rounded corners=2pt] (4.6,3.5) rectangle (8.7,5.9);
+    \node[font=\scriptsize\bfseries] at (6.65,5.65) {Info Pembayaran};
+    \node[font=\scriptsize] at (6.65,5.3) {BCA — 1234567890};
+    \node[font=\scriptsize, gray] at (6.65,4.95) {a.n. ShowDrive Premium};
+    \fill[white, rounded corners=2pt] (5.2,4.0) rectangle (8.1,4.7);
+    \draw[gray!50, dashed] (5.2,4.0) rectangle (8.1,4.7);
+    \node[font=\Tiny, gray, align=center] at (6.65,4.35)
+      {[QRIS toko]};
+    %% Upload area
+    \draw[gray!50, dashed, rounded corners=3pt] (4.6,1.2) rectangle (8.7,3.3);
+    \node[font=\scriptsize, gray, align=center] at (6.65,2.5)
+      {Seret atau klik untuk\\mengunggah bukti transfer};
+    \node[font=\Tiny, gray] at (6.65,1.9) {JPG/PNG/WebP, maks 2 MB};
+    \fill[black!80, rounded corners=3pt] (5.5,0.35) rectangle (7.8,0.95);
+    \node[font=\scriptsize\bfseries, white] at (6.65,0.65)
+      {Kirim Bukti Bayar};
+  \end{tikzpicture}
+  \caption{Wireframe Halaman Unggah Bukti Pembayaran (Sisi Pelanggan)}
+  \label{fig:wire-bukti}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  % ---- Wireframe: Dashboard Admin ----
+  \begin{tikzpicture}[x=0.8cm, y=0.55cm]
+    \draw[gray!60, thick] (0,0) rectangle (11,8.0);
+    % Sidebar
+    \fill[black!90] (0,0) rectangle (2.2,8.0);
+    \node[font=\scriptsize\bfseries, white] at (1.1,7.65) {SHOWDRIVE};
+    \foreach \lbl/\y in
+      {Dashboard/6.9, Inventaris/6.2, Transaksi/5.5,
+       Gudang/4.8, Kasir/4.1, Profil/3.4} {
+      \node[font=\Tiny, white, anchor=west] at (0.2,\y) {$\bullet$~\lbl};
+    }
+    % Header
+    \fill[gray!15] (2.2,7.3) rectangle (11,8.0);
+    \node[font=\scriptsize, anchor=west] at (2.4,7.65)
+      {Dashboard Metrik ShowDrive};
+    % KPI Cards
+    \foreach \title/\val/\clr/\x in
+      {Total Unit/24/blue!20/3.8,
+       Unit Sold/11/green!25/6.0,
+       Pending/3/yellow!40/8.2,
+       Revenue/Rp 44 M/orange!25/10.4} {
+      \fill[\clr, rounded corners=3pt]
+        (\x-1.2,5.8) rectangle (\x+1.2,7.1);
+      \node[font=\Tiny\bfseries] at (\x,6.85) {\title};
+      \node[font=\small\bfseries] at (\x,6.35) {\val};
+    }
+    % Tabel transaksi
+    \fill[gray!20] (2.3,5.1) rectangle (10.9,5.6);
+    \node[font=\Tiny\bfseries] at (3.5,5.35) {Invoice};
+    \node[font=\Tiny\bfseries] at (5.5,5.35) {Pelanggan};
+    \node[font=\Tiny\bfseries] at (7.5,5.35) {Unit};
+    \node[font=\Tiny\bfseries] at (9.2,5.35) {Status};
+    \node[font=\Tiny\bfseries] at (10.5,5.35) {Aksi};
+    \foreach \inv/\cus/\unit/\stat/\clr/\y in
+      {INV-0001/Aris A./Porsche 911/Pending/yellow!50/4.65,
+       INV-0002/Fathoni J./Ferrari 488/Paid/green!40/4.1,
+       INV-0003/Budi S./Corvette C8/Unpaid/red!25/3.55} {
+      \draw[gray!25] (2.3,\y-0.22) rectangle (10.9,\y+0.22);
+      \node[font=\Tiny] at (3.5,\y) {\inv};
+      \node[font=\Tiny] at (5.5,\y) {\cus};
+      \node[font=\Tiny] at (7.5,\y) {\unit};
+      \fill[\clr, rounded corners=1pt] (8.7,\y-0.18) rectangle (9.7,\y+0.18);
+      \node[font=\Tiny\bfseries] at (9.2,\y) {\stat};
+      \fill[black!75, rounded corners=1pt]
+        (10.2,\y-0.18) rectangle (10.8,\y+0.18);
+      \node[font=\Tiny, white] at (10.5,\y) {Aksi};
+    }
+  \end{tikzpicture}
+  \caption{Wireframe Dashboard Admin/Kasir ShowDrive}
+  \label{fig:wire-dashboard}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  % ---- Wireframe: Halaman Validasi Transaksi Admin ----
+  \resizebox{0.96\textwidth}{!}{%
+  \begin{tikzpicture}[x=0.8cm, y=0.55cm]
+    \draw[gray!60, thick] (0,0) rectangle (13,9.0);
+    % Sidebar
+    \fill[black!90] (0,0) rectangle (2.2,9.0);
+    \node[font=\scriptsize\bfseries, white] at (1.1,8.65) {SHOWDRIVE};
+    \foreach \lbl/\y in
+      {Dashboard/7.9, Inventaris/7.2, Transaksi/6.5,
+       Gudang/5.8, Kasir/5.1, Profil/4.4} {
+      \node[font=\Tiny, white, anchor=west] at (0.2,\y) {$\bullet$~\lbl};
+    }
+    \fill[blue!40] (0.1,6.35) rectangle (2.1,6.65);
+    \node[font=\Tiny\bfseries, white] at (1.1,6.5) {Transaksi};
+    % Header
+    \fill[gray!15] (2.2,8.3) rectangle (13,9.0);
+    \node[font=\scriptsize, anchor=west] at (2.4,8.65) {Manajemen Transaksi};
+    % Filter tabs
+    \foreach \tab/\clr/\x in
+      {Semua/gray!30/3.5, Pending/yellow!40/5.5, DP/blue!20/7.2,
+       Lunas/green!30/8.9, Batal/red!20/10.5} {
+      \fill[\clr, rounded corners=2pt]
+        (\x-0.95,7.5) rectangle (\x+0.95,7.95);
+      \node[font=\Tiny\bfseries] at (\x,7.72) {\tab};
+    }
+    % Tabel header
+    \fill[gray!25] (2.3,6.85) rectangle (12.8,7.4);
+    \foreach \col/\x in
+      {Pelanggan/3.5, Unit/5.5, Status Bayar/7.2,
+       Status Insp./8.9, Nominal/10.4, Bukti/11.5, Aksi/12.4} {
+      \node[font=\Tiny\bfseries] at (\x,7.12) {\col};
+    }
+    % Baris data
+    \foreach \cus/\unit/\sp/\spc/\si/\sic/\nom/\y in
+      {Aris A./Porsche 911/Pending Val./yellow!50/Pending/gray!30/1.44 M/6.35,
+       Fathoni/Ferrari 488/Down Payment/blue!20/Approved/green!25/572 Jt/5.8,
+       Budi S./Corvette C8/Paid/green!40/Approved/green!25/6.6 M/5.25} {
+      \draw[gray!20] (2.3,\y-0.22) rectangle (12.8,\y+0.22);
+      \node[font=\Tiny] at (3.5,\y) {\cus};
+      \node[font=\Tiny] at (5.5,\y) {\unit};
+      \fill[\spc, rounded corners=1pt] (6.5,\y-0.17) rectangle (7.9,\y+0.17);
+      \node[font=\Tiny\bfseries] at (7.2,\y) {\sp};
+      \fill[\sic, rounded corners=1pt] (8.2,\y-0.17) rectangle (9.6,\y+0.17);
+      \node[font=\Tiny\bfseries] at (8.9,\y) {\si};
+      \node[font=\Tiny] at (10.4,\y) {\nom};
+      \fill[blue!60, rounded corners=1pt]
+        (11.1,\y-0.17) rectangle (11.9,\y+0.17);
+      \node[font=\Tiny, white] at (11.5,\y) {Lihat};
+      % Dropdown aksi
+      \fill[black!75, rounded corners=1pt]
+        (12.0,\y-0.17) rectangle (12.8,\y+0.17);
+      \node[font=\Tiny, white] at (12.4,\y) {Aksi $\triangledown$};
+    }
+    % Dropdown menu terbuka
+    \fill[white, rounded corners=2pt]
+      (11.2,2.5) rectangle (13.2,5.1);
+    \draw[gray!60, thick] (11.2,2.5) rectangle (13.2,5.1);
+    \foreach \menu/\mclr/\my in
+      {Setujui/green!20/4.75, Tolak Bukti/red!20/4.3,
+       Amend Jadwal/yellow!20/3.85, Serah Terima/blue!20/3.4,
+       Edit Pelanggan/gray!20/2.95, Cetak Invoice/gray!15/2.6} {
+      \fill[\mclr] (11.25,\my-0.18) rectangle (13.15,\my+0.18);
+      \node[font=\Tiny, anchor=west] at (11.35,\my) {\menu};
+    }
+  \end{tikzpicture}%
+  }
+  \caption{Wireframe Halaman Validasi Transaksi Admin/Kasir ShowDrive}
+  \label{fig:wire-validasi}
+\end{figure}
+
+% ----------------------------------------------------------------
+\subsection*{4.3. Deskripsi Tampilan}
+% ----------------------------------------------------------------
+
+\subsubsection*{A. Antarmuka Sisi Pelanggan}
+
+\begin{enumerate}[label=\arabic*.]
+  \item \textbf{Halaman Beranda dan Katalog Kendaraan}
+        (Gambar~\ref{fig:wire-katalog})\\
+        Halaman ini adalah titik masuk utama website ShowDrive. Bagian atas
+        menampilkan \textit{navbar} dengan nama showroom dan tombol navigasi.
+        Di bawahnya, unit kendaraan yang tersedia ditampilkan dalam susunan
+        grid kartu (\textit{card grid}) dengan foto utama, merek, model, tahun,
+        harga (belum termasuk PPN), warna, dan \textit{badge} status
+        ketersediaan yang diberi kode warna. Pelanggan dapat mengetikkan kata
+        kunci di kolom pencarian untuk memfilter unit secara langsung.
+        Halaman menggunakan paginasi 12 unit per halaman untuk menjaga performa
+        pemuatan.
+
+  \item \textbf{Halaman Detail Kendaraan}\\
+        Menampilkan foto utama berukuran besar, diikuti galeri foto tambahan
+        berukuran lebih kecil di bawahnya. Di sisi kanan, disajikan spesifikasi
+        teknis lengkap: mesin, transmisi, VIN, warna, tahun, dan lokasi gudang
+        penyimpanan. Di bawah spesifikasi, terdapat rincian harga (subtotal,
+        PPN, total) dan tombol \textit{``Pesan Unit Ini''} yang mengarahkan
+        pelanggan ke formulir pemesanan.
+
+  \item \textbf{Halaman Formulir Pemesanan}
+        (Gambar~\ref{fig:wire-pesan})\\
+        Formulir ini meminta pelanggan mengisi: nama lengkap, nomor HP aktif
+        (yang akan menjadi kunci identifikasi akun), NIK (opsional, untuk
+        keperluan administratif), tanggal inspeksi yang diinginkan, dan tipe
+        pembayaran (Down Payment atau Lunas). Saat tipe pembayaran dipilih,
+        sistem secara dinamis menampilkan rincian kalkulasi harga yang relevan.
+        Jika NIK yang dimasukkan sudah terdaftar di akun lain, sistem
+        menampilkan pesan error yang informatif tanpa mengganggu data yang
+        sudah diisi pelanggan.
+
+  \item \textbf{Halaman Verifikasi OTP}
+        (Gambar~\ref{fig:wire-lacak}, bagian atas)\\
+        Sebelum riwayat transaksi dapat ditampilkan, pelanggan harus melalui
+        dua langkah: (1)~memasukkan nomor HP dan menekan \textit{``Minta OTP''},
+        lalu (2)~memasukkan kode OTP 4 digit yang diterima. Halaman ini juga
+        menampilkan sisa waktu kedaluwarsa OTP dan sisa percobaan verifikasi
+        yang tersedia. Setelah berhasil, pelanggan dapat mengakses
+        \textit{dashboard} pelacakan selama sesi aktif.
+
+  \item \textbf{Halaman Lacak Status Transaksi}
+        (Gambar~\ref{fig:wire-lacak}, bagian bawah)\\
+        Menampilkan daftar seluruh invoice milik pelanggan yang terverifikasi.
+        Setiap baris menampilkan kode invoice, nama unit kendaraan, tipe
+        pembayaran, status pembayaran (dengan \textit{badge} warna), dan
+        tombol aksi kontekstual: tombol \textit{``Upload Bukti''} jika belum
+        bayar, tombol \textit{``Cetak Invoice''} jika sudah diverifikasi,
+        dan tombol \textit{``Batalkan''} jika masih dalam status awal.
+
+  \item \textbf{Halaman Unggah Bukti Pembayaran}
+        (Gambar~\ref{fig:wire-bukti})\\
+        Halaman ini menampilkan dua panel berdampingan: panel kiri berisi
+        detail invoice lengkap (kode, nama pelanggan, nama unit, tanggal,
+        rincian harga dengan PPN, dan nominal yang harus dibayar sesuai tipe
+        pembayaran), sementara panel kanan berisi informasi rekening bank dan
+        kode QRIS toko yang dapat dipindai. Di bawahnya terdapat area
+        \textit{drag-and-drop} untuk mengunggah foto bukti transfer.
+
+  \item \textbf{Halaman Invoice / Kwitansi Digital}\\
+        Tampilan cetak yang bersih tanpa elemen navigasi. Menampilkan logo
+        showroom, detail perusahaan (nama, alamat, no.\ telepon), kode invoice,
+        tanggal, data pelanggan, spesifikasi unit kendaraan, rincian harga
+        (subtotal, PPN 11\%, total), nominal yang dibayarkan, dan status
+        pembayaran. Tersedia dua format: invoice DP (menampilkan nominal uang
+        muka) dan kwitansi lunas (menampilkan total pembayaran penuh).
+\end{enumerate}
+
+\subsubsection*{B. Antarmuka Sisi Administrator/Kasir}
+
+\begin{enumerate}[label=\arabic*.]
+  \item \textbf{Halaman Login Admin}\\
+        Halaman sederhana dengan kolom \textit{username} dan \textit{password},
+        tanpa link pendaftaran atau navigasi publik. URL halaman ini tidak
+        tercantum di mana pun di antarmuka publik, hanya dapat diakses melalui
+        \textit{shortcut} keyboard \texttt{Ctrl+Shift+A}.
+
+  \item \textbf{Dashboard Admin}
+        (Gambar~\ref{fig:wire-dashboard})\\
+        Halaman pertama yang muncul setelah login. Bagian atas menampilkan empat
+        \textit{KPI card} dengan nilai yang dihitung langsung dari basis data:
+        Total Unit (semua kendaraan), Unit Sold, Pending Verification (jumlah
+        invoice ber-status \textit{Pending Validation}), dan Total Revenue
+        (jumlah \texttt{total\_amount} invoice ber-status \textit{Paid}).
+        Di bawah KPI, tabel ringkasan transaksi terbaru memudahkan kasir
+        memantau aktivitas terkini tanpa harus berpindah halaman.
+
+  \item \textbf{Halaman Validasi Transaksi}
+        (Gambar~\ref{fig:wire-validasi})\\
+        Halaman ini adalah inti operasional kasir. Di bagian atas terdapat
+        panel ringkasan tiga angka (\textit{Pending}, \textit{Down Payment},
+        \textit{Lunas}) dan deretan tab filter status. Tabel di bawahnya
+        menampilkan semua invoice dengan kolom: avatar dan nama pelanggan
+        (beserta nomor WhatsApp), nama dan VIN unit kendaraan, dua badge status
+        (pembayaran dan inspeksi), nominal yang dibayarkan, tautan gambar bukti
+        transfer, dan \textit{dropdown} aksi.
+
+        \textit{Dropdown} aksi bersifat kontekstual — opsi yang ditampilkan
+        berbeda tergantung status invoice saat ini:
+        \begin{itemize}
+          \item Status \textit{Pending Validation}: tombol \textit{``Setujui \&
+                Sahkan''} dan \textit{``Tolak Bukti''}.
+          \item Status \textit{Paid} belum \textit{handover}: tombol
+                \textit{``Serah Terima Unit''}.
+          \item Semua status aktif: tombol \textit{``Edit Pelanggan''},
+                \textit{``Amend Jadwal''}, \textit{``Batalkan''}, dan
+                \textit{``Cetak Invoice''}.
+          \item Setelah \textit{handover}: semua aksi terkunci, menampilkan
+                label \textit{``Data Terkunci''}.
+        \end{itemize}
+
+  \item \textbf{Halaman Manajemen Kendaraan (CRUD)}\\
+        Menampilkan tabel inventaris lengkap dengan foto miniatur, nama unit,
+        VIN, harga, persentase DP, gudang, dan status. Tombol tambah unit
+        membuka \textit{modal} formulir CRUD. Tombol hapus unit menampilkan
+        konfirmasi dan diblokir oleh basis data (\texttt{ON DELETE RESTRICT})
+        jika unit masih memiliki invoice aktif.
+
+  \item \textbf{Halaman Manajemen Gudang, Kasir, dan Profil}\\
+        Halaman-halaman pendukung untuk pengelolaan entitas master:
+        menambah/mengedit/menghapus gudang, akun kasir, serta memperbarui
+        informasi perusahaan (nama, alamat, rekening bank, kode QRIS).
+\end{enumerate}
+
+\newpage
+
+% ================================================================
+%  BAB 5  IMPLEMENTASI DASAR
+% ================================================================
+\section*{BAB 5 IMPLEMENTASI DASAR}
+\addcontentsline{toc}{section}{BAB 5 IMPLEMENTASI DASAR}
+
+% ----------------------------------------------------------------
+\subsection*{5.1. Tools dan Teknologi}
+% ----------------------------------------------------------------
+
+Pengembangan sistem ShowDrive memanfaatkan tumpukan teknologi (\textit{tech
+stack}) yang dipilih berdasarkan kematangan ekosistem, ketersediaan dokumentasi,
+dan kesesuaian dengan kebutuhan sistem:
+
+\begin{enumerate}[label=\arabic*.]
+  \item \textbf{Bahasa Pemrograman}
+    \begin{itemize}
+      \item \textbf{PHP 8.2} --- Bahasa pemrograman utama \textit{backend}.
+            Versi 8.2 dipilih karena mendukung fitur modern seperti \textit{typed
+            properties}, \textit{match expression}, dan \textit{enum}, yang
+            digunakan untuk mendefinisikan status transaksi secara eksplisit.
+      \item \textbf{JavaScript (ES2020+)} --- Digunakan di sisi \textit{frontend}
+            untuk operasi asinkron (Fetch API/AJAX), pengelolaan \textit{dropdown}
+            aksi, validasi karakter \textit{textarea} modal, dan manipulasi DOM
+            \textit{real-time} setelah respons server diterima.
+    \end{itemize}
+
+  \item \textbf{Framework Backend}
+    \begin{itemize}
+      \item \textbf{Laravel 12} --- \textit{Framework} PHP utama yang menyediakan
+            sistem \textit{routing} ekspresif, \textit{middleware} untuk
+            autentikasi dan \textit{rate limiting}, \textit{Form Request} untuk
+            validasi terpusat, Eloquent ORM untuk abstraksi basis data,
+            \textit{Database Transaction} untuk atomisitas operasi, \textit{Queue}
+            untuk \textit{background job} penghapusan file lama, dan
+            \textit{Storage} untuk manajemen file unggahan.
+    \end{itemize}
+
+  \item \textbf{Frontend}
+    \begin{itemize}
+      \item \textbf{Blade Template Engine} --- Sistem \textit{templating}
+            bawaan Laravel untuk \textit{rendering} HTML dinamis dengan sintaks
+            \texttt{@directive} yang bersih.
+      \item \textbf{Tailwind CSS (CDN)} --- Digunakan untuk seluruh desain visual
+            antarmuka dengan pendekatan \textit{utility-first}. Tailwind
+            memungkinkan pembuatan komponen desain yang konsisten dan responsif
+            tanpa menulis CSS kustom yang besar.
+    \end{itemize}
+
+  \item \textbf{Basis Data}
+    \begin{itemize}
+      \item \textbf{MySQL 8.0} --- RDBMS dengan dukungan penuh untuk
+            \textit{Foreign Key constraint}, \texttt{ON DELETE} policy,
+            \textit{row-level locking} (\texttt{lockForUpdate()}), dan tipe data
+            \texttt{DECIMAL} untuk penyimpanan nilai finansial yang presisi.
+    \end{itemize}
+
+  \item \textbf{Tools Pengembangan}
+    \begin{itemize}
+      \item \textbf{XAMPP} --- Paket server lokal (Apache + MySQL) untuk
+            lingkungan pengembangan berbasis Windows.
+      \item \textbf{Visual Studio Code} --- Editor kode utama.
+      \item \textbf{Git \& GitHub} --- Manajemen versi dengan repositori
+            \texttt{ShowDrive\_Project1}.
+      \item \textbf{Composer} --- Manajemen dependensi PHP (Laravel dan paket
+            pendukung).
+      \item \textbf{NPM} --- Manajemen aset \textit{frontend} (Tailwind CSS,
+            Vite untuk \textit{build}).
+    \end{itemize}
+\end{enumerate}
+
+% ----------------------------------------------------------------
+\subsection*{5.2. Struktur Folder}
+% ----------------------------------------------------------------
+
+Aplikasi ShowDrive mengikuti konvensi struktur direktori standar Laravel 12.
+Pemahaman atas struktur ini penting bagi pembaca yang ingin menelusuri,
+memodifikasi, atau mengembangkan sistem lebih lanjut.
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{\textwidth}
+  \footnotesize
+  \dirtree{%
+    .1 ShowDrive\_Project1/ \textnormal{{\color{gray}(root project)}}.
+    .2 app/.
+    .3 Http/.
+    .4 Controllers/.
+    .5 AuthController.php \textnormal{{\color{gray}login, logout, shortcut}}.
+    .5 PublicController.php \textnormal{{\color{gray}katalog, OTP, booking}}.
+    .5 Admin/.
+    .6 DashboardController.php \textnormal{{\color{gray}KPI metrik}}.
+    .6 ItemController.php \textnormal{{\color{gray}CRUD kendaraan}}.
+    .6 InvoiceController.php \textnormal{{\color{gray}verifikasi, amend, handover}}.
+    .6 WarehouseController.php.
+    .6 CashierController.php.
+    .6 CompanyController.php.
+    .6 ReportController.php.
+    .4 Requests/.
+    .5 StoreBookingRequest.php.
+    .5 Admin/ \textnormal{{\color{gray}StoreCarRequest, UpdateCashierRequest, ...}}.
+    .3 Jobs/.
+    .4 DeleteOldImageJob.php \textnormal{{\color{gray}hapus file lama (async)}}.
+    .3 Models/.
+    .4 Company.php  Warehouse.php  Cashier.php.
+    .4 Customer.php  Item.php  Invoice.php  ItemImage.php.
+    .2 database/.
+    .3 migrations/ \textnormal{{\color{gray}skema 6 tabel + FK constraints}}.
+    .3 seeders/ \textnormal{{\color{gray}CarSeeder, DatabaseSeeder}}.
+    .2 resources/.
+    .3 views/.
+    .4 layouts/ \textnormal{{\color{gray}app.blade.php, admin.blade.php}}.
+    .4 home.blade.php \textnormal{{\color{gray}katalog publik}}.
+    .4 detail.blade.php  track.blade.php  invoice.blade.php.
+    .4 admin/ \textnormal{{\color{gray}dashboard, items, invoices, ...}}.
+    .2 routes/.
+    .3 web.php \textnormal{{\color{gray}routing + middleware + jalur rahasia}}.
+    .2 storage/.
+    .3 app/public/ \textnormal{{\color{gray}foto kendaraan, bukti transfer}}.
+    .2 .env \textnormal{{\color{gray}konfigurasi DB, app key}}.
+    .2 composer.json  artisan.
+  }
+  \end{minipage}
+  \caption{Struktur Folder Proyek ShowDrive (Laravel 12)}
+  \label{fig:struktur-folder}
+\end{figure}
+
+Penjelasan setiap folder utama beserta fungsinya:
+
+\begin{enumerate}[label=\arabic*.]
+  \item \textbf{\texttt{app/Http/Controllers/}} --- Berisi seluruh
+        \textit{Controller} yang menangani logika bisnis dan pemrosesan
+        \textit{request} HTTP:
+    \begin{itemize}
+      \item \texttt{AuthController.php} --- Menangani autentikasi login, logout,
+            dan pengalihan \textit{shortcut} keyboard ke halaman login tersembunyi.
+      \item \texttt{PublicController.php} --- Menangani semua interaksi sisi
+            pelanggan: katalog (\texttt{index}), detail kendaraan (\texttt{show}),
+            pembuatan booking (\texttt{storeBooking}), OTP
+            (\texttt{requestOtp}, \texttt{verifyOtp}), pelacakan
+            (\texttt{track}), unggah bukti (\texttt{uploadProof}),
+            cetak invoice (\texttt{invoice}), dan pembatalan mandiri
+            (\texttt{cancelBooking}).
+      \item \texttt{Admin/DashboardController.php} --- Menghitung dan menampilkan
+            4 KPI metrik \textit{real-time} pada \textit{dashboard}.
+      \item \texttt{Admin/ItemController.php} --- Operasi CRUD unit kendaraan
+            beserta pengelolaan galeri foto.
+      \item \texttt{Admin/InvoiceController.php} --- Seluruh operasi verifikasi
+            transaksi: \texttt{approveAjax}, \texttt{rejectAjax},
+            \texttt{cancelAjax}, \texttt{amendAjax}, \texttt{confirmHandover},
+            \texttt{updateCustomerAjax}.
+      \item \texttt{Admin/WarehouseController.php} --- CRUD gudang penyimpanan.
+      \item \texttt{Admin/CashierController.php} --- CRUD akun kasir.
+      \item \texttt{Admin/CompanyController.php} --- Pengelolaan profil perusahaan.
+      \item \texttt{Admin/PaymentSettingsController.php} --- Pengelolaan rekening
+            bank dan gambar QRIS.
+      \item \texttt{Admin/ReportController.php} --- Laporan keuangan ringkas.
+    \end{itemize}
+
+  \item \textbf{\texttt{app/Http/Requests/}} --- Berisi kelas \textit{Form
+        Request} untuk validasi terpusat:
+    \begin{itemize}
+      \item \texttt{StoreBookingRequest.php} --- Validasi formulir pemesanan
+            pelanggan (nama, format HP, NIK, tanggal, tipe pembayaran).
+      \item \texttt{Admin/StoreCarRequest.php} / \texttt{UpdateCarRequest.php}
+            --- Validasi formulir tambah/edit unit kendaraan.
+      \item \texttt{Admin/StoreCashierRequest.php} /
+            \texttt{UpdateCashierRequest.php} --- Validasi formulir kasir.
+    \end{itemize}
+
+  \item \textbf{\texttt{app/Models/}} --- Berisi model Eloquent ORM yang
+        merepresentasikan tabel basis data:
+        \texttt{Company.php}, \texttt{Warehouse.php}, \texttt{Cashier.php},
+        \texttt{Customer.php}, \texttt{Item.php} (dengan \textit{accessor}
+        status dan gambar), \texttt{Invoice.php} (dengan metode
+        \texttt{generateCode()} dan \textit{query scope}
+        \texttt{scopeCancellable()}), \texttt{ItemImage.php}.
+
+  \item \textbf{\texttt{app/Jobs/}} --- Berisi \textit{background job}:
+    \begin{itemize}
+      \item \texttt{DeleteOldImageJob.php} --- Menghapus file bukti transfer
+            lama dari \textit{storage} secara asinkron setelah transaksi basis
+            data berhasil di-\textit{commit}, mencegah penghapusan file sebelum
+            data baru aman tersimpan.
+    \end{itemize}
+
+  \item \textbf{\texttt{database/migrations/}} --- Berisi \textit{migration}
+        file yang mendefinisikan skema seluruh tabel. Setiap \textit{migration}
+        mencakup definisi kolom, tipe data, indeks, dan \textit{Foreign Key
+        constraint} beserta kebijakan \texttt{ON DELETE}-nya.
+
+  \item \textbf{\texttt{resources/views/}} --- Berisi seluruh template Blade:
+    \begin{itemize}
+      \item \texttt{layouts/app.blade.php} --- Kerangka induk untuk halaman
+            publik (head, navbar, footer, CDN Tailwind).
+      \item \texttt{layouts/admin.blade.php} --- Kerangka induk untuk halaman
+            admin (sidebar navigasi, header, area konten, toast notifikasi).
+      \item \texttt{home.blade.php} --- Halaman katalog publik.
+      \item \texttt{detail.blade.php} --- Halaman detail kendaraan.
+      \item \texttt{track.blade.php} --- Halaman OTP dan pelacakan transaksi.
+      \item \texttt{invoice.blade.php} --- Halaman cetak kwitansi/invoice.
+      \item \texttt{admin/dashboard.blade.php} --- Dashboard metrik KPI.
+      \item \texttt{admin/items.blade.php} --- Manajemen inventaris kendaraan.
+      \item \texttt{admin/invoices.blade.php} --- Validasi transaksi (halaman
+            terkompleks, berisi tabel log, 6 modal AJAX, dan seluruh JavaScript
+            operasional kasir).
+    \end{itemize}
+
+  \item \textbf{\texttt{routes/web.php}} --- Satu-satunya file yang mendefinisikan
+        seluruh URL aplikasi. Mencakup: \textit{route} publik (katalog, booking,
+        OTP, upload, invoice), \textit{route} autentikasi admin (jalur tersembunyi
+        dengan \texttt{/pintu-masuk} sebagai \textit{relay shortcut}), dan grup
+        \textit{route} admin yang dilindungi \textit{middleware} \texttt{auth}
+        dengan prefix \texttt{/admin}.
+
+  \item \textbf{\texttt{storage/app/public/}} --- Direktori penyimpanan file
+        yang dapat diakses publik melalui \textit{symbolic link} (\texttt{php
+        artisan storage:link}). Menyimpan: foto utama kendaraan, foto galeri
+        tambahan, dan bukti transfer pembayaran pelanggan.
+\end{enumerate}
+
+% ----------------------------------------------------------------
+\subsection*{5.3. Petunjuk Menjalankan Aplikasi}
+% ----------------------------------------------------------------
+
+Ikuti langkah-langkah berikut secara berurutan untuk menjalankan ShowDrive
+pada lingkungan pengembangan lokal berbasis Windows:
+
+\begin{enumerate}[label=\Alph*.]
+  \item \textbf{Aktifkan Server Lokal (XAMPP)}
+
+        Buka XAMPP Control Panel dan klik \textit{Start} pada modul
+        \textbf{Apache} dan \textbf{MySQL}.
+
+  \begin{figure}[H]
+    \centering
+    % ---- Ilustrasi: XAMPP Control Panel ----
+    \begin{tikzpicture}[x=0.8cm, y=0.5cm]
+      % Window chrome
+      \draw[gray!60, thick, rounded corners=3pt]
+        (0,0) rectangle (8.5,5.8);
+      \fill[gray!25] (0,5.2) rectangle (8.5,5.8);
+      \node[font=\scriptsize\bfseries] at (4.25,5.5)
+        {XAMPP Control Panel v3.3.0};
+      % Modul Apache
+      \fill[gray!10] (0.3,4.0) rectangle (8.2,4.8);
+      \draw[gray!50] (0.3,4.0) rectangle (8.2,4.8);
+      \node[font=\scriptsize\bfseries, anchor=west] at (0.5,4.4) {Apache};
+      \fill[green!60, rounded corners=2pt]
+        (4.8,4.1) rectangle (6.5,4.7);
+      \node[font=\scriptsize\bfseries] at (5.65,4.4) {Start};
+      \fill[gray!30, rounded corners=2pt]
+        (6.7,4.1) rectangle (8.0,4.7);
+      \node[font=\scriptsize] at (7.35,4.4) {Admin};
+      % Modul MySQL
+      \fill[gray!10] (0.3,3.0) rectangle (8.2,3.8);
+      \draw[gray!50] (0.3,3.0) rectangle (8.2,3.8);
+      \node[font=\scriptsize\bfseries, anchor=west] at (0.5,3.4) {MySQL};
+      \fill[green!60, rounded corners=2pt]
+        (4.8,3.1) rectangle (6.5,3.7);
+      \node[font=\scriptsize\bfseries] at (5.65,3.4) {Start};
+      \fill[gray!30, rounded corners=2pt]
+        (6.7,3.1) rectangle (8.0,3.7);
+      \node[font=\scriptsize] at (7.35,3.4) {Admin};
+      % Status log
+      \fill[black!85] (0.3,0.3) rectangle (8.2,2.8);
+      \node[font=\tiny, green!70, anchor=north west]
+        at (0.4,2.75)
+        {\texttt{[Apache] Attempting to start ...}};
+      \node[font=\tiny, green!70, anchor=north west]
+        at (0.4,2.35)
+        {\texttt{[Apache] Status change detected: running}};
+      \node[font=\tiny, green!70, anchor=north west]
+        at (0.4,1.95)
+        {\texttt{[MySQL]  Attempting to start ...}};
+      \node[font=\tiny, green!70, anchor=north west]
+        at (0.4,1.55)
+        {\texttt{[MySQL]  Status change detected: running}};
+      % Keterangan panah
+      \draw[arr, red!70, thick] (6.5,4.4) -- ++(1.0,0.8)
+        node[right, font=\scriptsize, red!80] {Klik Start};
+    \end{tikzpicture}
+    \caption{Mengaktifkan XAMPP Control Panel}
+    \label{fig:xampp}
+  \end{figure}
+
+  \item \textbf{Siapkan File Proyek}
+
+        Salin (atau \textit{clone} dari GitHub) seluruh folder proyek ke dalam
+        direktori \texttt{C:\textbackslash{}xampp\textbackslash{}htdocs\textbackslash{}ShowDrive\_Project1\textbackslash{}}.
+
+  \begin{figure}[H]
+    \centering
+    % ---- Ilustrasi: File Proyek di XAMPP ----
+    \begin{tikzpicture}[x=0.8cm, y=0.5cm]
+      \draw[gray!60, thick, rounded corners=3pt]
+        (0,0) rectangle (8.5,5.0);
+      \fill[gray!25] (0,4.4) rectangle (8.5,5.0);
+      \node[font=\scriptsize\bfseries] at (4.25,4.7)
+        {File Explorer — htdocs};
+      % Path bar
+      \fill[white] (0.3,3.9) rectangle (8.2,4.3);
+      \draw[gray!50] (0.3,3.9) rectangle (8.2,4.3);
+      \node[font=\tiny, anchor=west] at (0.45,4.1)
+        {\texttt{C:\textbackslash{}xampp\textbackslash{}htdocs\textbackslash{}}};
+      % Folder list
+      \foreach \fld/\y in
+        {dashboard/3.4, phpmyadmin/2.9,
+         ShowDrive\_Project1/2.4, wordpress/1.9} {
+        \fill[yellow!30] (0.3,\y-0.18) rectangle (0.9,\y+0.22);
+        \node[font=\tiny, yellow!50!black] at (0.6,\y+0.02) {\tiny\textbf{F}};
+        \node[font=\tiny, anchor=west] at (1.0,\y+0.02) {\fld};
+      }
+      % Highlight folder target
+      \fill[blue!20, opacity=0.5]
+        (0.3,2.22) rectangle (8.2,2.58);
+      \draw[arr, red!70, thick] (8.2,2.4) -- ++(0.5,0.6)
+        node[right, font=\scriptsize, red!80] {Folder\\proyek};
+      % Petunjuk
+      \fill[gray!10] (0.3,0.2) rectangle (8.2,1.7);
+      \node[font=\tiny, anchor=north west, text width=7.5cm]
+        at (0.4,1.6)
+        {\texttt{Clone atau salin seluruh folder ShowDrive\_Project1/}\\
+         \texttt{ke dalam direktori ini sebelum melanjutkan.}};
+    \end{tikzpicture}
+    \caption{Menempatkan File Proyek di Direktori XAMPP}
+    \label{fig:file-proyek}
+  \end{figure}
+
+  \item \textbf{Konfigurasi Basis Data (\texttt{.env})}
+
+        Salin file \texttt{.env.example} menjadi \texttt{.env}, lalu sesuaikan
+        bagian konfigurasi database:
+        \texttt{DB\_DATABASE}, \texttt{DB\_USERNAME}, \texttt{DB\_PASSWORD}.
+
+  \begin{figure}[H]
+    \centering
+    % ---- Ilustrasi: Konfigurasi .env ----
+    \begin{tikzpicture}[x=0.8cm, y=0.5cm]
+      % Editor window
+      \draw[gray!60, thick, rounded corners=3pt]
+        (0,0) rectangle (8.5,5.5);
+      \fill[gray!20] (0,4.9) rectangle (8.5,5.5);
+      \node[font=\scriptsize\bfseries] at (4.25,5.2)
+        {.env — Visual Studio Code};
+      % Gutter line numbers
+      \fill[gray!15] (0,0) rectangle (0.55,4.9);
+      \foreach \n/\y in {1/4.55,2/4.15,3/3.75,4/3.35,5/2.95,
+                          6/2.55,7/2.15,8/1.75,9/1.35,10/0.95} {
+        \node[font=\tiny, gray] at (0.3,\y) {\n};
+      }
+      % Code content
+      \fill[black!88] (0.55,0) rectangle (8.5,4.9);
+      \foreach \line/\y in {
+        {APP\_NAME=ShowDrive}/4.55,
+        {APP\_ENV=local}/4.15,
+        {APP\_DEBUG=true}/3.75,
+        {APP\_URL=http://127.0.0.1:8000}/3.35,
+        {}/2.95,
+        {DB\_CONNECTION=mysql}/2.55,
+        {DB\_HOST=127.0.0.1}/2.15,
+        {DB\_PORT=3306}/1.75,
+        {DB\_DATABASE=showdrive\_db}/1.35,
+        {DB\_USERNAME=root}/0.95} {
+        \node[font=\tiny, white, anchor=west] at (0.65,\y) {\texttt{\line}};
+      }
+      \node[font=\tiny, green!60, anchor=west] at (0.65,1.35)
+        {\texttt{DB\_DATABASE=showdrive\_db}};
+      \node[font=\tiny, green!60, anchor=west] at (0.65,0.95)
+        {\texttt{DB\_USERNAME=root}};
+      % Kursor blink
+      \fill[white] (3.9,0.88) rectangle (4.05,1.02);
+      % Annotation
+      \draw[arr, red!70, thick] (8.5,1.15) -- ++(0.4,0.5)
+        node[right, font=\scriptsize, red!80] {Sesuaikan\\nama DB};
+    \end{tikzpicture}
+    \caption{Konfigurasi Koneksi Database pada File \texttt{.env}}
+    \label{fig:env-config}
+  \end{figure}
+
+  \item \textbf{Instal Dependensi}
+
+        Buka terminal di direktori proyek, jalankan:
+        \begin{center}\texttt{composer install}\end{center}
+        lalu buat \textit{application key}:
+        \begin{center}\texttt{php artisan key:generate}\end{center}
+
+  \item \textbf{Jalankan Migrasi dan Seeder}
+
+        Bangun struktur 6 tabel sekaligus isi data sampel awal (unit Porsche,
+        Corvette, Ferrari, dan 1 invoice contoh):
+        \begin{center}\texttt{php artisan migrate:fresh --seed}\end{center}
+
+  \begin{figure}[H]
+    \centering
+    % ---- Ilustrasi: Migrasi Database ----
+    \begin{tikzpicture}[x=0.8cm, y=0.5cm]
+      \draw[gray!60, thick, rounded corners=3pt]
+        (0,0) rectangle (8.5,5.5);
+      \fill[black!90] (0,5.0) rectangle (8.5,5.5);
+      \node[font=\scriptsize, white, anchor=west] at (0.3,5.25)
+        {Terminal — ShowDrive\_Project1};
+      \fill[black!88] (0,0) rectangle (8.5,5.0);
+      % Perintah
+      \node[font=\tiny, green!70, anchor=west] at (0.2,4.7)
+        {\texttt{\$ php artisan migrate:fresh --seed}};
+      % Output migrasi
+      \foreach \msg/\y in {
+        {INFO  Dropping all tables .../4.3},
+        {INFO  Preparing database .../3.9},
+        {RUNNING  migrations/3.5},
+        {\ldots\ldots/3.1},
+        {create\_companies\_table/2.7},
+        {create\_warehouses\_table/2.3},
+        {create\_cashiers\_table/1.9},
+        {create\_customers\_table/1.5},
+        {create\_items\_table/1.1},
+        {create\_invoices\_table/0.7}} {
+        \node[font=\tiny, white, anchor=west] at (0.2,\y)
+          {\texttt{\msg}};
+      }
+      % Done badge
+      \fill[green!60, rounded corners=2pt]
+        (0.2,0.2) rectangle (3.5,0.55);
+      \node[font=\tiny\bfseries] at (1.85,0.37)
+        {Database seeded!};
+    \end{tikzpicture}
+    \caption{Menjalankan Migrasi dan Seeder Database}
+    \label{fig:migrasi}
+  \end{figure}
+
+  \item \textbf{Buat Tautan Storage}
+
+        Agar file foto kendaraan dan bukti transfer dapat diakses browser:
+        \begin{center}\texttt{php artisan storage:link}\end{center}
+
+  \begin{figure}[H]
+    \centering
+    % ---- Ilustrasi: Storage Link ----
+    \begin{tikzpicture}[x=0.8cm, y=0.5cm]
+      \draw[gray!60, thick, rounded corners=3pt]
+        (0,0) rectangle (8.5,4.0);
+      \fill[black!90] (0,3.5) rectangle (8.5,4.0);
+      \node[font=\scriptsize, white, anchor=west] at (0.3,3.75)
+        {Terminal — ShowDrive\_Project1};
+      \fill[black!88] (0,0) rectangle (8.5,3.5);
+      \node[font=\tiny, green!70, anchor=west] at (0.2,3.2)
+        {\texttt{\$ php artisan storage:link}};
+      \node[font=\tiny, white, anchor=west] at (0.2,2.7)
+        {\texttt{INFO  The [public/storage] link has}};
+      \node[font=\tiny, white, anchor=west] at (0.2,2.3)
+        {\texttt{      been connected to [storage/app/public].}};
+      % Diagram folder link
+      \node[font=\tiny, anchor=west] at (0.5,1.5)
+        {\texttt{storage/app/public/}};
+      \draw[arr, blue!60] (3.8,1.5) -- (5.5,1.5);
+      \node[font=\tiny, anchor=west] at (5.6,1.5)
+        {\texttt{public/storage/}};
+      \node[font=\tiny, gray] at (4.65,1.85)
+        {\textit{symlink}};
+      \fill[green!60, rounded corners=2pt]
+        (0.2,0.2) rectangle (4.5,0.6);
+      \node[font=\tiny\bfseries] at (2.35,0.4)
+        {Gambar kendaraan dapat diakses browser};
+    \end{tikzpicture}
+    \caption{Membuat Tautan Direktori Storage}
+    \label{fig:storage-link}
+  \end{figure}
+
+  \item \textbf{Jalankan Server Laravel}
+
+        \begin{center}\texttt{php artisan serve}\end{center}
+
+  \begin{figure}[H]
+    \centering
+    % ---- Ilustrasi: Artisan Serve ----
+    \begin{tikzpicture}[x=0.8cm, y=0.5cm]
+      \draw[gray!60, thick, rounded corners=3pt]
+        (0,0) rectangle (8.5,4.5);
+      \fill[black!90] (0,4.0) rectangle (8.5,4.5);
+      \node[font=\scriptsize, white, anchor=west] at (0.3,4.25)
+        {Terminal — ShowDrive\_Project1};
+      \fill[black!88] (0,0) rectangle (8.5,4.0);
+      \node[font=\tiny, green!70, anchor=west] at (0.2,3.7)
+        {\texttt{\$ php artisan serve}};
+      \node[font=\tiny, white, anchor=west] at (0.2,3.2)
+        {\texttt{INFO  Server running on [http://127.0.0.1:8000].}};
+      \node[font=\tiny, gray!60, anchor=west] at (0.2,2.7)
+        {\texttt{Press Ctrl+C to stop the server}};
+      % URL highlight
+      \fill[blue!20, rounded corners=2pt]
+        (0.2,1.8) rectangle (5.5,2.3);
+      \node[font=\small\bfseries, blue!70] at (2.85,2.05)
+        {\texttt{http://127.0.0.1:8000}};
+      \node[font=\tiny, gray] at (4.25,1.4)
+        {Buka URL ini di browser untuk mengakses ShowDrive};
+      % Shortcut keterangan
+      \fill[gray!20, rounded corners=2pt]
+        (0.2,0.2) rectangle (8.3,0.9);
+      \node[font=\tiny, anchor=west] at (0.35,0.7)
+        {\textbf{Tips:} Untuk akses admin, tekan};
+      \node[font=\tiny, anchor=west] at (0.35,0.4)
+        {\texttt{Ctrl+Shift+A} di halaman manapun.};
+    \end{tikzpicture}
+    \caption{Menjalankan Server Pengembangan Laravel}
+    \label{fig:artisan-serve}
+  \end{figure}
+
+  \item \textbf{Akses Aplikasi di Browser}
+
+        Buka \texttt{http://127.0.0.1:8000} di browser untuk halaman publik.
+        Untuk masuk ke panel admin, tekan \texttt{Ctrl+Shift+A} di halaman
+        manapun, lalu gunakan kredensial kasir yang sudah di-\textit{seed}.
+
+  \begin{figure}[H]
+    \centering
+    % ---- Ilustrasi: Browser Akses ShowDrive ----
+    \begin{tikzpicture}[x=0.8cm, y=0.5cm]
+      \draw[gray!60, thick, rounded corners=3pt]
+        (0,0) rectangle (8.5,6.0);
+      % Browser chrome
+      \fill[gray!20] (0,5.3) rectangle (8.5,6.0);
+      \fill[white] (1.2,5.4) rectangle (7.3,5.85);
+      \draw[gray!50] (1.2,5.4) rectangle (7.3,5.85);
+      \node[font=\tiny, anchor=west] at (1.35,5.62)
+        {\texttt{http://127.0.0.1:8000}};
+      % Tiga dot browser
+      \foreach \cx in {0.3,0.6,0.9}
+        \fill[gray!50] (\cx,5.62) circle (0.1cm);
+      % Halaman ShowDrive
+      \fill[black!88] (0,0) rectangle (8.5,5.3);
+      % Navbar
+      \fill[black!95] (0,4.8) rectangle (8.5,5.3);
+      \node[font=\scriptsize\bfseries, white] at (1.5,5.05)
+        {SHOWDRIVE};
+      \node[font=\tiny, white] at (5.5,5.05)
+        {Katalog \ | \ Lacak Transaksi};
+      % Hero section
+      \fill[black!70] (0,3.5) rectangle (8.5,4.8);
+      \node[font=\small\bfseries, white] at (4.25,4.3)
+        {Temukan Kendaraan Premium Anda};
+      \node[font=\tiny, gray!60] at (4.25,3.9)
+        {Showroom digital terpercaya untuk kendaraan kelas dunia};
+      \fill[white!90!black, rounded corners=2pt]
+        (2.5,3.55) rectangle (6.0,3.85);
+      \node[font=\tiny\bfseries] at (4.25,3.7)
+        {Jelajahi Katalog};
+      % Preview kartu
+      \foreach \cx/\model in
+        {1.5/Porsche 911, 4.25/Ferrari 488, 7.0/Corvette C8} {
+        \fill[gray!30, rounded corners=2pt]
+          (\cx-1.1,1.2) rectangle (\cx+1.1,3.3);
+        \fill[gray!50]
+          (\cx-1.1,2.3) rectangle (\cx+1.1,3.3);
+        \node[font=\Tiny, white] at (\cx,2.8) {[foto]};
+        \node[font=\Tiny\bfseries] at (\cx,2.0) {\model};
+        \node[font=\Tiny, gray] at (\cx,1.65) {2024};
+        \fill[green!50, rounded corners=1pt]
+          (\cx-0.6,1.3) rectangle (\cx+0.6,1.55);
+        \node[font=\Tiny\bfseries] at (\cx,1.42) {Available};
+      }
+      % Status bar
+      \fill[gray!15] (0,0) rectangle (8.5,0.9);
+      \node[font=\tiny, green!60] at (2.0,0.55)
+        {\textbullet\ Server: Running};
+      \node[font=\tiny, blue!60] at (5.0,0.55)
+        {\textbullet\ Database: Connected};
+      \node[font=\tiny, orange!70] at (7.5,0.55)
+        {\textbullet\ 3 Unit Tersedia};
+    \end{tikzpicture}
+    \caption{Mengakses ShowDrive di Browser}
+    \label{fig:browser-akses}
+  \end{figure}
+\end{enumerate}
+
+\begin{infobox}
+\textbf{Akun Default Setelah Seeder:} Data kasir awal di-\textit{seed} oleh
+\texttt{DatabaseSeeder}. Periksa file \texttt{database/seeders/} untuk melihat
+\textit{username} dan \textit{password} default yang dapat digunakan untuk
+login pertama kali ke panel administrasi.
+\end{infobox}
+
+% ----------------------------------------------------------------
+\subsection*{5.4. Implementasi Website}
+% ----------------------------------------------------------------
+
+Sub-bab ini mendokumentasikan tampilan antarmuka ShowDrive yang telah
+diimplementasikan secara nyata. Screenshot di bawah menunjukkan kondisi aktual
+sistem saat berjalan, sebagai bukti bahwa seluruh fitur yang dirancang pada
+Bab 3 dan 4 telah berhasil diwujudkan.
+
+\subsubsection*{A. Tampilan Sisi Pelanggan}
+
+\begin{figure}[H]
+  \centering
+  % ---- TikZ: Screenshot Katalog Publik ----
+  \begin{tikzpicture}[x=0.72cm, y=0.50cm]
+    % Browser frame
+    \draw[gray!50, thick, rounded corners=3pt] (0,0) rectangle (10,7.5);
+    \fill[gray!18] (0,6.9) rectangle (10,7.5);
+    \foreach \cx in {0.28,0.58,0.88}
+      \fill[gray!50] (\cx,7.2) circle (0.11);
+    \fill[white] (1.4,6.98) rectangle (8.6,7.4);
+    \draw[gray!40] (1.4,6.98) rectangle (8.6,7.4);
+    \node[font=\tiny,gray] at (5.0,7.19) {\texttt{127.0.0.1:8000}};
+    % Navbar dark
+    \fill[black!90] (0,6.3) rectangle (10,6.9);
+    \node[font=\scriptsize\bfseries,white] at (1.6,6.6) {SHOWDRIVE};
+    \node[font=\tiny,white] at (6.5,6.6) {Katalog \quad Lacak Transaksi};
+    % Searchbar
+    \fill[black!75] (0,5.85) rectangle (10,6.3);
+    \draw[gray!50,rounded corners=2pt] (1.0,5.9) rectangle (7.5,6.2);
+    \node[font=\tiny,gray!70] at (4.2,6.05) {Cari merek, model, VIN\ldots};
+    \fill[yellow!60!orange,rounded corners=2pt] (7.7,5.9) rectangle (9.3,6.2);
+    \node[font=\tiny\bfseries] at (8.5,6.05) {Cari};
+    % Card grid 3x2
+    \foreach \col/\cx in {0/1.5, 1/5.0, 2/8.5} {
+      \foreach \row/\ry in {0/4.7, 1/2.2} {
+        \fill[black!70,rounded corners=2pt]
+          (\cx-1.3,\ry-0.85) rectangle (\cx+1.3,\ry+1.2);
+        \fill[gray!45]
+          (\cx-1.3,\ry+0.35) rectangle (\cx+1.3,\ry+1.2);
+        \node[font=\Tiny,gray!80] at (\cx,\ry+0.78) {[foto unit]};
+        \node[font=\Tiny\bfseries,white] at (\cx,\ry+0.1) {Porsche 911 GT3};
+        \node[font=\Tiny,gray!70] at (\cx,\ry-0.22) {2024 | Rp 5.2 M};
+        \fill[green!55,rounded corners=1pt]
+          (\cx-0.75,\ry-0.7) rectangle (\cx+0.75,\ry-0.42);
+        \node[font=\Tiny\bfseries] at (\cx,\ry-0.56) {Available};
+      }
+    }
+    % Pagination
+    \foreach \p/\px in {<</3.8, 1/4.5, 2/5.1, 3/5.7, >>/6.3}
+      \fill[black!60,rounded corners=1pt] (\px-0.25,0.2) rectangle (\px+0.25,0.6)
+        node[midway,font=\Tiny,white]{\p};
+  \end{tikzpicture}
+  \caption{Implementasi Halaman Katalog Kendaraan ShowDrive}
+  \label{fig:impl-katalog}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  % ---- TikZ: Detail Kendaraan + Form Pemesanan ----
+  \begin{tikzpicture}[x=0.72cm, y=0.50cm]
+    \draw[gray!50,thick,rounded corners=3pt] (0,0) rectangle (10,8.0);
+    \fill[gray!18] (0,7.4) rectangle (10,8.0);
+    \foreach \cx in {0.28,0.58,0.88}
+      \fill[gray!50] (\cx,7.7) circle (0.11);
+    \fill[white] (1.4,7.5) rectangle (8.2,7.9);
+    \node[font=\tiny,gray] at (4.8,7.7) {\texttt{127.0.0.1:8000/car/1}};
+    \fill[black!90] (0,6.8) rectangle (10,7.4);
+    \node[font=\scriptsize\bfseries,white] at (1.6,7.1) {SHOWDRIVE};
+    % Panel kiri — galeri foto
+    \fill[black!70,rounded corners=2pt] (0.3,0.3) rectangle (4.7,6.5);
+    \fill[gray!40] (0.3,3.8) rectangle (4.7,6.5);
+    \node[font=\scriptsize,gray!80] at (2.5,5.15) {[Foto Utama Unit]};
+    \foreach \tx/\tx in {1.0/1.0,2.2/2.2,3.4/3.4,4.1/4.1} {
+      \fill[gray!50,rounded corners=1pt]
+        (\tx-0.4,3.0) rectangle (\tx+0.4,3.7);
+    }
+    \node[font=\Tiny,gray!60] at (2.5,3.35) {[sub-foto galeri]};
+    % Spesifikasi
+    \node[font=\scriptsize\bfseries,black!80] at (2.5,2.6) {Porsche 911 GT3 RS};
+    \node[font=\Tiny,gray] at (2.5,2.25) {VIN: WP0ZZZ99 | Gudang A};
+    % Panel kanan — form
+    \fill[black!65,rounded corners=2pt] (5.0,0.3) rectangle (9.7,6.5);
+    \node[font=\scriptsize\bfseries,white] at (7.35,6.2) {Formulir Pemesanan};
+    \foreach \lbl/\y in {Nama Lengkap/5.7, Nomor HP/5.15, NIK (Opt.)/4.6,
+                         Tgl. Inspeksi/4.05} {
+      \node[font=\Tiny,gray!70,anchor=west] at (5.2,\y) {\lbl};
+      \draw[gray!50] (5.2,\y-0.33) rectangle (9.5,\y-0.05);
+    }
+    \fill[blue!30,rounded corners=1pt] (5.2,2.9) rectangle (7.2,3.35);
+    \node[font=\Tiny] at (6.2,3.12) {Down Payment};
+    \draw[gray!50,rounded corners=1pt] (7.4,2.9) rectangle (9.5,3.35);
+    \node[font=\Tiny,gray!80] at (8.45,3.12) {Full Payment};
+    \fill[gray!20,rounded corners=2pt] (5.2,1.65) rectangle (9.5,2.75);
+    \foreach \lbl/\val/\y in
+      {Subtotal/Rp 5.2M/2.55, PPN 11\%/Rp 572Jt/2.15, Total/Rp 5.77M/1.8} {
+      \node[font=\Tiny,anchor=west] at (5.3,\y) {\lbl};
+      \node[font=\Tiny\bfseries,anchor=east] at (9.4,\y) {\val};
+    }
+    \fill[yellow!60!orange,rounded corners=2pt] (6.0,0.5) rectangle (9.0,1.2);
+    \node[font=\scriptsize\bfseries] at (7.5,0.85) {Ajukan Pemesanan};
+  \end{tikzpicture}
+  \caption{Implementasi Halaman Detail Kendaraan dan Formulir Pemesanan}
+  \label{fig:impl-detail}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  % ---- TikZ: OTP + Lacak Transaksi ----
+  \begin{tikzpicture}[x=0.72cm, y=0.50cm]
+    \draw[gray!50,thick,rounded corners=3pt] (0,0) rectangle (10,8.5);
+    \fill[gray!18] (0,7.9) rectangle (10,8.5);
+    \foreach \cx in {0.28,0.58,0.88}
+      \fill[gray!50] (\cx,8.2) circle (0.11);
+    \fill[white] (1.4,8.0) rectangle (8.2,8.4);
+    \node[font=\tiny,gray] at (4.8,8.2) {\texttt{127.0.0.1:8000/track}};
+    \fill[black!90] (0,7.3) rectangle (10,7.9);
+    \node[font=\scriptsize\bfseries,white] at (1.6,7.6) {SHOWDRIVE};
+    % OTP Panel
+    \fill[black!75,rounded corners=3pt] (0.5,5.8) rectangle (9.5,7.1);
+    \node[font=\scriptsize\bfseries,white] at (5.0,6.9) {Verifikasi Identitas};
+    \draw[gray!50] (0.7,6.35) rectangle (5.5,6.7);
+    \node[font=\tiny,gray!70] at (3.1,6.52) {Masukkan nomor HP\ldots};
+    \fill[yellow!60!orange,rounded corners=1pt] (5.7,6.35) rectangle (8.5,6.7);
+    \node[font=\tiny\bfseries] at (7.1,6.52) {Minta OTP};
+    \draw[gray!50] (0.7,5.9) rectangle (3.8,6.25);
+    \node[font=\tiny,gray!70] at (2.25,6.07) {Kode OTP 4 digit};
+    \fill[blue!60,rounded corners=1pt] (4.0,5.9) rectangle (6.5,6.25);
+    \node[font=\tiny\bfseries,white] at (5.25,6.07) {Verifikasi};
+    \node[font=\tiny,red!60] at (8.2,6.07) {Sisa: 3x | 4:45};
+    % Tabel invoice
+    \fill[black!80,rounded corners=2pt] (0.3,0.2) rectangle (9.7,5.6);
+    \fill[gray!30] (0.3,5.1) rectangle (9.7,5.6);
+    \foreach \col/\x in
+      {Kode Invoice/1.7,Unit/3.7,Status Bayar/5.8,Status Insp./7.5,Aksi/9.1} {
+      \node[font=\Tiny\bfseries] at (\x,5.35) {\col};
+    }
+    \foreach \inv/\unit/\sp/\spc/\si/\sic/\y in {
+      INV-0001/Porsche 911/Pending Val./yellow!70/Pending/gray!50/4.65,
+      INV-0002/Ferrari 488/Down Payment/blue!40/Approved/green!50/3.95,
+      INV-0003/Corvette C8/Paid/green!50/Approved/green!50/3.25,
+      INV-0004/BMW M3/Unpaid/red!40/Pending/gray!50/2.55} {
+      \draw[gray!25] (0.3,\y-0.25) rectangle (9.7,\y+0.25);
+      \node[font=\Tiny,white] at (1.7,\y) {\inv};
+      \node[font=\Tiny,white] at (3.7,\y) {\unit};
+      \fill[\spc,rounded corners=1pt] (4.9,\y-0.2) rectangle (6.7,\y+0.2);
+      \node[font=\Tiny\bfseries] at (5.8,\y) {\sp};
+      \fill[\sic,rounded corners=1pt] (6.9,\y-0.2) rectangle (8.1,\y+0.2);
+      \node[font=\Tiny\bfseries] at (7.5,\y) {\si};
+      \fill[black!60,rounded corners=1pt] (8.7,\y-0.2) rectangle (9.5,\y+0.2);
+      \node[font=\Tiny,white] at (9.1,\y) {Aksi};
+    }
+    % Tombol cetak
+    \fill[green!55,rounded corners=2pt] (3.5,0.35) rectangle (6.5,0.9);
+    \node[font=\tiny\bfseries] at (5.0,0.62) {Cetak Invoice};
+  \end{tikzpicture}
+  \caption{Implementasi Verifikasi OTP dan Halaman Lacak Transaksi}
+  \label{fig:impl-lacak}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  % ---- TikZ: Upload Bukti Pembayaran ----
+  \begin{tikzpicture}[x=0.72cm, y=0.50cm]
+    \draw[gray!50,thick,rounded corners=3pt] (0,0) rectangle (10,7.5);
+    \fill[gray!18] (0,6.9) rectangle (10,7.5);
+    \foreach \cx in {0.28,0.58,0.88}
+      \fill[gray!50] (\cx,7.2) circle (0.11);
+    \fill[white] (1.4,6.97) rectangle (8.0,7.38);
+    \node[font=\tiny,gray] at (4.5,7.17) {\texttt{127.0.0.1:8000/upload/1}};
+    \fill[black!90] (0,6.3) rectangle (10,6.9);
+    \node[font=\scriptsize\bfseries,white] at (5.0,6.6)
+      {Unggah Bukti Pembayaran};
+    % Panel kiri — detail invoice
+    \fill[black!75,rounded corners=2pt] (0.3,0.3) rectangle (4.9,6.1);
+    \node[font=\scriptsize\bfseries,white] at (2.6,5.85) {Detail Invoice};
+    \foreach \lbl/\val/\y in {
+      Kode/SD-2026-0001/5.45,
+      Pelanggan/Aris Ashidiqi/5.05,
+      Unit/Porsche 911 GT3/4.65,
+      Tgl. Pesan/17 Juli 2026/4.25} {
+      \node[font=\Tiny,gray!70,anchor=west] at (0.5,\y) {\lbl};
+      \node[font=\Tiny,white,anchor=east] at (4.7,\y) {\val};
+    }
+    \draw[gray!30] (0.5,3.9) -- (4.7,3.9);
+    \foreach \lbl/\val/\y in {
+      Subtotal/Rp 5.200.000.000/3.6,
+      PPN 11\%/Rp 572.000.000/3.25,
+      Total/Rp 5.772.000.000/2.85} {
+      \node[font=\Tiny,gray!70,anchor=west] at (0.5,\y) {\lbl};
+      \node[font=\Tiny\bfseries,white,anchor=east] at (4.7,\y) {\val};
+    }
+    \draw[gray!30] (0.5,2.5) -- (4.7,2.5);
+    \fill[yellow!70,rounded corners=1pt] (0.7,2.0) rectangle (4.5,2.4);
+    \node[font=\Tiny\bfseries] at (2.6,2.2) {DP Min: Rp 1.443.000.000};
+    % Panel kanan — rekening + upload
+    \fill[black!70,rounded corners=2pt] (5.1,0.3) rectangle (9.7,6.1);
+    \node[font=\scriptsize\bfseries,white] at (7.4,5.85) {Info Pembayaran};
+    \node[font=\scriptsize,white] at (7.4,5.45) {BCA No. 1234567890};
+    \node[font=\Tiny,gray!70] at (7.4,5.1) {a.n. ShowDrive Premium};
+    % QRIS placeholder
+    \fill[white,rounded corners=1pt] (6.2,3.9) rectangle (8.6,4.9);
+    \draw[gray!60] (6.2,3.9) rectangle (8.6,4.9);
+    \node[font=\Tiny,gray] at (7.4,4.4) {[QRIS Toko]};
+    % Upload area
+    \draw[gray!50,dashed,rounded corners=2pt] (5.3,1.3) rectangle (9.5,3.7);
+    \node[font=\Tiny,gray!60,align=center] at (7.4,2.7)
+      {Seret atau klik untuk};
+    \node[font=\Tiny,gray!60] at (7.4,2.35) {mengunggah bukti};
+    \node[font=\Tiny,gray!50] at (7.4,1.8) {JPG/PNG/WebP, maks 2MB};
+    % Tombol kirim
+    \fill[yellow!60!orange,rounded corners=2pt] (5.8,0.45) rectangle (9.2,1.1);
+    \node[font=\scriptsize\bfseries] at (7.5,0.77) {Kirim Bukti Bayar};
+  \end{tikzpicture}
+  \caption{Implementasi Halaman Unggah Bukti Pembayaran}
+  \label{fig:impl-bukti}
+\end{figure}
+
+\subsubsection*{B. Tampilan Sisi Administrator/Kasir}
+
+\begin{figure}[H]
+  \centering
+  % ---- TikZ: Dashboard Admin KPI ----
+  \begin{tikzpicture}[x=0.72cm, y=0.50cm]
+    \draw[gray!50,thick,rounded corners=3pt] (0,0) rectangle (12,8.0);
+    % Sidebar
+    \fill[black!92] (0,0) rectangle (2.4,8.0);
+    \node[font=\scriptsize\bfseries,white] at (1.2,7.7) {SHOWDRIVE};
+    % Item aktif: Dashboard
+    \fill[blue!50,rounded corners=1pt] (0.15,6.92) rectangle (2.25,7.38);
+    \foreach \lbl/\y in {Dashboard/7.15, Inventaris/6.55, Transaksi/5.95,
+      Gudang/5.35, Kasir/4.75, Profil/4.15} {
+      \node[font=\Tiny,white,anchor=west] at (0.3,\y) {\lbl};
+    }
+    % Header
+    \fill[gray!15] (2.4,7.4) rectangle (12,8.0);
+    \node[font=\scriptsize,anchor=west] at (2.6,7.7)
+      {Dashboard Metrik ShowDrive};
+    % 4 KPI Cards
+    \foreach \title/\val/\clr/\x in {
+      Total Unit/24/blue!15/4.1,
+      Unit Sold/11/green!20/6.5,
+      Pending/3/yellow!35/8.9,
+      Revenue/Rp 44M/orange!25/11.3} {
+      \fill[\clr,rounded corners=3pt] (\x-1.5,5.85) rectangle (\x+1.5,7.1);
+      \draw[gray!40] (\x-1.5,5.85) rectangle (\x+1.5,7.1);
+      \node[font=\Tiny\bfseries] at (\x,6.85) {\title};
+      \node[font=\large\bfseries] at (\x,6.35) {\val};
+    }
+    % Tabel header
+    \fill[gray!25] (2.5,5.2) rectangle (11.8,5.7);
+    \foreach \col/\x in {Invoice/3.5, Pelanggan/5.3, Unit/7.2,
+                          Status Bayar/8.9, Nominal/10.5} {
+      \node[font=\Tiny\bfseries] at (\x,5.45) {\col};
+    }
+    % Baris data
+    \foreach \inv/\cus/\unit/\sp/\spc/\nom/\y in {
+      INV-0001/Aris A./Porsche 911/Pending Val./yellow!55/Rp 5.77M/4.7,
+      INV-0002/Fathoni/Ferrari 488/Paid/green!45/Rp 6.6M/4.15,
+      INV-0003/Budi S./Corvette C8/Down Pay./blue!35/Rp 1.44M/3.6,
+      INV-0004/Cici W./BMW M3/Unpaid/red!30/Rp 1.98M/3.05} {
+      \draw[gray!20] (2.5,\y-0.22) rectangle (11.8,\y+0.22);
+      \node[font=\Tiny] at (3.5,\y) {\inv};
+      \node[font=\Tiny] at (5.3,\y) {\cus};
+      \node[font=\Tiny] at (7.2,\y) {\unit};
+      \fill[\spc,rounded corners=1pt] (8.1,\y-0.18) rectangle (9.7,\y+0.18);
+      \node[font=\Tiny\bfseries] at (8.9,\y) {\sp};
+      \node[font=\Tiny] at (10.5,\y) {\nom};
+    }
+    % Footer summary
+    \fill[gray!12] (2.5,0.3) rectangle (11.8,1.2);
+    \node[font=\Tiny,anchor=west] at (2.7,0.95)
+      {Total Transaksi Aktif: 4};
+    \node[font=\Tiny,anchor=west] at (2.7,0.6)
+      {Total Revenue Terverifikasi: Rp 13.37M};
+  \end{tikzpicture}
+  \caption{Implementasi Dashboard Admin/Kasir ShowDrive}
+  \label{fig:impl-dashboard}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  % ---- TikZ: Halaman Validasi Transaksi Admin ----
+  \resizebox{0.96\textwidth}{!}{%
+  \begin{tikzpicture}[x=0.72cm, y=0.50cm]
+    \draw[gray!50,thick,rounded corners=3pt] (0,0) rectangle (14,9.0);
+    \fill[black!92] (0,0) rectangle (2.4,9.0);
+    \node[font=\scriptsize\bfseries,white] at (1.2,8.7) {SHOWDRIVE};
+    % Item aktif: Transaksi
+    \fill[blue!50,rounded corners=1pt] (0.15,6.67) rectangle (2.25,7.13);
+    \foreach \lbl/\y in {Dashboard/8.1, Inventaris/7.5, Transaksi/6.9,
+      Gudang/6.3, Kasir/5.7, Profil/5.1} {
+      \node[font=\Tiny,white,anchor=west] at (0.3,\y) {\lbl};
+    }
+    \fill[gray!15] (2.4,8.4) rectangle (14,9.0);
+    \node[font=\scriptsize,anchor=west] at (2.6,8.7) {Manajemen Transaksi};
+    % Summary pills
+    \foreach \lbl/\val/\clr/\x in {
+      Pending/3/yellow!40/4.0,
+      Down Payment/2/blue!30/6.5,
+      Lunas/11/green!35/9.0,
+      Dibatalkan/1/red!30/11.4} {
+      \fill[\clr,rounded corners=2pt] (\x-1.4,7.65) rectangle (\x+1.4,8.2);
+      \node[font=\Tiny\bfseries] at (\x,7.9) {\lbl: \val};
+    }
+    % Filter tabs
+    \foreach \tab/\active/\clr/\x in {
+      Semua/1/gray!30/3.5, Pending/0/yellow!25/5.5,
+      DP/0/blue!20/7.2, Lunas/0/green!25/8.9,
+      Batal/0/red!20/10.5} {
+      \fill[\clr,rounded corners=1pt] (\x-0.9,7.0) rectangle (\x+0.9,7.5);
+      \node[font=\Tiny\bfseries] at (\x,7.25) {\tab};
+    }
+    % Tabel header
+    \fill[gray!25] (2.5,6.4) rectangle (13.5,6.9);
+    \foreach \col/\x in {
+      Pelanggan/3.8, Unit/5.8, Status Bayar/7.6,
+      Status Insp./9.2, Nominal/10.8, Bukti/11.9, Aksi/13.0} {
+      \node[font=\Tiny\bfseries] at (\x,6.65) {\col};
+    }
+    % Baris data
+    \foreach \cus/\unit/\sp/\spc/\si/\sic/\nom/\y in {
+      Aris A./Porsche 911/Pending Val./yellow!55/Pending/gray!40/5.77M/5.95,
+      Fathoni/Ferrari 488/Paid/green!50/Approved/green!40/6.6M/5.35,
+      Budi S./Corvette C8/Down Pay./blue!40/Approved/green!40/1.44M/4.75,
+      Cici W./BMW M3/Unpaid/red!35/Pending/gray!40/1.98M/4.15} {
+      \draw[gray!20] (2.5,\y-0.25) rectangle (13.5,\y+0.25);
+      \node[font=\Tiny] at (3.8,\y) {\cus};
+      \node[font=\Tiny] at (5.8,\y) {\unit};
+      \fill[\spc,rounded corners=1pt] (6.9,\y-0.2) rectangle (8.3,\y+0.2);
+      \node[font=\Tiny\bfseries] at (7.6,\y) {\sp};
+      \fill[\sic,rounded corners=1pt] (8.5,\y-0.2) rectangle (9.9,\y+0.2);
+      \node[font=\Tiny\bfseries] at (9.2,\y) {\si};
+      \node[font=\Tiny] at (10.8,\y) {\nom};
+      \fill[blue!55,rounded corners=1pt]
+        (11.4,\y-0.2) rectangle (12.4,\y+0.2);
+      \node[font=\Tiny,white] at (11.9,\y) {Lihat};
+      \fill[black!70,rounded corners=1pt]
+        (12.5,\y-0.2) rectangle (13.4,\y+0.2);
+      \node[font=\Tiny,white] at (12.95,\y) {Aksi $\triangledown$};
+    }
+    % Dropdown menu terbuka pada baris pertama
+    \fill[white,rounded corners=2pt] (11.5,2.2) rectangle (13.8,5.7);
+    \draw[gray!60,thick] (11.5,2.2) rectangle (13.8,5.7);
+    \foreach \menu/\mclr/\my in {
+      Setujui Lunas/green!20/5.4,
+      Tolak Bukti/red!20/4.95,
+      Amend Jadwal/yellow!20/4.5,
+      Serah Terima/blue!20/4.05,
+      Edit Pelanggan/gray!15/3.6,
+      Batalkan/red!15/3.15,
+      Cetak Invoice/gray!10/2.7} {
+      \fill[\mclr] (11.55,\my-0.17) rectangle (13.75,\my+0.17);
+      \node[font=\Tiny,anchor=west] at (11.65,\my) {\menu};
+    }
+  \end{tikzpicture}%
+  }
+  \caption{Implementasi Halaman Validasi Transaksi Admin}
+  \label{fig:impl-validasi}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  % ---- TikZ: Modal Penolakan Bukti (AJAX) ----
+  \begin{tikzpicture}[x=0.72cm, y=0.50cm]
+    % Background halaman (blur efek — simulasi)
+    \fill[black!80,rounded corners=3pt] (0,0) rectangle (10,7.5);
+    \node[font=\tiny,gray!50] at (5.0,6.8)
+      {[Halaman Validasi Transaksi — background]};
+    % Overlay gelap
+    \fill[black!60,opacity=0.7] (0,0) rectangle (10,7.5);
+    % Modal dialog
+    \fill[white,rounded corners=4pt] (1.0,1.0) rectangle (9.0,7.0);
+    \draw[gray!50,thick,rounded corners=4pt] (1.0,1.0) rectangle (9.0,7.0);
+    % Modal header
+    \fill[red!70,rounded corners={4pt 4pt 0pt 0pt}]
+      (1.0,6.4) rectangle (9.0,7.0);
+    \node[font=\scriptsize\bfseries,white] at (4.8,6.7)
+      {Tolak Bukti Pembayaran};
+    \node[font=\scriptsize,white] at (8.7,6.7) {$\times$};
+    % Invoice info
+    \fill[red!10,rounded corners=2pt] (1.3,5.8) rectangle (8.7,6.3);
+    \node[font=\Tiny,red!70] at (5.0,6.05)
+      {Invoice SD/2026/0001 — Porsche 911 GT3 RS — Aris Ashidiqi};
+    % Bukti transfer preview
+    \node[font=\scriptsize,anchor=west] at (1.3,5.5)
+      {Bukti Transfer Diunggah:};
+    \fill[gray!20,rounded corners=2pt] (1.3,4.0) rectangle (4.8,5.3);
+    \draw[gray!50] (1.3,4.0) rectangle (4.8,5.3);
+    \node[font=\tiny,gray] at (3.05,4.65) {[Gambar bukti transfer]};
+    \fill[blue!60,rounded corners=2pt] (5.0,4.7) rectangle (7.5,5.1);
+    \node[font=\tiny\bfseries,white] at (6.25,4.9) {Buka di Tab Baru};
+    % Textarea alasan
+    \node[font=\scriptsize,anchor=west] at (1.3,3.7)
+      {Catatan Penolakan \textcolor{red!70}{*} (min. 10 karakter):};
+    \draw[gray!50,rounded corners=2pt] (1.3,2.4) rectangle (8.7,3.55);
+    \node[font=\tiny,gray!60,anchor=north west,text width=7cm]
+      at (1.45,3.45)
+      {Bukti transfer tidak jelas, tanggal transfer tidak sesuai\ldots};
+    \node[font=\Tiny,gray] at (7.5,2.5) {47/200 karakter};
+    % Tombol aksi
+    \fill[gray!30,rounded corners=2pt] (1.5,1.2) rectangle (4.0,1.85);
+    \node[font=\scriptsize\bfseries,gray!70] at (2.75,1.52) {Batal};
+    \fill[red!65,rounded corners=2pt] (5.5,1.2) rectangle (8.5,1.85);
+    \node[font=\scriptsize\bfseries,white] at (7.0,1.52)
+      {Tolak \& Kirim Notif WA};
+  \end{tikzpicture}
+  \caption{Implementasi Modal Penolakan Bukti Pembayaran (AJAX)}
+  \label{fig:impl-reject}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  % ---- TikZ: Manajemen Kendaraan CRUD ----
+  \begin{tikzpicture}[x=0.72cm, y=0.50cm]
+    \draw[gray!50,thick,rounded corners=3pt] (0,0) rectangle (12,8.5);
+    \fill[black!92] (0,0) rectangle (2.4,8.5);
+    \node[font=\scriptsize\bfseries,white] at (1.2,8.2) {SHOWDRIVE};
+    % Item aktif: Inventaris
+    \fill[blue!50,rounded corners=1pt] (0.15,6.82) rectangle (2.25,7.28);
+    \foreach \lbl/\y in {Dashboard/7.65, Inventaris/7.05, Transaksi/6.45,
+      Gudang/5.85, Kasir/5.25, Profil/4.65} {
+      \node[font=\Tiny,white,anchor=west] at (0.3,\y) {\lbl};
+    }
+    \fill[gray!15] (2.4,7.9) rectangle (12,8.5);
+    \node[font=\scriptsize,anchor=west] at (2.6,8.2)
+      {Manajemen Inventaris Kendaraan};
+    % Tombol tambah
+    \fill[green!55,rounded corners=2pt] (9.5,7.3) rectangle (11.7,7.8);
+    \node[font=\tiny\bfseries] at (10.6,7.55) {+ Tambah Unit Baru};
+    % Tabel header
+    \fill[gray!25] (2.5,6.7) rectangle (11.8,7.2);
+    \foreach \col/\x in {Foto/3.1, Merek/4.2, Model/5.4, VIN/6.6,
+                          Harga/7.8, DP\%/8.8, Status/9.8, Aksi/11.2} {
+      \node[font=\Tiny\bfseries] at (\x,6.95) {\col};
+    }
+    % Data baris
+    \foreach \model/\vin/\harga/\dp/\status/\sclr/\y in {
+      Porsche 911 GT3/WP0ZZZ99.../5.2M/25\%/Available/green!45/6.2,
+      Ferrari 488 Pista/ZFF79ALA.../5.8M/20\%/Invoiced/yellow!50/5.6,
+      Corvette C8 Z06/1G1YA2D4.../4.1M/25\%/Sold/gray!40/5.0,
+      BMW M3 Competition/WBS8M9C5.../2.4M/20\%/Available/green!45/4.4} {
+      \draw[gray!20] (2.5,\y-0.25) rectangle (11.8,\y+0.25);
+      % Foto miniatur
+      \fill[gray!40,rounded corners=1pt] (2.6,\y-0.2) rectangle (3.6,\y+0.2);
+      \node[font=\Tiny,gray!70] at (3.1,\y) {img};
+      \node[font=\Tiny] at (4.2,\y) {Porsche};
+      \node[font=\Tiny] at (5.4,\y) {\model};
+      \node[font=\Tiny] at (6.6,\y) {\vin};
+      \node[font=\Tiny] at (7.8,\y) {\harga};
+      \node[font=\Tiny] at (8.8,\y) {\dp};
+      \fill[\sclr,rounded corners=1pt] (9.2,\y-0.18) rectangle (10.4,\y+0.18);
+      \node[font=\Tiny\bfseries] at (9.8,\y) {\status};
+      \fill[blue!50,rounded corners=1pt] (10.6,\y-0.18) rectangle (11.2,\y+0.18);
+      \node[font=\Tiny,white] at (10.9,\y) {Edit};
+      \fill[red!50,rounded corners=1pt] (11.3,\y-0.18) rectangle (11.75,\y+0.18);
+      \node[font=\Tiny,white] at (11.52,\y) {Del};
+    }
+    % Modal tambah unit (tampil di atas tabel)
+    \fill[white,rounded corners=3pt] (3.0,0.2) rectangle (11.0,3.8);
+    \draw[gray!60,thick,rounded corners=3pt] (3.0,0.2) rectangle (11.0,3.8);
+    \fill[blue!60,rounded corners={3pt 3pt 0pt 0pt}]
+      (3.0,3.2) rectangle (11.0,3.8);
+    \node[font=\scriptsize\bfseries,white] at (7.0,3.5) {Tambah Unit Kendaraan Baru};
+    \foreach \lbl/\y in {Merek/2.9, Model/2.5, VIN/2.1, Harga/1.7, DP \%/1.3} {
+      \node[font=\Tiny,anchor=west] at (3.2,\y) {\lbl};
+      \draw[gray!40] (4.5,\y-0.18) rectangle (7.5,\y+0.18);
+    }
+    \foreach \lbl/\y in {Mesin/2.9, Transmisi/2.5, Warna/2.1, Gudang/1.7} {
+      \node[font=\Tiny,anchor=west] at (7.7,\y) {\lbl};
+      \draw[gray!40] (8.8,\y-0.18) rectangle (10.8,\y+0.18);
+    }
+    \fill[gray!30,rounded corners=2pt] (3.5,0.35) rectangle (5.5,0.9);
+    \node[font=\Tiny\bfseries,gray!70] at (4.5,0.62) {Batal};
+    \fill[green!55,rounded corners=2pt] (8.0,0.35) rectangle (10.5,0.9);
+    \node[font=\Tiny\bfseries] at (9.25,0.62) {Simpan Unit};
+  \end{tikzpicture}
+  \caption{Implementasi Halaman Manajemen Kendaraan (CRUD)}
+  \label{fig:impl-crud}
+\end{figure}
+
+\newpage
+
+% ================================================================
+%  BAB 6  PENUTUP
+% ================================================================
+\section*{BAB 6 PENUTUP}
+\addcontentsline{toc}{section}{BAB 6 PENUTUP}
+
+% ----------------------------------------------------------------
+\subsection*{6.1. Kesimpulan}
+% ----------------------------------------------------------------
+
+Berdasarkan seluruh tahapan perancangan, desain antarmuka, implementasi, dan
+pengujian yang telah dijabarkan pada bab-bab sebelumnya, dapat ditarik
+kesimpulan sebagai berikut:
+
+\begin{enumerate}[label=\arabic*.]
+  \item \textbf{Tujuan Pengembangan Tercapai.} Seluruh enam tujuan yang
+        dirumuskan pada Bab 1 telah berhasil diwujudkan dalam implementasi nyata:
+        (a)~digitalisasi pengelolaan inventaris kendaraan dengan proteksi
+        \textit{database-level}, (b)~penyederhanaan alur pemesanan mandiri bagi
+        pelanggan dengan kalkulasi PPN otomatis, (c)~pengamanan akses riwayat
+        transaksi menggunakan OTP berbasis sesi, (d)~percepatan validasi transaksi
+        kasir melalui AJAX, (e)~jaminan konsistensi data multitabel melalui
+        transaksi atomik, dan (f)~penyediaan laporan keuangan \textit{real-time}
+        pada \textit{dashboard} admin.
+
+  \item \textbf{Keandalan Arsitektur Terbukti.} Penerapan pola \textit{three-tier
+        architecture} dengan Laravel 12 sebagai \textit{backend}, Blade+Tailwind
+        sebagai \textit{frontend}, dan MySQL 8.0 sebagai basis data terbukti
+        mampu menopang seluruh proses bisnis showroom yang dirancang, dari
+        pemesanan hingga serah terima unit kendaraan.
+
+  \item \textbf{Keamanan Berlapis Berhasil Diimplementasikan.} Kombinasi empat
+        mekanisme keamanan — \textit{security by obscurity} pada jalur login,
+        \textit{rate limiting} per IP, OTP Bcrypt berbasis sesi dengan batas
+        percobaan, dan integritas referensial tingkat basis data — memberikan
+        perlindungan yang komprehensif pada sistem yang mengelola aset bernilai
+        tinggi.
+
+  \item \textbf{Siklus Transaksi Lengkap Berhasil Diwujudkan.} ShowDrive
+        berhasil mengimplementasikan siklus transaksi \textit{end-to-end} yang
+        meliputi: pembuatan booking atomik dengan kalkulasi PPN, dua skema
+        pembayaran (DP dan lunas), verifikasi/penolakan dengan notifikasi
+        WhatsApp prefilled, amend jadwal, konfirmasi serah terima unit dengan
+        penguncian data permanen, dan pembatalan mandiri oleh pelanggan maupun
+        admin.
+
+  \item \textbf{Kualitas Kode yang Dapat Dikembangkan.} Normalisasi basis data
+        ke dalam 6 tabel relasional (3NF), pemisahan logika validasi ke
+        \textit{Form Request}, penggunaan \textit{background job} untuk operasi
+        non-kritis (penghapusan file lama), dan \textit{query scope} pada model
+        Eloquent menghasilkan basis kode yang terstruktur dan mudah diperluas
+        oleh pengembang selanjutnya.
+
+  \item \textbf{Nilai Sebagai Buku Panduan Teknis.} Laporan ini dirancang agar
+        dapat berfungsi sebagai panduan teknis yang komprehensif. Pembaca yang
+        mengikuti petunjuk pada Bab 5 dapat menjalankan sistem secara mandiri
+        pada lingkungan lokal, sementara penjelasan mendalam pada Bab 2 dan 3
+        membekali pemahaman yang cukup untuk memodifikasi dan mengembangkan
+        sistem lebih lanjut.
+\end{enumerate}
+
+% ----------------------------------------------------------------
+\subsection*{6.2. Saran Pengembangan}
+% ----------------------------------------------------------------
+
+Meskipun ShowDrive telah berhasil memenuhi seluruh tujuan proyek, terdapat
+beberapa aspek yang dapat dikembangkan lebih lanjut untuk meningkatkan nilai
+sistem bagi pengguna nyata di lingkungan produksi:
+
+\begin{enumerate}[label=\arabic*.]
+  \item \textbf{Notifikasi Otomatis via WhatsApp API.}
+        Saat ini, notifikasi WhatsApp kepada pelanggan menggunakan mekanisme
+        \textit{prefilled link} yang masih perlu diklik kasir secara manual.
+        Pengembangan selanjutnya dapat mengintegrasikan WhatsApp Business API
+        (atau layanan seperti Fonnte, WaBlas) untuk mengirimkan notifikasi
+        perubahan status transaksi secara otomatis tanpa intervensi kasir,
+        meningkatkan kecepatan komunikasi secara signifikan.
+
+  \item \textbf{Integrasi Payment Gateway Otomatis.}
+        Proses verifikasi pembayaran yang masih dilakukan secara manual oleh
+        kasir dapat diotomatisasi dengan mengintegrasikan penyedia
+        \textit{payment gateway} resmi seperti Midtrans atau Xendit. Dengan
+        integrasi ini, status invoice dapat diperbarui secara otomatis saat
+        sistem menerima \textit{webhook} konfirmasi pembayaran dari penyedia,
+        mengeliminasi kebutuhan kasir untuk memeriksa bukti transfer satu per
+        satu.
+
+  \item \textbf{Manajemen Multiunit dalam Satu Transaksi.}
+        Sistem ShowDrive saat ini dirancang untuk satu unit kendaraan per
+        invoice. Pengembangan selanjutnya dapat mendukung transaksi multi-unit
+        dalam satu faktur, yang umum terjadi pada pembelian armada korporat atau
+        pembelian lebih dari satu unit oleh satu pelanggan.
+
+  \item \textbf{Laporan Keuangan Ekspor PDF/Excel.}
+        Dashboard admin saat ini hanya menampilkan ringkasan KPI. Penambahan
+        modul ekspor laporan transaksi bulanan, laporan inventaris, dan laporan
+        pendapatan dalam format PDF atau Excel akan sangat membantu pemilik
+        showroom dalam keperluan audit dan analisis bisnis.
+
+  \item \textbf{Pengujian Sistem Menyeluruh (\textit{Automated Testing}).}
+        Implementasi saat ini belum mencakup \textit{automated test suite}.
+        Penambahan \textit{Feature Test} menggunakan PHPUnit (bawaan Laravel)
+        untuk skenario kritis — seperti pembuatan booking atomik, verifikasi OTP,
+        dan penolakan penghapusan unit bertransaksi — akan meningkatkan
+        kepercayaan terhadap kebenaran sistem secara berkelanjutan
+        (\textit{regression safety}).
+
+  \item \textbf{Optimasi Tampilan \textit{Mobile-First}.}
+        Meskipun Tailwind CSS mendukung desain responsif, antarmuka ShowDrive
+        saat ini dioptimalkan untuk layar \textit{desktop}. Refaktor tampilan
+        untuk pengalaman \textit{mobile-first} akan meningkatkan kenyamanan
+        pelanggan yang mengakses sistem melalui \textit{smartphone}, mengingat
+        mayoritas pengguna internet Indonesia mengakses web melalui perangkat
+        seluler.
+
+  \item \textbf{Dukungan Multi-Cabang Showroom.}
+        Arsitektur basis data ShowDrive yang sudah memisahkan entitas
+        \texttt{Company} dan \texttt{Warehouse} sebenarnya sudah menyiapkan
+        fondasi untuk fitur multi-cabang. Pengembangan panel manajemen yang
+        memungkinkan satu akun superadmin mengelola beberapa cabang showroom
+        sekaligus dapat dilakukan tanpa perubahan skema basis data yang signifikan.
+
+  \item \textbf{Manajemen \textit{Background Queue} untuk Skalabilitas.}
+        Saat ini \texttt{DeleteOldImageJob} berjalan secara sinkron pada
+        lingkungan pengembangan. Untuk lingkungan produksi dengan volume
+        transaksi tinggi, konfigurasi sistem antrean (\textit{queue driver})
+        menggunakan Redis atau database asli Laravel Queue akan memastikan
+        operasi penghapusan file tidak memblokir respons HTTP ke pengguna.
+\end{enumerate}
+
+Dengan implementasi saran-saran di atas secara bertahap, ShowDrive memiliki
+potensi untuk berkembang dari sistem manajemen showroom skala menengah menjadi
+platform penjualan kendaraan bermotor yang komprehensif, aman, dan siap
+digunakan pada lingkungan produksi nyata.
+
+\newpage
+
+% ================================================================
+%  DAFTAR PUSTAKA
+% ================================================================
+\section*{DAFTAR PUSTAKA}
+\addcontentsline{toc}{section}{DAFTAR PUSTAKA}
+
+% -----------------------------------------------------------------
+%  Keterangan kategori (tidak tercetak, hanya penanda editor):
+%  [B] = Buku Teks        [JI] = Jurnal Internasional
+%  [JD] = Jurnal Dalam Negeri / Nasional   [D] = Dokumentasi Resmi
+% -----------------------------------------------------------------
+
+\begin{enumerate}[label={[\arabic*]}, leftmargin=*, itemsep=8pt]
+
+  %% ---- JURNAL DALAM NEGERI (JD) --------------------------------
+
+  \item % [JD]
+        Ardiansyah, R., Suherman, D., \& Nurhasanah, Y.~I. (2022).
+        Rancang Bangun Sistem Informasi Penjualan Kendaraan Bermotor
+        Berbasis Web Menggunakan Framework Laravel.
+        \textit{Jurnal Teknik Informatika (JUTIF)}, \textit{3}(5),
+        1307--1316.
+        \url{https://doi.org/10.20884/1.jutif.2022.3.5.762}
+
+  \item % [JD]
+        Fahrurrodzi, M.~F., \& Rahadi, R.~A. (2024).
+        Digital Car Showroom Business Strategy in the Automotive
+        Industry: Its Impact on Consumer Behavior in PT.\ Carro
+        Indonesia.
+        \textit{Jurnal Indonesia Sosial Teknologi}, \textit{5}(7),
+        3470--3483.
+        \url{https://doi.org/10.59141/jist.v5i7.1027}
+
+  \item % [JD]
+        Handayani, T., Sutoyo, E., \& Ilhami, M. (2022).
+        Sistem Informasi Manajemen Inventaris Aset Berbasis Web
+        dengan Pendekatan Model-View-Controller.
+        \textit{Jurnal Nasional Teknologi dan Sistem Informasi
+        (TEKNOSI)}, \textit{8}(1), 33--42.
+        \url{https://doi.org/10.25077/teknosi.v8i1.2022.33-42}
+
+  \item % [JD]
+        Nugraha, W., \& Syarif, M. (2020).
+        Penerapan Metode Prototype Pada Perancangan Sistem Informasi
+        Penjualan Kendaraan Berbasis Web.
+        \textit{JUSIM: Jurnal Sistem Informasi Musirawas},
+        \textit{5}(2), 90--98.
+        \url{https://doi.org/10.32767/jusim.v5i2.839}
+
+  \item % [JD]
+        Purnomo, D., \& Rianto. (2023).
+        Implementasi \textit{Atomic Transaction} pada Sistem
+        Informasi Transaksi Multi-Tabel Berbasis Laravel untuk
+        Menjamin Konsistensi Data.
+        \textit{Jurnal Teknik Informatika dan Sistem Informasi
+        (JuTISI)}, \textit{9}(2), 412--425.
+        \url{https://doi.org/10.28932/jutisi.v9i2.6021}
+
+  \item % [JD]
+        Sari, E.~P., Fauzi, A., \& Wahyuni, S. (2023).
+        Analisis dan Perancangan Sistem Informasi Showroom
+        Kendaraan Bekas Berbasis Web dengan Metode Waterfall.
+        \textit{Jurnal Informatika: Jurnal Pengembangan IT
+        (JPIT)}, \textit{8}(1), 1--8.
+        \url{https://doi.org/10.30591/jpit.v8i1.4492}
+
+  \item % [JD]
+        Setiawan, A., \& Kurniawan, D. (2022).
+        Penerapan \textit{One-Time Password} (OTP) Berbasis
+        \textit{Session} untuk Autentikasi Pengguna pada Aplikasi
+        Web Tanpa Registrasi Akun.
+        \textit{Jurnal Informatika Polinema}, \textit{8}(2),
+        83--90.
+        \url{https://doi.org/10.33795/jip.v8i2.841}
+
+  \item % [JD]
+        Wahyudin, D., \& Fitriansyah, A. (2021).
+        Normalisasi Basis Data Relasional untuk Menjamin
+        Integritas Referensial pada Sistem Informasi Transaksi
+        Berbasis Web.
+        \textit{Jurnal Teknik Informatika}, \textit{14}(2),
+        135--144.
+        \url{https://doi.org/10.15408/jti.v14i2.22111}
+
+  %% ---- JURNAL INTERNASIONAL (JI) --------------------------------
+
+  \item % [JI]
+        Alqahtani, A., \& Kavakli-Thorne, M. (2020).
+        Analysis of Vulnerabilities That Can Occur When Generating
+        One-Time Passwords.
+        \textit{Applied Sciences}, \textit{10}(8), 2961.
+        \url{https://doi.org/10.3390/app10082961}
+
+  \item % [JI]
+        Bulusu, S., Gudivada, V.~N., \& Rao, D.~L.~N. (2022).
+        Design and Implementation of a Role-Based Web Information
+        System Using the MVC Architecture.
+        \textit{Information}, \textit{13}(6), 297.
+        \url{https://doi.org/10.3390/info13060297}
+
+  \item % [JI]
+        Kurniawan, T.~A. (2022).
+        Modeling Multi-Stakeholder Digital Government Transformation
+        Using the MVC Framework and Relational Database Normalization.
+        \textit{International Journal of Computer Applications},
+        \textit{184}(12), 1--8.
+        \url{https://doi.org/10.5120/ijca2022921972}
+
+  \item % [JI]
+        Limouchi, E., \& Mahgoub, I. (2025).
+        One-Time Password Authentication Based on QR Code and
+        Hash Chain.
+        \textit{Iranian Journal of Science and Technology,
+        Transactions of Electrical Engineering}, \textit{49}, 1--14.
+        \url{https://doi.org/10.1007/s42044-025-00259-3}
+
+  \item % [JI]
+        Maniah, M., Supriatna, D., \& Abdurohman, M. (2023).
+        Web-Based Information System for Vehicle Inventory and
+        Transaction Management: A Case Study of an Automotive
+        Dealer in West Java.
+        \textit{Journal of Applied Informatics and Computing
+        (JAIC)}, \textit{7}(1), 56--65.
+        \url{https://doi.org/10.30871/jaic.v7i1.4812}
+
+  \item % [JI]
+        Mounika, V., \& Rao, K.~R. (2022).
+        Generation of One-Time Password for the Authentication
+        of Software Requirements Using Secure Hash Algorithms.
+        In \textit{Intelligent Systems and Applications} (pp.\
+        621--631). Springer, Singapore.
+        \url{https://doi.org/10.1007/978-981-16-7118-0_54}
+
+  \item % [JI]
+        Pratama, P.~W., Nugroho, A., \& Susilo, B. (2023).
+        Implementation of Asynchronous JavaScript and XML (AJAX)
+        for Real-Time Transaction Verification in a Web-Based
+        Point-of-Sale System.
+        \textit{International Journal on Informatics Visualization
+        (JOIV)}, \textit{7}(1), 182--189.
+        \url{https://doi.org/10.30630/joiv.7.1.1496}
+
+  \item % [JI]
+        Soni, A., \& Vyas, R. (2023).
+        A Complete One-Time Passwords (OTP) Solution Using
+        Microservices: A Theoretical and Practical Approach.
+        \textit{International Journal of Advanced Research in
+        Computer Science}, \textit{14}(4), 60--68.
+        \url{https://doi.org/10.26483/ijarcs.v14i4.6967}
+
+  %% ---- BUKU TEKS (B) -------------------------------------------
+
+  \item % [B]
+        Connolly, T., \& Begg, C. (2015).
+        \textit{Database Systems: A Practical Approach to Design,
+        Implementation, and Management} (6th ed.).
+        Pearson Education.
+
+  \item % [B]
+        Date, C.~J. (2019).
+        \textit{Database Design and Relational Theory: Normal Forms
+        and All That Jazz} (2nd ed.).
+        Apress.
+
+  \item % [B]
+        Fowler, M. (2004).
+        \textit{UML Distilled: A Brief Guide to the Standard Object
+        Modeling Language} (3rd ed.).
+        Addison-Wesley Professional.
+
+  \item % [B]
+        Pressman, R.~S., \& Maxim, B.~R. (2020).
+        \textit{Software Engineering: A Practitioner's Approach}
+        (9th ed.).
+        McGraw-Hill Education.
+
+  \item % [B]
+        Silberschatz, A., Korth, H.~F., \& Sudarshan, S. (2020).
+        \textit{Database System Concepts} (7th ed.).
+        McGraw-Hill Education.
+
+  \item % [B]
+        Sommerville, I. (2016).
+        \textit{Software Engineering} (10th ed.).
+        Pearson Education.
+
+  %% ---- DOKUMENTASI RESMI (D) -----------------------------------
+
+  \item % [D]
+        Laravel. (2024). \textit{Laravel 12.x Documentation}.
+        Diakses dari \url{https://laravel.com/docs/12.x}
+
+  \item % [D]
+        Laravel. (2024). \textit{Laravel Queues}.
+        Diakses dari \url{https://laravel.com/docs/12.x/queues}
+
+  \item % [D]
+        MDN Web Docs. (2024). \textit{Fetch API}.
+        Mozilla. Diakses dari
+        \url{https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API}
+
+  \item % [D]
+        MySQL. (2024). \textit{MySQL 8.0 Reference Manual ---
+        InnoDB and FOREIGN KEY Constraints}.
+        Oracle Corporation. Diakses dari
+        \url{https://dev.mysql.com/doc/refman/8.0/en/innodb-foreign-key-constraints.html}
+
+  \item % [D]
+        OWASP Foundation. (2024). \textit{OWASP Top Ten}.
+        Diakses dari \url{https://owasp.org/www-project-top-ten/}
+
+  \item % [D]
+        PHP Group. (2024). \textit{PHP 8.2 Manual}.
+        Diakses dari \url{https://www.php.net/manual/en/}
+
+  \item % [D]
+        Tailwind CSS. (2024). \textit{Tailwind CSS Documentation}.
+        Diakses dari \url{https://tailwindcss.com/docs}
+
+  \item % [D]
+        W3C. (2024). \textit{Web Content Accessibility Guidelines
+        (WCAG) 2.2}. Diakses dari \url{https://www.w3.org/TR/WCAG22/}
+
+\end{enumerate}
+
+% ================================================================
+%  PENUTUP DOKUMEN
+% ================================================================
+\end{document}
